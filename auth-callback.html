@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vérification — Pixel One</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body { background-color: #050505; font-family: 'Inter', sans-serif; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+    .spin-slow { animation: spin-slow 1.2s linear infinite; }
+  </style>
+</head>
+
+<body class="text-white min-h-screen flex items-center justify-center">
+<div class="content flex flex-col items-center gap-6 text-center px-6">
+
+  <!-- Spinner -->
+  <div class="relative w-20 h-20">
+    <div class="absolute inset-0 rounded-full border-4 border-surface-border"></div>
+    <div class="absolute inset-0 rounded-full border-4 border-t-brand spin-slow" style="box-shadow: 0 0 20px rgba(255,0,0,0.3);"></div>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <i class="fa-solid fa-shield-halved text-brand text-2xl"></i>
+    </div>
+  </div>
+
+  <!-- Status text -->
+  <div>
+    <p id="status-text" class="text-lg font-semibold text-white">Vérification de votre compte…</p>
+    <p class="text-gray-500 text-sm mt-1">Veuillez patienter quelques instants.</p>
+  </div>
+
+  <!-- Brand -->
+  <a href="index.html" class="text-sm font-extrabold tracking-tight mt-4">
+    <span class="text-brand">Pixel</span>One
+  </a>
+</div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script>
+  (function () {
+    const sb = getSupabaseClient();
+
+    // onAuthStateChange fires immediately with the current session
+    // and will catch the SIGNED_IN event triggered by the email-confirm token
+    // that Supabase appends to the URL as a hash fragment.
+    const { data: { subscription } } = sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        subscription.unsubscribe();
+        // Brief pause so users see the success spinner before being redirected.
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+      } else if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+        subscription.unsubscribe();
+        window.location.href = 'auth.html?alert=verification_failed';
+      }
+    });
+
+    // Fallback: if the token is missing or already consumed, redirect to auth
+    // after a reasonable timeout to avoid hanging.
+    setTimeout(() => {
+      subscription.unsubscribe();
+      window.location.href = 'auth.html?alert=verification_timeout';
+    }, 10000);
+  })();
+</script>
+</body>
+</html>
