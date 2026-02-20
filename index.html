@@ -29,6 +29,9 @@
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
+  <!-- GSAP (GreenSock) — Critical for premium feel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
   <style>
     body { background-color: #050505; font-family: 'Inter', sans-serif; }
 
@@ -80,20 +83,31 @@
   </nav>
 
   <!-- ── HERO ─────────────────────────────────────────────────── -->
-  <section class="hero-gradient pt-32 pb-24 px-6 text-center">
-    <div class="max-w-4xl mx-auto">
-      <span class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
+  <section class="hero-gradient relative pt-32 pb-24 px-6 text-center overflow-hidden">
+
+    <!-- Background Video Loop
+         ┌─ To enable: place an MP4 file at  assets/video/hero-bg.mp4
+         └─ If no video is provided, the hero-gradient CSS background is displayed instead. -->
+    <video id="hero-video" autoplay muted loop playsinline
+           class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
+      <source src="assets/video/hero-bg.mp4" type="video/mp4" />
+    </video>
+    <!-- Dark gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/50 to-[#050505] pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto">
+      <span id="hero-badge" class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
         Agence Créative — Maroc 🇲🇦
       </span>
-      <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 glow-text">
+      <h1 id="hero-title" class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 glow-text">
         Votre vision,<br/>
         <span class="text-brand">amplifiée.</span>
       </h1>
-      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+      <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
         Design, vidéo et développement web premium pour les marques ambitieuses.
         Commandez en ligne, suivez votre projet en temps réel.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <div id="hero-cta" class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
            class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition glow">
           Voir les services
@@ -107,20 +121,20 @@
     </div>
 
     <!-- Floating stats -->
-    <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+    <div id="hero-stats" class="relative z-10 mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">150+</p>
         <p class="text-gray-400 text-sm mt-1">Projets livrés</p>
       </div>
-      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">98%</p>
         <p class="text-gray-400 text-sm mt-1">Clients satisfaits</p>
       </div>
-      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">72h</p>
         <p class="text-gray-400 text-sm mt-1">Délai moyen</p>
       </div>
-      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">5★</p>
         <p class="text-gray-400 text-sm mt-1">Note moyenne</p>
       </div>
@@ -293,6 +307,22 @@
     // Inject WhatsApp link from CONFIG
     const waBtn = document.getElementById('whatsapp-cta');
     if (waBtn) waBtn.href = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}`;
+  });
+</script>
+<!-- ── GSAP Hero Animations ────────────────────────────────── -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set initial hidden state for GSAP-controlled elements
+    gsap.set(['#hero-badge', '#hero-title', '#hero-desc', '#hero-cta'], { opacity: 0, y: 40 });
+    gsap.set('.hero-stat', { opacity: 0, y: 30 });
+
+    // Staggered fade-up entrance timeline
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.to('#hero-badge', { opacity: 1, y: 0, duration: 0.7 })
+      .to('#hero-title',  { opacity: 1, y: 0, duration: 0.9 }, '-=0.4')
+      .to('#hero-desc',   { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
+      .to('#hero-cta',    { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+      .to('.hero-stat',   { opacity: 1, y: 0, duration: 0.5, stagger: 0.12 }, '-=0.2');
   });
 </script>
 </body>
