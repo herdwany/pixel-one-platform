@@ -393,37 +393,36 @@
 
     const orderDetails = { name, phone, email, notes, ...extras };
 
-    let paymentProofUrl = null;
+    let paymentProofPath = null;
 
     try {
+      const auth = await requireAuth(false);
+      if (!auth) throw new Error('Vous devez être connecté pour passer une commande.');
+
       const sb = getSupabaseClient();
-      const user = await getCurrentUser();
+      const userId = auth.user.id;
 
       // Upload proof if provided
       if (selectedFile) {
-        const userId = user ? user.id : `anon-${Date.now().toString(36)}`;
         const ext = selectedFile.name.split('.').pop();
-        const path = `${userId}/${orderRef}.${ext}`;
+        const filePath = `${userId}/${orderRef}.${ext}`;
         const { data: uploadData, error: uploadErr } = await sb.storage
           .from('payment-proofs')
-          .upload(path, selectedFile, { upsert: true });
+          .upload(filePath, selectedFile, { upsert: true });
         if (!uploadErr && uploadData) {
-          // Use a signed URL (60-day expiry) since the bucket is private
-          const { data: signedData } = await sb.storage
-            .from('payment-proofs')
-            .createSignedUrl(path, 60 * 24 * 3600);
-          paymentProofUrl = signedData?.signedUrl || null;
+          paymentProofPath = filePath;
         }
       }
 
       // Insert order
       const { error: orderErr } = await sb.from('orders').insert({
         order_ref: orderRef,
-        user_id: user ? user.id : null,
+        user_id: userId,
         service_id: service.id,
         status: 'pending',
         details: orderDetails,
-        payment_proof_url: paymentProofUrl,
+        payment_proof_url: null,
+        payment_proof_path: paymentProofPath,
       });
 
       if (orderErr) throw orderErr;

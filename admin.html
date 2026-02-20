@@ -327,7 +327,7 @@
   }
 
   // ── Render orders table ───────────────────────────────────
-  function renderOrders(orders) {
+  async function renderOrders(orders) {
     const search = document.getElementById('order-search').value.toLowerCase();
     let list = orders;
     if (activeStatusFilter) list = list.filter(o => o.status === activeStatusFilter);
@@ -342,9 +342,23 @@
       return;
     }
 
-    tbody.innerHTML = list.map(order => {
+    // Pre-generate signed URLs for orders that have a storage path
+    const sb = getSupabaseClient();
+    const SIGNED_URL_EXPIRY_SECONDS = 60;
+    const signedUrls = await Promise.all(list.map(async order => {
+      if (order.payment_proof_path) {
+        const { data } = await sb.storage
+          .from('payment-proofs')
+          .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
+        return data?.signedUrl || null;
+      }
+      return order.payment_proof_url || null;
+    }));
+
+    tbody.innerHTML = list.map((order, idx) => {
       const date = new Date(order.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
       const clientName = order.details?.name || order.profiles?.full_name || '—';
+      const proofUrl = signedUrls[idx];
       return `
         <tr class="hover:bg-surface/40 transition">
           <td class="px-5 py-3.5 font-bold text-brand text-sm">${order.order_ref}</td>
@@ -359,8 +373,8 @@
               <button class="edit-order-btn text-xs text-brand hover:underline" data-id="${order.id}" data-ref="${order.order_ref}" data-status="${order.status}">
                 <i class="fa-solid fa-pen-to-square mr-1"></i>Modifier
               </button>
-              ${order.payment_proof_url
-                ? `<a href="${order.payment_proof_url}" target="_blank" class="text-xs text-gray-500 hover:text-white">
+              ${proofUrl
+                ? `<a href="${proofUrl}" target="_blank" class="text-xs text-gray-500 hover:text-white">
                      <i class="fa-solid fa-receipt mr-1"></i>Reçu
                    </a>`
                 : ''}
@@ -372,15 +386,15 @@
 
   // ── Status filter buttons ─────────────────────────────────
   document.querySelectorAll('.status-filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active', 'border-brand/40', 'text-white'));
       btn.classList.add('active', 'border-brand/40', 'text-white');
       activeStatusFilter = btn.dataset.status;
-      renderOrders(allOrders);
+      await renderOrders(allOrders);
     });
   });
 
-  document.getElementById('order-search').addEventListener('input', () => renderOrders(allOrders));
+  document.getElementById('order-search').addEventListener('input', async () => renderOrders(allOrders));
 
   // ── Edit order modal ──────────────────────────────────────
   document.addEventListener('click', e => {
@@ -412,7 +426,7 @@
       // Update local state
       const order = allOrders.find(o => o.id === currentOrderId);
       if (order) order.status = newStatus;
-      renderOrders(allOrders);
+      await renderOrders(allOrders);
       updateStats(allOrders);
       document.getElementById('modal-overlay').classList.add('hidden');
     } catch (err) {
@@ -496,7 +510,7 @@
 
     document.getElementById('orders-loading').classList.add('hidden');
     document.getElementById('orders-table-wrap').classList.remove('hidden');
-    renderOrders(allOrders);
+    await renderOrders(allOrders);
     updateStats(allOrders);
 
     // Load services for admin grid
