@@ -317,15 +317,24 @@
 
   // ── Google OAuth ──────────────────────────────────────────
   document.getElementById('google-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('google-btn');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span class="sr-only">Connexion en cours…</span>';
     try {
       const sb = getSupabaseClient();
       const { error } = await sb.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/dashboard.html' },
+        options: {
+          redirectTo: window.location.origin + '/auth-callback.html',
+          queryParams: { access_type: 'offline', prompt: 'consent' },
+        },
       });
       if (error) throw error;
     } catch (err) {
       showAlert(err.message || t('auth.msg.google_error'));
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
     }
   });
 
