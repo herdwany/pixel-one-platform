@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Détails du Service — Pixel One</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body { background-color: #050505; font-family: 'Inter', sans-serif; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+    .upload-zone {
+      border: 2px dashed #1f1f1f;
+      transition: border-color .2s, background .2s;
+    }
+    .upload-zone.drag-over { border-color: #ff0000; background: rgba(255,0,0,0.05); }
+  </style>
+</head>
+
+<body class="text-white">
+<div class="content">
+
+  <!-- ── NAVBAR ───────────────────────────────────────────── -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md border-b border-surface-border">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-xl tracking-tight">
+        <span class="text-brand">Pixel</span><span>One</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="services.html" class="text-sm text-gray-400 hover:text-white transition">
+          <i class="fa-solid fa-arrow-left mr-1"></i>Services
+        </a>
+        <a href="dashboard.html" class="bg-surface-card border border-surface-border hover:border-brand/40 text-sm px-4 py-2 rounded-lg transition">
+          Mon espace
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-16 px-6">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Loading / Error state -->
+      <div id="loading-state" class="text-center py-20 text-gray-500">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+        <p>Chargement du service…</p>
+      </div>
+
+      <!-- Main content (hidden until loaded) -->
+      <div id="main-content" class="hidden">
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+          <!-- LEFT — Service info -->
+          <div>
+            <a href="services.html" class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white mb-6 transition">
+              <i class="fa-solid fa-arrow-left text-xs"></i>Retour aux services
+            </a>
+
+            <div class="relative rounded-2xl overflow-hidden mb-6">
+              <img id="service-image" src="" alt=""
+                   class="w-full h-64 object-cover" />
+              <span id="service-category-badge"
+                    class="absolute top-4 left-4 bg-black/70 backdrop-blur-sm text-xs text-gray-300 px-3 py-1 rounded-full border border-surface-border"></span>
+            </div>
+
+            <h1 id="service-title" class="text-3xl font-extrabold mb-3"></h1>
+            <p class="text-brand font-extrabold text-4xl mb-6" id="service-price"></p>
+
+            <div id="service-features" class="bg-surface-card border border-surface-border rounded-xl p-5 mb-6 space-y-2">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Trust badges -->
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div class="bg-surface-card border border-surface-border rounded-xl p-3">
+                <i class="fa-solid fa-shield-halved text-brand mb-1"></i>
+                <p class="text-xs text-gray-400">Paiement sécurisé</p>
+              </div>
+              <div class="bg-surface-card border border-surface-border rounded-xl p-3">
+                <i class="fa-solid fa-rotate text-brand mb-1"></i>
+                <p class="text-xs text-gray-400">Révisions incluses</p>
+              </div>
+              <div class="bg-surface-card border border-surface-border rounded-xl p-3">
+                <i class="fa-brands fa-whatsapp text-green-500 mb-1"></i>
+                <p class="text-xs text-gray-400">Support WhatsApp</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT — Order form -->
+          <div class="bg-surface-card border border-surface-border rounded-2xl p-8">
+            <h2 class="text-xl font-bold mb-6">Commander ce service</h2>
+
+            <!-- ── Step 1: Details ───────────────────────── -->
+            <div id="step-1">
+              <form id="order-form" class="space-y-5">
+
+                <!-- Common fields -->
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Votre nom complet *</label>
+                  <input id="field-name" type="text" required placeholder="Mohamed Benali"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">WhatsApp / Téléphone *</label>
+                  <input id="field-phone" type="tel" required placeholder="+212 6XX XXX XXX"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Email *</label>
+                  <input id="field-email" type="email" required placeholder="email@exemple.com"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+
+                <!-- ── SMART DYNAMIC FIELDS ─────────────── -->
+                <div id="dynamic-fields" class="space-y-5">
+                  <!-- Injected based on category -->
+                </div>
+
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Notes / Détails supplémentaires</label>
+                  <textarea id="field-notes" rows="3" placeholder="Décrivez vos besoins, couleurs, style…"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+                </div>
+
+                <!-- Payment info -->
+                <div class="bg-surface border border-brand/20 rounded-xl p-4">
+                  <p class="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-wider">Informations de paiement</p>
+                  <p class="text-sm text-gray-300">
+                    <i class="fa-solid fa-building-columns text-brand mr-2"></i>
+                    Virement <strong id="bank-name"></strong> — <code id="bank-account" class="text-brand"></code>
+                  </p>
+                  <p class="text-sm text-gray-300 mt-1">
+                    <i class="fa-solid fa-mobile-screen text-brand mr-2"></i>
+                    CashPlus : <code id="cashplus-num" class="text-brand"></code>
+                  </p>
+                </div>
+
+                <!-- Payment proof upload -->
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Reçu de paiement *</label>
+                  <div id="upload-zone"
+                       class="upload-zone rounded-xl p-6 text-center cursor-pointer"
+                       onclick="document.getElementById('proof-file').click()"
+                       ondragover="handleDragOver(event)"
+                       ondragleave="handleDragLeave(event)"
+                       ondrop="handleDrop(event)">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-500 mb-2"></i>
+                    <p class="text-sm text-gray-400">Glissez votre reçu ici ou <span class="text-brand underline">parcourir</span></p>
+                    <p class="text-xs text-gray-600 mt-1">JPG, PNG ou PDF — max 5 Mo</p>
+                    <p id="file-name-display" class="text-xs text-brand mt-2 hidden"></p>
+                    <input id="proof-file" type="file" accept="image/*,application/pdf" class="hidden"
+                           onchange="handleFileSelect(this)" />
+                  </div>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-xl transition text-base">
+                  Confirmer la commande
+                  <i class="fa-solid fa-lock ml-2 text-sm"></i>
+                </button>
+              </form>
+            </div>
+
+            <!-- ── Step 2: Success ──────────────────────── -->
+            <div id="step-2" class="hidden text-center py-4">
+              <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-check text-green-400 text-3xl"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">Commande enregistrée !</h3>
+              <p class="text-gray-400 text-sm mb-2">Référence : <span id="order-ref-display" class="text-brand font-bold"></span></p>
+              <p class="text-gray-400 text-sm mb-6">Notifiez l'équipe sur WhatsApp pour confirmer votre commande.</p>
+              <a id="whatsapp-link" href="#" target="_blank"
+                 class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition mb-4">
+                <i class="fa-brands fa-whatsapp text-xl"></i>
+                Notifier sur WhatsApp
+              </a>
+              <br/>
+              <a href="dashboard.html"
+                 class="text-sm text-gray-400 hover:text-white underline transition">
+                Voir mes commandes →
+              </a>
+            </div>
+
+          </div><!-- /order form -->
+        </div><!-- /grid -->
+      </div><!-- /main-content -->
+
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script>
+  // ── Parse service from URL ────────────────────────────────
+  const params = new URLSearchParams(window.location.search);
+  const serviceId = parseInt(params.get('id'), 10);
+
+  // Try to load from Supabase first; fall back to CONFIG.SERVICES
+  async function loadService() {
+    let service = null;
+
+    try {
+      const sb = getSupabaseClient();
+      const { data, error } = await sb.from('services').select('*').eq('id', serviceId).single();
+      if (!error && data) {
+        let features = data.features;
+        if (!Array.isArray(features)) {
+          try { features = JSON.parse(features || '[]'); } catch (_) { features = []; }
+        }
+        service = { ...data, features };
+      }
+    } catch (_) { /* Supabase not configured — fall back */ }
+
+    if (!service) {
+      service = CONFIG.SERVICES.find(s => s.id === serviceId);
+    }
+
+    if (!service) {
+      document.getElementById('loading-state').innerHTML = `
+        <i class="fa-solid fa-triangle-exclamation text-brand text-3xl mb-3"></i>
+        <p class="text-gray-400">Service introuvable. <a href="services.html" class="text-brand underline">Retour</a></p>`;
+      return;
+    }
+
+    renderService(service);
+  }
+
+  function renderService(s) {
+    document.title = `${s.title} — Pixel One`;
+    document.getElementById('service-image').src = s.image_url;
+    document.getElementById('service-image').alt = s.title;
+    document.getElementById('service-title').textContent = s.title;
+    document.getElementById('service-price').textContent = Number(s.price).toLocaleString('fr-FR') + ' MAD';
+    document.getElementById('service-category-badge').textContent =
+      CONFIG.CATEGORIES.find(c => c.value === s.category)?.label || s.category;
+
+    // Features list
+    const featuresEl = document.getElementById('service-features');
+    featuresEl.innerHTML = '<p class="text-xs text-gray-500 uppercase tracking-widest mb-3">Inclus dans ce service</p>' +
+      s.features.map(f => `
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-check-circle text-brand"></i>
+          <span class="text-sm text-gray-300">${f}</span>
+        </div>`).join('');
+
+    // Payment info
+    document.getElementById('bank-name').textContent = CONFIG.BANK_NAME;
+    document.getElementById('bank-account').textContent = CONFIG.BANK_ACCOUNT;
+    document.getElementById('cashplus-num').textContent = CONFIG.CASHPLUS_NUMBER;
+
+    // Dynamic fields per category
+    buildDynamicFields(s.category);
+
+    // Store service ref for form submission
+    document.getElementById('order-form').dataset.service = JSON.stringify(s);
+
+    // Show content
+    document.getElementById('loading-state').classList.add('hidden');
+    document.getElementById('main-content').classList.remove('hidden');
+  }
+
+  // ── Smart form builder ────────────────────────────────────
+  const DYNAMIC_FIELDS = {
+    video: [
+      { id: 'duration', label: 'Durée souhaitée', type: 'select', options: ['Moins de 1 min', '1–3 min', '3–5 min', 'Plus de 5 min'] },
+      { id: 'style', label: 'Style vidéo', type: 'select', options: ['Corporate', 'Dynamique / Energétique', 'Cinématique', 'Animé / Motion Graphics'] },
+      { id: 'footage', label: 'Avez-vous des rushes ?', type: 'select', options: ['Oui, je vais les envoyer', 'Non, tournage inclus'] },
+    ],
+    design: [
+      { id: 'format', label: 'Format principal', type: 'select', options: ['Logo', 'Affiche / Flyer', 'Post Social Media', 'Identité complète'] },
+      { id: 'colors', label: 'Couleurs préférées', type: 'text', placeholder: 'Ex : rouge, noir, doré' },
+      { id: 'refs', label: 'Références / Inspirations (liens)', type: 'text', placeholder: 'https://…' },
+    ],
+    web: [
+      { id: 'pages', label: 'Nombre de pages', type: 'select', options: ['1 page (One-Page)', '3–5 pages', 'Plus de 5 pages'] },
+      { id: 'cms', label: 'CMS souhaité', type: 'select', options: ['Pas de préférence', 'WordPress', 'Webflow', 'Sur-mesure'] },
+      { id: 'domain', label: 'Avez-vous un nom de domaine ?', type: 'select', options: ['Oui', 'Non, à acheter', 'Non, pas nécessaire'] },
+    ],
+  };
+
+  function buildDynamicFields(category) {
+    const fields = DYNAMIC_FIELDS[category] || [];
+    const container = document.getElementById('dynamic-fields');
+    container.innerHTML = fields.map(f => {
+      if (f.type === 'select') {
+        return `
+          <div>
+            <label class="text-sm text-gray-400 mb-1.5 block">${f.label}</label>
+            <select id="field-${f.id}"
+                    class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/50 transition">
+              ${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>
+          </div>`;
+      }
+      return `
+        <div>
+          <label class="text-sm text-gray-400 mb-1.5 block">${f.label}</label>
+          <input id="field-${f.id}" type="text" placeholder="${f.placeholder || ''}"
+                 class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+        </div>`;
+    }).join('');
+  }
+
+  // ── File upload helpers ───────────────────────────────────
+  let selectedFile = null;
+
+  function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+      selectedFile = input.files[0];
+      showFileName(selectedFile.name);
+    }
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.add('drag-over');
+  }
+
+  function handleDragLeave(e) {
+    document.getElementById('upload-zone').classList.remove('drag-over');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) { selectedFile = file; showFileName(file.name); }
+  }
+
+  function showFileName(name) {
+    const el = document.getElementById('file-name-display');
+    el.textContent = '✓ ' + name;
+    el.classList.remove('hidden');
+  }
+
+  // ── Form submission ───────────────────────────────────────
+  document.getElementById('order-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Traitement…';
+
+    const service = JSON.parse(e.target.dataset.service);
+    const orderRef = generateOrderRef();
+
+    // Collect common fields
+    const name  = document.getElementById('field-name').value.trim();
+    const phone = document.getElementById('field-phone').value.trim();
+    const email = document.getElementById('field-email').value.trim();
+    const notes = document.getElementById('field-notes').value.trim();
+
+    // Collect dynamic fields
+    const dynFields = DYNAMIC_FIELDS[service.category] || [];
+    const extras = {};
+    dynFields.forEach(f => {
+      const el = document.getElementById(`field-${f.id}`);
+      if (el) extras[f.id] = el.value;
+    });
+
+    const orderDetails = { name, phone, email, notes, ...extras };
+
+    let paymentProofUrl = null;
+
+    try {
+      const sb = getSupabaseClient();
+      const user = await getCurrentUser();
+
+      // Upload proof if provided
+      if (selectedFile) {
+        const userId = user ? user.id : `anon-${Date.now().toString(36)}`;
+        const ext = selectedFile.name.split('.').pop();
+        const path = `${userId}/${orderRef}.${ext}`;
+        const { data: uploadData, error: uploadErr } = await sb.storage
+          .from('payment-proofs')
+          .upload(path, selectedFile, { upsert: true });
+        if (!uploadErr && uploadData) {
+          // Use a signed URL (60-day expiry) since the bucket is private
+          const { data: signedData } = await sb.storage
+            .from('payment-proofs')
+            .createSignedUrl(path, 60 * 24 * 3600);
+          paymentProofUrl = signedData?.signedUrl || null;
+        }
+      }
+
+      // Insert order
+      const { error: orderErr } = await sb.from('orders').insert({
+        order_ref: orderRef,
+        user_id: user ? user.id : null,
+        service_id: service.id,
+        status: 'pending',
+        details: orderDetails,
+        payment_proof_url: paymentProofUrl,
+      });
+
+      if (orderErr) throw orderErr;
+    } catch (err) {
+      // Supabase might not be configured — still show success in demo mode
+      console.warn('[PixelOne] Order not saved to DB (demo mode):', err.message);
+    }
+
+    // Show success step
+    document.getElementById('order-ref-display').textContent = orderRef;
+    document.getElementById('whatsapp-link').href = buildWhatsAppLink({
+      order_ref: orderRef,
+      service_title: service.title,
+      total: Number(service.price).toLocaleString('fr-FR'),
+    });
+
+    document.getElementById('step-1').classList.add('hidden');
+    document.getElementById('step-2').classList.remove('hidden');
+  });
+
+  // Init
+  loadService();
+</script>
+</body>
+</html>
