@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon Espace — Pixel One</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body { background-color: #050505; font-family: 'Inter', sans-serif; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+
+    /* Progress bar */
+    .progress-step { flex: 1; text-align: center; }
+    .progress-step .dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid #1f1f1f;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 4px;
+      font-size: 11px; font-weight: 700;
+      transition: all .3s;
+    }
+    .progress-step.done .dot   { background: #22c55e; border-color: #22c55e; color: #fff; }
+    .progress-step.active .dot { background: #ff0000; border-color: #ff0000; color: #fff; }
+    .progress-step.pending .dot{ background: transparent; color: #555; }
+    .progress-line { flex: 1; height: 2px; background: #1f1f1f; margin-top: -18px; }
+    .progress-line.done { background: #22c55e; }
+    .progress-line.active { background: linear-gradient(to right, #22c55e, #ff0000); }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 9999px; }
+    .status-pending     { background: rgba(234,179,8,0.1);  color: #eab308; border: 1px solid rgba(234,179,8,0.2); }
+    .status-in_progress { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); }
+    .status-review      { background: rgba(168,85,247,0.1); color: #a855f7; border: 1px solid rgba(168,85,247,0.2); }
+    .status-done        { background: rgba(34,197,94,0.1);  color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+  </style>
+</head>
+
+<body class="text-white">
+<div class="content">
+
+  <!-- ── NAVBAR ───────────────────────────────────────────── -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md border-b border-surface-border">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-xl tracking-tight">
+        <span class="text-brand">Pixel</span><span>One</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <span id="user-name" class="text-sm text-gray-400"></span>
+        <button id="logout-btn"
+                class="text-sm text-gray-500 hover:text-white border border-surface-border hover:border-brand/40 px-3 py-1.5 rounded-lg transition">
+          <i class="fa-solid fa-right-from-bracket mr-1 text-xs"></i>Déconnexion
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-16 px-6">
+    <div class="max-w-5xl mx-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        <div>
+          <h1 class="text-3xl font-extrabold mb-1">Mon <span class="text-brand">Espace</span></h1>
+          <p class="text-gray-400 text-sm">Suivez l'avancement de vos commandes en temps réel.</p>
+        </div>
+        <a href="services.html"
+           class="self-start sm:self-auto bg-brand hover:bg-brand-dark text-white text-sm font-bold px-5 py-2.5 rounded-xl transition">
+          <i class="fa-solid fa-plus mr-1"></i>Nouvelle commande
+        </a>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading-state" class="text-center py-16 text-gray-500">
+        <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+        <p>Chargement de vos commandes…</p>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden text-center py-16">
+        <div class="w-16 h-16 bg-surface-card border border-surface-border rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-inbox text-gray-600 text-2xl"></i>
+        </div>
+        <h3 class="font-bold text-lg mb-2">Aucune commande</h3>
+        <p class="text-gray-500 text-sm mb-6">Vous n'avez pas encore passé de commande.</p>
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition">
+          Découvrir nos services
+        </a>
+      </div>
+
+      <!-- Orders list -->
+      <div id="orders-container" class="hidden space-y-6"></div>
+
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script>
+  const STEPS = CONFIG.ORDER_STATUSES;
+  const LABELS = CONFIG.ORDER_STATUS_LABELS;
+
+  function statusBadge(status) {
+    return `<span class="status-badge status-${status}">
+      <i class="fa-solid fa-circle text-[6px]"></i>
+      ${LABELS[status] || status}
+    </span>`;
+  }
+
+  function buildProgressBar(currentStatus) {
+    const currentIdx = STEPS.indexOf(currentStatus);
+    let html = '<div class="flex items-start gap-0 mt-5">';
+
+    STEPS.forEach((step, idx) => {
+      let state = 'pending';
+      if (idx < currentIdx) state = 'done';
+      else if (idx === currentIdx) state = 'active';
+
+      const icon = state === 'done' ? '<i class="fa-solid fa-check"></i>' : (idx + 1);
+
+      html += `
+        <div class="progress-step ${state}">
+          <div class="dot">${icon}</div>
+          <p class="text-[10px] text-gray-500 leading-tight">${LABELS[step]}</p>
+        </div>`;
+
+      if (idx < STEPS.length - 1) {
+        const lineState = idx < currentIdx ? 'done' : (idx === currentIdx ? 'active' : '');
+        html += `<div class="progress-line ${lineState} self-center mx-1 flex-1"></div>`;
+      }
+    });
+
+    html += '</div>';
+    return html;
+  }
+
+  function renderOrders(orders) {
+    document.getElementById('loading-state').classList.add('hidden');
+
+    if (!orders.length) {
+      document.getElementById('empty-state').classList.remove('hidden');
+      return;
+    }
+
+    const container = document.getElementById('orders-container');
+    container.classList.remove('hidden');
+
+    container.innerHTML = orders.map(order => {
+      const service = order.services || {};
+      const details = order.details || {};
+      const locale = 'fr-FR';
+      const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
+
+      return `
+        <div class="bg-surface-card border border-surface-border rounded-2xl p-6 hover:border-brand/20 transition">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <span class="font-bold text-brand">${order.order_ref}</span>
+                ${statusBadge(order.status)}
+              </div>
+              <p class="text-white font-semibold">${service.title || 'Service'}</p>
+              <p class="text-gray-500 text-xs mt-0.5">Commandé le ${date}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-brand font-extrabold text-xl">${Number(service.price || 0).toLocaleString('fr-FR')} MAD</p>
+              ${order.payment_proof_url
+                ? `<a href="${order.payment_proof_url}" target="_blank"
+                      class="text-xs text-gray-500 hover:text-white mt-1 inline-flex items-center gap-1 transition">
+                     <i class="fa-solid fa-receipt"></i>Voir le reçu
+                   </a>`
+                : '<p class="text-xs text-yellow-500 mt-1"><i class="fa-solid fa-clock mr-1"></i>Reçu manquant</p>'}
+            </div>
+          </div>
+
+          ${buildProgressBar(order.status)}
+
+          ${Object.keys(details).length
+            ? `<details class="mt-4">
+                 <summary class="text-xs text-gray-500 cursor-pointer hover:text-white transition">Détails de la commande</summary>
+                 <div class="mt-2 text-xs text-gray-400 bg-surface rounded-lg p-3 space-y-1">
+                   ${Object.entries(details).map(([k,v]) => `<p><span class="text-gray-600">${k}:</span> ${v}</p>`).join('')}
+                 </div>
+               </details>`
+            : ''}
+
+          <div class="mt-4 flex gap-3">
+            <a href="${buildWhatsAppLink({ order_ref: order.order_ref, service_title: service.title || 'Service', total: Number(service.price || 0).toLocaleString('fr-FR') })}"
+               target="_blank"
+               class="inline-flex items-center gap-2 text-xs text-green-400 hover:text-green-300 border border-green-500/20 hover:border-green-500/40 px-3 py-1.5 rounded-lg transition">
+              <i class="fa-brands fa-whatsapp"></i>Contacter via WhatsApp
+            </a>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  (async () => {
+    let user = null, profile = null;
+
+    try {
+      const auth = await requireAuth(false);
+      if (!auth) return;
+      user = auth.user;
+      profile = auth.profile;
+    } catch (err) {
+      // Demo mode — show empty state
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('empty-state').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('user-name').textContent = profile?.full_name || user.email;
+
+    try {
+      const sb = getSupabaseClient();
+      const { data: orders, error } = await sb
+        .from('orders')
+        .select('*, services(title, price, category)')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      renderOrders(orders || []);
+    } catch (err) {
+      document.getElementById('loading-state').innerHTML =
+        `<p class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${err.message}</p>`;
+    }
+  })();
+
+  // ── Logout ────────────────────────────────────────────────
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    try {
+      await getSupabaseClient().auth.signOut();
+    } catch (_) {}
+    window.location.href = 'auth.html';
+  });
+</script>
+</body>
+</html>

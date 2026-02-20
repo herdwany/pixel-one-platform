@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixel One — Agence Créative Maroc</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000', light: '#ff3333' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body { background-color: #050505; font-family: 'Inter', sans-serif; }
+
+    /* Subtle noise texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+
+    /* Red glow accent */
+    .glow { box-shadow: 0 0 40px rgba(255,0,0,0.2); }
+    .glow-text { text-shadow: 0 0 30px rgba(255,0,0,0.4); }
+
+    /* Hero gradient */
+    .hero-gradient {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,0,0,0.12) 0%, transparent 70%);
+    }
+
+    /* Scroll-reveal animation */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+
+<body class="text-white">
+<div class="content">
+
+  <!-- ── NAVBAR ──────────────────────────────────────────────── -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md border-b border-surface-border">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+      <a href="index.html" class="flex items-center gap-2 font-bold text-xl tracking-tight">
+        <span class="text-brand">Pixel</span><span>One</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
+        <a href="#services" class="hover:text-white transition">Services</a>
+        <a href="#why" class="hover:text-white transition">Pourquoi nous</a>
+        <a href="#contact" class="hover:text-white transition">Contact</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition">Connexion</a>
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+          Nos services
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── HERO ─────────────────────────────────────────────────── -->
+  <section class="hero-gradient pt-32 pb-24 px-6 text-center">
+    <div class="max-w-4xl mx-auto">
+      <span class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
+        Agence Créative — Maroc 🇲🇦
+      </span>
+      <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 glow-text">
+        Votre vision,<br/>
+        <span class="text-brand">amplifiée.</span>
+      </h1>
+      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+        Design, vidéo et développement web premium pour les marques ambitieuses.
+        Commandez en ligne, suivez votre projet en temps réel.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="services.html"
+           class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition glow">
+          Voir les services
+          <i class="fa-solid fa-arrow-right ml-2"></i>
+        </a>
+        <a href="auth.html"
+           class="border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl text-lg transition">
+          Créer un compte
+        </a>
+      </div>
+    </div>
+
+    <!-- Floating stats -->
+    <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+        <p class="text-3xl font-extrabold text-brand">150+</p>
+        <p class="text-gray-400 text-sm mt-1">Projets livrés</p>
+      </div>
+      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+        <p class="text-3xl font-extrabold text-brand">98%</p>
+        <p class="text-gray-400 text-sm mt-1">Clients satisfaits</p>
+      </div>
+      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+        <p class="text-3xl font-extrabold text-brand">72h</p>
+        <p class="text-gray-400 text-sm mt-1">Délai moyen</p>
+      </div>
+      <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+        <p class="text-3xl font-extrabold text-brand">5★</p>
+        <p class="text-gray-400 text-sm mt-1">Note moyenne</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURED SERVICES ──────────────────────────────────── -->
+  <section id="services" class="py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <h2 class="text-4xl font-extrabold mb-3">Nos <span class="text-brand">Services</span></h2>
+        <p class="text-gray-400 max-w-xl mx-auto">Des solutions créatives sur-mesure pour propulser votre marque.</p>
+      </div>
+
+      <div id="featured-services" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Populated by JS -->
+        <div class="col-span-3 text-center py-10 text-gray-500">Chargement…</div>
+      </div>
+
+      <div class="text-center mt-10">
+        <a href="services.html"
+           class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl transition">
+          Voir tous les services <i class="fa-solid fa-arrow-right ml-1"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY US ─────────────────────────────────────────────── -->
+  <section id="why" class="py-24 px-6 bg-surface-card border-y border-surface-border">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <h2 class="text-4xl font-extrabold mb-3">Pourquoi <span class="text-brand">Pixel One</span> ?</h2>
+        <p class="text-gray-400 max-w-xl mx-auto">Un processus simple, transparent et efficace.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
+          <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
+            <i class="fa-solid fa-bolt text-brand text-xl"></i>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Livraison Rapide</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Délais respectés, toujours. Suivi en temps réel depuis votre tableau de bord.</p>
+        </div>
+        <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
+          <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
+            <i class="fa-solid fa-shield-halved text-brand text-xl"></i>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Paiement Sécurisé</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Virement bancaire, CashPlus — votre preuve de paiement uploadée en un clic.</p>
+        </div>
+        <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
+          <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
+            <i class="fa-solid fa-headset text-brand text-xl"></i>
+          </div>
+          <h3 class="font-bold text-lg mb-2">Support WhatsApp</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Après commande, notifiez l'équipe directement sur WhatsApp en un clic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRUST SIGNALS / PROCESS ───────────────────────────── -->
+  <section class="py-24 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="reveal mb-14">
+        <h2 class="text-4xl font-extrabold mb-3">Comment ça <span class="text-brand">marche ?</span></h2>
+        <p class="text-gray-400">Quatre étapes, zéro friction.</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="reveal flex flex-col items-center gap-3">
+          <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">1</div>
+          <p class="text-sm text-gray-300 font-medium">Choisissez un service</p>
+        </div>
+        <div class="reveal flex flex-col items-center gap-3">
+          <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">2</div>
+          <p class="text-sm text-gray-300 font-medium">Remplissez le formulaire</p>
+        </div>
+        <div class="reveal flex flex-col items-center gap-3">
+          <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">3</div>
+          <p class="text-sm text-gray-300 font-medium">Payez & uploadez le reçu</p>
+        </div>
+        <div class="reveal flex flex-col items-center gap-3">
+          <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">4</div>
+          <p class="text-sm text-gray-300 font-medium">Suivez votre commande</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT CTA ────────────────────────────────────────── -->
+  <section id="contact" class="py-24 px-6 bg-surface-card border-t border-surface-border">
+    <div class="max-w-3xl mx-auto text-center reveal">
+      <h2 class="text-4xl font-extrabold mb-4">Prêt à démarrer votre <span class="text-brand">projet</span> ?</h2>
+      <p class="text-gray-400 mb-8">Notre équipe est disponible du lundi au vendredi, 9h–18h.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="services.html"
+           class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl transition glow">
+          Commencer maintenant
+        </a>
+        <a id="whatsapp-cta" href="#"
+           target="_blank"
+           class="flex items-center gap-2 justify-center border border-surface-border hover:border-green-500/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl transition">
+          <i class="fa-brands fa-whatsapp text-green-500 text-xl"></i>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="border-t border-surface-border py-10 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-gray-500 text-sm">
+      <p class="font-bold text-white"><span class="text-brand">Pixel</span>One © 2025</p>
+      <div class="flex gap-6">
+        <a href="services.html" class="hover:text-white transition">Services</a>
+        <a href="auth.html" class="hover:text-white transition">Connexion</a>
+        <a href="dashboard.html" class="hover:text-white transition">Mon espace</a>
+      </div>
+      <p>Made with <i class="fa-solid fa-heart text-brand"></i> au Maroc</p>
+    </div>
+  </footer>
+
+</div><!-- /content -->
+
+<!-- ── Scripts ─────────────────────────────────────────────── -->
+<script src="assets/js/config.js"></script>
+<script>
+  // ── Render featured services ───────────────────────────────
+  function renderFeatured() {
+    const container = document.getElementById('featured-services');
+    const services = CONFIG.SERVICES.slice(0, 6);
+    container.innerHTML = services.map(s => `
+      <a href="service-details.html?id=${s.id}"
+         class="group bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/40 transition-all hover:-translate-y-1 duration-300 reveal">
+        <div class="relative overflow-hidden h-48">
+          <img src="${s.image_url}" alt="${s.title}"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+          <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-xs text-gray-300 px-3 py-1 rounded-full border border-surface-border">
+            ${CONFIG.CATEGORIES.find(c => c.value === s.category)?.label || s.category}
+          </span>
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-base mb-2">${s.title}</h3>
+          <ul class="text-gray-400 text-xs space-y-1 mb-4">
+            ${s.features.map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand text-[10px]"></i>${f}</li>`).join('')}
+          </ul>
+          <div class="flex items-center justify-between">
+            <p class="text-brand font-extrabold text-lg">${s.price.toLocaleString('fr-FR')} MAD</p>
+            <span class="text-xs text-gray-500 group-hover:text-brand transition">Commander →</span>
+          </div>
+        </div>
+      </a>
+    `).join('');
+
+    // Trigger reveal for freshly injected cards
+    setTimeout(triggerReveal, 50);
+  }
+
+  // ── Scroll reveal ──────────────────────────────────────────
+  function triggerReveal() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderFeatured();
+    triggerReveal();
+    // Inject WhatsApp link from CONFIG
+    const waBtn = document.getElementById('whatsapp-cta');
+    if (waBtn) waBtn.href = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}`;
+  });
+</script>
+</body>
+</html>
