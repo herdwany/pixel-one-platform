@@ -4,8 +4,8 @@
 
 const CONFIG = {
   // ── Supabase ────────────────────────────────────────────
-  SUPABASE_URL: "https://YOUR_PROJECT_REF.supabase.co",
-  SUPABASE_ANON_KEY: "YOUR_ANON_KEY",
+  SUPABASE_URL: "https://spxayctwyigpyetprkej.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_-vkve_dZOn6BDCViDVHLrQ_EU2OL7SP",
 
   // ── Site Meta ───────────────────────────────────────────
   SITE_NAME: "Pixel One",
