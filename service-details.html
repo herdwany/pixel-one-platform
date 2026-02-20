@@ -393,54 +393,67 @@
 
     const orderDetails = { name, phone, email, notes, ...extras };
 
-    let paymentProofPath = null;
-
     try {
+      // Step 1: Enforce authentication
       const auth = await requireAuth(false);
-      if (!auth) throw new Error('Vous devez être connecté pour passer une commande.');
+      if (!auth || !auth.user) {
+        alert('Erreur: Vous devez être connecté pour passer une commande.');
+        btn.disabled = false;
+        btn.innerHTML = 'Confirmer la commande <i class="fa-solid fa-lock ml-2 text-sm"></i>';
+        return;
+      }
 
       const sb = getSupabaseClient();
       const userId = auth.user.id;
 
-      // Upload proof if provided
-      if (selectedFile) {
-        const ext = selectedFile.name.split('.').pop();
-        const filePath = `${userId}/${orderRef}.${ext}`;
-        const { data: uploadData, error: uploadErr } = await sb.storage
-          .from('payment-proofs')
-          .upload(filePath, selectedFile, { upsert: true });
-        if (!uploadErr && uploadData) {
-          paymentProofPath = filePath;
-        }
+      // Step 2: Upload file and construct path
+      if (!selectedFile) {
+        alert('Erreur: Vous devez fournir une preuve de paiement.');
+        btn.disabled = false;
+        btn.innerHTML = 'Confirmer la commande <i class="fa-solid fa-lock ml-2 text-sm"></i>';
+        return;
       }
+      
+      const ext = selectedFile.name.split('.').pop();
+      const filePath = `${userId}/${orderRef}.${ext}`;
+      const { data: uploadData, error: uploadErr } = await sb.storage
+        .from('payment-proofs')
+        .upload(filePath, selectedFile, { upsert: false }); // Use upsert: false to avoid overwrites
 
-      // Insert order
+      if (uploadErr) throw uploadErr;
+      
+      const paymentProofPath = filePath; // Store the raw path
+
+      // Step 3: Insert order with file path, not URL
       const { error: orderErr } = await sb.from('orders').insert({
         order_ref: orderRef,
         user_id: userId,
         service_id: service.id,
         status: 'pending',
         details: orderDetails,
-        payment_proof_url: null,
-        payment_proof_path: paymentProofPath,
+        payment_proof_path: paymentProofPath, // <-- Store the path
+        payment_proof_url: null, // <-- Ensure the old column is null
       });
 
       if (orderErr) throw orderErr;
+
+      // Show success step
+      document.getElementById('order-ref-display').textContent = orderRef;
+      document.getElementById('whatsapp-link').href = buildWhatsAppLink({
+        order_ref: orderRef,
+        service_title: service.title,
+        total: Number(service.price).toLocaleString('fr-FR'),
+      });
+
+      document.getElementById('step-1').classList.add('hidden');
+      document.getElementById('step-2').classList.remove('hidden');
+
     } catch (err) {
-      // Supabase might not be configured — still show success in demo mode
-      console.warn('[PixelOne] Order not saved to DB (demo mode):', err.message);
+      console.error('Order submission error:', err);
+      alert(`Une erreur est survenue: ${err.message}`);
+      btn.disabled = false;
+      btn.innerHTML = 'Confirmer la commande <i class="fa-solid fa-lock ml-2 text-sm"></i>';
     }
-
-    // Show success step
-    document.getElementById('order-ref-display').textContent = orderRef;
-    document.getElementById('whatsapp-link').href = buildWhatsAppLink({
-      order_ref: orderRef,
-      service_title: service.title,
-      total: Number(service.price).toLocaleString('fr-FR'),
-    });
-
-    document.getElementById('step-1').classList.add('hidden');
-    document.getElementById('step-2').classList.remove('hidden');
   });
 
   // Init
