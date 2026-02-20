@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pixel One — Agence Créative Maroc</title>
 
-  <!-- Google Fonts: Outfit (FR) · Inter (EN) · Tajawal (AR) -->
+  <!-- Google Fonts: Inter (EN/FR) · IBM Plex Sans Arabic (AR) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,8 +22,7 @@
           },
           fontFamily: {
             sans:   ['Inter',   'sans-serif'],
-            outfit: ['Outfit',  'sans-serif'],
-            tajawal:['Tajawal', 'sans-serif'],
+            arabic: ['"IBM Plex Sans Arabic"', 'sans-serif'],
           },
         }
       }
@@ -38,11 +37,23 @@
 
   <style>
     /* ── Per-language font application ── */
-    body.lang-fr { font-family: 'Outfit',  sans-serif; }
-    body.lang-en { font-family: 'Inter',   sans-serif; }
-    body.lang-ar { font-family: 'Tajawal', sans-serif; letter-spacing: 0; }
+    body.lang-fr { font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.6; }
+    body.lang-en { font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.6; }
+    body.lang-ar { font-family: 'IBM Plex Sans Arabic', sans-serif; font-weight: 400; letter-spacing: 0; line-height: 1.85; }
 
-    body { background-color: #050505; font-family: 'Outfit', sans-serif; }
+    /* Latin heading style */
+    :is(body.lang-fr, body.lang-en) h1,
+    :is(body.lang-fr, body.lang-en) h2 { font-weight: 900; letter-spacing: -0.05em; }
+    :is(body.lang-fr, body.lang-en) h3 { font-weight: 800; }
+
+    /* Arabic heading style */
+    body.lang-ar h1, body.lang-ar h2, body.lang-ar h3 { font-weight: 700; letter-spacing: 0; }
+
+    /* Nav / Button UI elements for Latin */
+    :is(body.lang-fr, body.lang-en) nav a,
+    :is(body.lang-fr, body.lang-en) nav button { font-weight: 500; letter-spacing: 0.05em; }
+
+    body { background-color: #050505; font-family: 'Inter', sans-serif; }
 
     /* Subtle noise texture */
     body::before {
@@ -122,8 +133,8 @@
                 dir="rtl">
           <span class="text-2xl leading-none">🇲🇦</span>
           <div class="text-right">
-            <p class="font-semibold text-white text-sm leading-tight" style="font-family:'Tajawal',sans-serif">العربية</p>
-            <p class="text-[11px] text-gray-500 mt-0.5" style="font-family:'Tajawal',sans-serif">وكالة إبداعية — المغرب</p>
+            <p class="font-semibold text-white text-sm leading-tight" style="font-family:'IBM Plex Sans Arabic',sans-serif">العربية</p>
+            <p class="text-[11px] text-gray-500 mt-0.5" style="font-family:'IBM Plex Sans Arabic',sans-serif">وكالة إبداعية — المغرب</p>
           </div>
           <i class="fa-solid fa-chevron-left text-gray-600 group-hover:text-red-500 me-auto text-xs transition"></i>
         </button>
@@ -154,11 +165,10 @@
         <!-- ── Custom Language Switcher ── -->
         <div class="relative" id="lang-dropdown-wrapper">
           <button id="lang-btn"
-                  class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
+                  class="flex items-center gap-1.5 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
                   aria-haspopup="listbox" aria-expanded="false">
             <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
-            <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
-            <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
+            <i class="fa-solid fa-chevron-down text-[9px] opacity-50"></i>
           </button>
           <div id="lang-dropdown"
                class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
@@ -184,7 +194,7 @@
             <button onclick="setLanguage('ar')" data-lang="ar" role="option"
                     class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
               <span class="text-base leading-none">🇲🇦</span>
-              <div class="text-start" style="font-family:'Tajawal',sans-serif">
+              <div class="text-start" style="font-family:'IBM Plex Sans Arabic',sans-serif">
                 <p class="font-semibold text-xs leading-tight">العربية</p>
                 <p class="text-[10px] text-gray-500">Arabic</p>
               </div>
@@ -194,7 +204,7 @@
         <!-- ── /Language Switcher ── -->
 
         <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Connexion</a>
-        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
           Nos services
         </a>
       </div>
@@ -213,22 +223,22 @@
       <span id="hero-badge" class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase" data-i18n="hero.badge">
         Agence Créative — Maroc 🇲🇦
       </span>
-      <h1 id="hero-title" class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 glow-text">
+      <h1 id="hero-title" class="text-5xl md:text-8xl font-extrabold tracking-tighter leading-tight mb-6 glow-text" style="text-wrap:balance">
         <span data-i18n="hero.title">Votre vision,</span><br/>
         <span class="text-brand" data-i18n="hero.title.accent">amplifiée.</span>
       </h1>
-      <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" data-i18n="hero.desc">
+      <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light" data-i18n="hero.desc">
         Design, vidéo et développement web premium pour les marques ambitieuses.
         Commandez en ligne, suivez votre projet en temps réel.
       </p>
       <div id="hero-cta" class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
-           class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition glow">
+           class="bg-brand hover:bg-brand-dark text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition glow">
           <span data-i18n="hero.cta.primary">Voir les services</span>
           <i class="fa-solid fa-arrow-right ms-2"></i>
         </a>
         <a href="auth.html"
-           class="border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl text-lg transition" data-i18n="hero.cta.secondary">
+           class="border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition" data-i18n="hero.cta.secondary">
           Créer un compte
         </a>
       </div>
@@ -259,8 +269,8 @@
   <section id="services" class="py-24 px-6">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-14 reveal">
-        <h2 class="text-4xl font-extrabold mb-3"><span data-i18n="services.title">Nos</span> <span class="text-brand" data-i18n="services.title.accent">Services</span></h2>
-        <p class="text-gray-400 max-w-xl mx-auto" data-i18n="services.desc">Des solutions créatives sur-mesure pour propulser votre marque.</p>
+        <h2 class="text-3xl md:text-5xl font-bold mb-3"><span data-i18n="services.title">Nos</span> <span class="text-brand" data-i18n="services.title.accent">Services</span></h2>
+        <p class="text-lg text-gray-400 font-light max-w-xl mx-auto" data-i18n="services.desc">Des solutions créatives sur-mesure pour propulser votre marque.</p>
       </div>
 
       <div id="featured-services" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -280,8 +290,8 @@
   <section id="why" class="py-24 px-6 bg-surface-card border-y border-surface-border">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-14 reveal">
-        <h2 class="text-4xl font-extrabold mb-3"><span data-i18n="why.title">Pourquoi</span> <span class="text-brand" data-i18n="why.title.accent">Pixel One</span><span data-i18n="why.title.suffix"> ?</span></h2>
-        <p class="text-gray-400 max-w-xl mx-auto" data-i18n="why.desc">Un processus simple, transparent et efficace.</p>
+        <h2 class="text-3xl md:text-5xl font-bold mb-3"><span data-i18n="why.title">Pourquoi</span> <span class="text-brand" data-i18n="why.title.accent">Pixel One</span><span data-i18n="why.title.suffix"> ?</span></h2>
+        <p class="text-lg text-gray-400 font-light max-w-xl mx-auto" data-i18n="why.desc">Un processus simple, transparent et efficace.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
@@ -313,8 +323,8 @@
   <section class="py-24 px-6">
     <div class="max-w-4xl mx-auto text-center">
       <div class="reveal mb-14">
-        <h2 class="text-4xl font-extrabold mb-3"><span data-i18n="process.title">Comment ça</span> <span class="text-brand" data-i18n="process.title.accent">marche ?</span></h2>
-        <p class="text-gray-400" data-i18n="process.subtitle">Quatre étapes, zéro friction.</p>
+        <h2 class="text-3xl md:text-5xl font-bold mb-3"><span data-i18n="process.title">Comment ça</span> <span class="text-brand" data-i18n="process.title.accent">marche ?</span></h2>
+        <p class="text-lg text-gray-400 font-light" data-i18n="process.subtitle">Quatre étapes, zéro friction.</p>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div class="reveal flex flex-col items-center gap-3">
@@ -340,11 +350,11 @@
   <!-- ── CONTACT CTA ────────────────────────────────────────── -->
   <section id="contact" class="py-24 px-6 bg-surface-card border-t border-surface-border">
     <div class="max-w-3xl mx-auto text-center reveal">
-      <h2 class="text-4xl font-extrabold mb-4"><span data-i18n="contact.title">Prêt à démarrer votre</span> <span class="text-brand" data-i18n="contact.title.accent">projet</span><span data-i18n="contact.title.suffix"> ?</span></h2>
-      <p class="text-gray-400 mb-8" data-i18n="contact.desc">Notre équipe est disponible du lundi au vendredi, 9h–18h.</p>
+      <h2 class="text-3xl md:text-5xl font-bold mb-4"><span data-i18n="contact.title">Prêt à démarrer votre</span> <span class="text-brand" data-i18n="contact.title.accent">projet</span><span data-i18n="contact.title.suffix"> ?</span></h2>
+      <p class="text-lg text-gray-400 font-light mb-8" data-i18n="contact.desc">Notre équipe est disponible du lundi au vendredi, 9h–18h.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
-           class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl transition glow" data-i18n="contact.cta">
+           class="bg-brand hover:bg-brand-dark text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition glow" data-i18n="contact.cta">
           Commencer maintenant
         </a>
         <a id="whatsapp-cta" href="#" target="_blank"
