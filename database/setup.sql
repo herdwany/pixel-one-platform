@@ -53,8 +53,9 @@ create table if not exists public.orders (
   status            text not null default 'pending'
                       check (status in ('pending', 'in_progress', 'review', 'done')),
   details           jsonb,
-  payment_proof_url text,
-  created_at        timestamptz not null default now(),
+  payment_proof_url  text,
+  payment_proof_path text,
+  created_at         timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
 
