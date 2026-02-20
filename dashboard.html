@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mon Espace — Pixel One</title>
+  <title data-i18n="dash.page.title">Mon Espace — Pixel One</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,7 +18,7 @@
             brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
             surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: { sans: ['Inter', 'sans-serif'], cairo: ['Cairo', 'sans-serif'] },
         }
       }
     }
@@ -74,10 +74,16 @@
         <span class="text-brand">Pixel</span><span>One</span>
       </a>
       <div class="flex items-center gap-4">
+        <!-- Language Switcher -->
+        <select class="lang-switcher bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇺🇸 EN</option>
+          <option value="ar">🇲🇦 AR</option>
+        </select>
         <span id="user-name" class="text-sm text-gray-400"></span>
         <button id="logout-btn"
                 class="text-sm text-gray-500 hover:text-white border border-surface-border hover:border-brand/40 px-3 py-1.5 rounded-lg transition">
-          <i class="fa-solid fa-right-from-bracket mr-1 text-xs"></i>Déconnexion
+          <i class="fa-solid fa-right-from-bracket mr-1 text-xs"></i><span data-i18n="dash.logout">Déconnexion</span>
         </button>
       </div>
     </div>
@@ -89,19 +95,19 @@
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
         <div>
-          <h1 class="text-3xl font-extrabold mb-1">Mon <span class="text-brand">Espace</span></h1>
-          <p class="text-gray-400 text-sm">Suivez l'avancement de vos commandes en temps réel.</p>
+          <h1 class="text-3xl font-extrabold mb-1"><span data-i18n="dash.header.title">Mon</span> <span class="text-brand" data-i18n="dash.header.accent">Espace</span></h1>
+          <p class="text-gray-400 text-sm" data-i18n="dash.header.desc">Suivez l'avancement de vos commandes en temps réel.</p>
         </div>
         <a href="services.html"
            class="self-start sm:self-auto bg-brand hover:bg-brand-dark text-white text-sm font-bold px-5 py-2.5 rounded-xl transition">
-          <i class="fa-solid fa-plus mr-1"></i>Nouvelle commande
+          <i class="fa-solid fa-plus mr-1"></i><span data-i18n="dash.new.order">Nouvelle commande</span>
         </a>
       </div>
 
       <!-- Loading -->
       <div id="loading-state" class="text-center py-16 text-gray-500">
         <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
-        <p>Chargement de vos commandes…</p>
+        <p data-i18n="dash.loading">Chargement de vos commandes…</p>
       </div>
 
       <!-- Empty state -->
@@ -109,9 +115,9 @@
         <div class="w-16 h-16 bg-surface-card border border-surface-border rounded-full flex items-center justify-center mx-auto mb-4">
           <i class="fa-solid fa-inbox text-gray-600 text-2xl"></i>
         </div>
-        <h3 class="font-bold text-lg mb-2">Aucune commande</h3>
-        <p class="text-gray-500 text-sm mb-6">Vous n'avez pas encore passé de commande.</p>
-        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition">
+        <h3 class="font-bold text-lg mb-2" data-i18n="dash.empty.title">Aucune commande</h3>
+        <p class="text-gray-500 text-sm mb-6" data-i18n="dash.empty.desc">Vous n'avez pas encore passé de commande.</p>
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition" data-i18n="dash.empty.cta">
           Découvrir nos services
         </a>
       </div>
@@ -125,15 +131,19 @@
 </div><!-- /content -->
 
 <script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/supabase-client.js"></script>
 <script>
   const STEPS = CONFIG.ORDER_STATUSES;
-  const LABELS = CONFIG.ORDER_STATUS_LABELS;
+
+  function getStatusLabel(status) {
+    return t('status.' + status) || status;
+  }
 
   function statusBadge(status) {
     return `<span class="status-badge status-${status}">
       <i class="fa-solid fa-circle text-[6px]"></i>
-      ${LABELS[status] || status}
+      ${getStatusLabel(status)}
     </span>`;
   }
 
@@ -151,7 +161,7 @@
       html += `
         <div class="progress-step ${state}">
           <div class="dot">${icon}</div>
-          <p class="text-[10px] text-gray-500 leading-tight">${LABELS[step]}</p>
+          <p class="text-[10px] text-gray-500 leading-tight">${getStatusLabel(step)}</p>
         </div>`;
 
       if (idx < STEPS.length - 1) {
@@ -164,7 +174,10 @@
     return html;
   }
 
+  let _cachedOrders = [];
+
   async function renderOrders(orders) {
+    _cachedOrders = orders;
     document.getElementById('loading-state').classList.add('hidden');
 
     if (!orders.length) {
@@ -188,10 +201,16 @@
       return order.payment_proof_url || null;
     }));
 
+    renderOrdersHTML(orders, signedUrls);
+  }
+
+  function renderOrdersHTML(orders, signedUrls) {
+    const container = document.getElementById('orders-container');
+    const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+
     container.innerHTML = orders.map((order, idx) => {
       const service = order.services || {};
       const details = order.details || {};
-      const locale = 'fr-FR';
       const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
       const proofUrl = signedUrls[idx];
 
@@ -204,16 +223,16 @@
                 ${statusBadge(order.status)}
               </div>
               <p class="text-white font-semibold">${service.title || 'Service'}</p>
-              <p class="text-gray-500 text-xs mt-0.5">Commandé le ${date}</p>
+              <p class="text-gray-500 text-xs mt-0.5">${t('dash.order.date')} ${date}</p>
             </div>
             <div class="text-right">
               <p class="text-brand font-extrabold text-xl">${Number(service.price || 0).toLocaleString('fr-FR')} MAD</p>
               ${proofUrl
                 ? `<a href="${proofUrl}" target="_blank"
                       class="text-xs text-gray-500 hover:text-white mt-1 inline-flex items-center gap-1 transition">
-                     <i class="fa-solid fa-receipt"></i>Voir le reçu
+                     <i class="fa-solid fa-receipt"></i>${t('dash.order.receipt')}
                    </a>`
-                : '<p class="text-xs text-yellow-500 mt-1"><i class="fa-solid fa-clock mr-1"></i>Reçu manquant</p>'}
+                : `<p class="text-xs text-yellow-500 mt-1"><i class="fa-solid fa-clock mr-1"></i>${t('dash.order.noproof')}</p>`}
             </div>
           </div>
 
@@ -221,7 +240,7 @@
 
           ${Object.keys(details).length
             ? `<details class="mt-4">
-                 <summary class="text-xs text-gray-500 cursor-pointer hover:text-white transition">Détails de la commande</summary>
+                 <summary class="text-xs text-gray-500 cursor-pointer hover:text-white transition">${t('dash.order.details')}</summary>
                  <div class="mt-2 text-xs text-gray-400 bg-surface rounded-lg p-3 space-y-1">
                    ${Object.entries(details).map(([k,v]) => `<p><span class="text-gray-600">${k}:</span> ${v}</p>`).join('')}
                  </div>
@@ -232,12 +251,65 @@
             <a href="${buildWhatsAppLink({ order_ref: order.order_ref, service_title: service.title || 'Service', total: Number(service.price || 0).toLocaleString('fr-FR') })}"
                target="_blank"
                class="inline-flex items-center gap-2 text-xs text-green-400 hover:text-green-300 border border-green-500/20 hover:border-green-500/40 px-3 py-1.5 rounded-lg transition">
-              <i class="fa-brands fa-whatsapp"></i>Contacter via WhatsApp
+              <i class="fa-brands fa-whatsapp"></i>${t('dash.order.whatsapp')}
             </a>
           </div>
         </div>`;
     }).join('');
   }
+
+  // Re-render orders when language changes (no need to re-fetch)
+  document.addEventListener('langchange', () => {
+    if (_cachedOrders.length) {
+      // Re-render orders HTML using cached signed URLs stored in order._proofUrl
+      const container = document.getElementById('orders-container');
+      const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+      container.innerHTML = _cachedOrders.map((order, idx) => {
+        const service = order.services || {};
+        const details = order.details || {};
+        const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
+
+        return `
+          <div class="bg-surface-card border border-surface-border rounded-2xl p-6 hover:border-brand/20 transition">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+              <div>
+                <div class="flex items-center gap-3 mb-1">
+                  <span class="font-bold text-brand">${order.order_ref}</span>
+                  ${statusBadge(order.status)}
+                </div>
+                <p class="text-white font-semibold">${service.title || 'Service'}</p>
+                <p class="text-gray-500 text-xs mt-0.5">${t('dash.order.date')} ${date}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-brand font-extrabold text-xl">${Number(service.price || 0).toLocaleString('fr-FR')} MAD</p>
+                ${order._proofUrl
+                  ? `<a href="${order._proofUrl}" target="_blank"
+                        class="text-xs text-gray-500 hover:text-white mt-1 inline-flex items-center gap-1 transition">
+                       <i class="fa-solid fa-receipt"></i>${t('dash.order.receipt')}
+                     </a>`
+                  : `<p class="text-xs text-yellow-500 mt-1"><i class="fa-solid fa-clock mr-1"></i>${t('dash.order.noproof')}</p>`}
+              </div>
+            </div>
+            ${buildProgressBar(order.status)}
+            ${Object.keys(details).length
+              ? `<details class="mt-4">
+                   <summary class="text-xs text-gray-500 cursor-pointer hover:text-white transition">${t('dash.order.details')}</summary>
+                   <div class="mt-2 text-xs text-gray-400 bg-surface rounded-lg p-3 space-y-1">
+                     ${Object.entries(details).map(([k,v]) => `<p><span class="text-gray-600">${k}:</span> ${v}</p>`).join('')}
+                   </div>
+                 </details>`
+              : ''}
+            <div class="mt-4 flex gap-3">
+              <a href="${buildWhatsAppLink({ order_ref: order.order_ref, service_title: service.title || 'Service', total: Number(service.price || 0).toLocaleString('fr-FR') })}"
+                 target="_blank"
+                 class="inline-flex items-center gap-2 text-xs text-green-400 hover:text-green-300 border border-green-500/20 hover:border-green-500/40 px-3 py-1.5 rounded-lg transition">
+                <i class="fa-brands fa-whatsapp"></i>${t('dash.order.whatsapp')}
+              </a>
+            </div>
+          </div>`;
+      }).join('');
+    }
+  });
 
   // ── Init ──────────────────────────────────────────────────
   (async () => {
@@ -265,7 +337,23 @@
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      await renderOrders(orders || []);
+
+      // Attach signed URLs to order objects for re-rendering
+      const SIGNED_URL_EXPIRY_SECONDS = 60;
+      const ordersWithUrls = await Promise.all((orders || []).map(async order => {
+        let proofUrl = null;
+        if (order.payment_proof_path) {
+          const { data } = await sb.storage
+            .from('payment-proofs')
+            .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
+          proofUrl = data?.signedUrl || null;
+        } else {
+          proofUrl = order.payment_proof_url || null;
+        }
+        return { ...order, _proofUrl: proofUrl };
+      }));
+
+      await renderOrders(ordersWithUrls);
     } catch (err) {
       document.getElementById('loading-state').innerHTML =
         `<p class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${err.message}</p>`;
