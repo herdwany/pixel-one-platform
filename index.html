@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pixel One — Agence Créative Maroc</title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts (Inter + Cairo for Arabic) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,7 @@
             brand: { DEFAULT: '#ff0000', dark: '#cc0000', light: '#ff3333' },
             surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: { sans: ['Inter', 'sans-serif'], cairo: ['Cairo', 'sans-serif'] },
         }
       }
     }
@@ -69,13 +69,20 @@
         <span class="text-brand">Pixel</span><span>One</span>
       </a>
       <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
-        <a href="#services" class="hover:text-white transition">Services</a>
-        <a href="#why" class="hover:text-white transition">Pourquoi nous</a>
-        <a href="#contact" class="hover:text-white transition">Contact</a>
+        <a href="#services" class="hover:text-white transition" data-i18n="nav.services">Services</a>
+        <a href="#why" class="hover:text-white transition" data-i18n="nav.why">Pourquoi nous</a>
+        <a href="#contact" class="hover:text-white transition" data-i18n="nav.contact">Contact</a>
       </div>
       <div class="flex items-center gap-3">
-        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition">Connexion</a>
-        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+        <!-- Language Switcher -->
+        <select id="lang-switcher"
+                class="bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇺🇸 EN</option>
+          <option value="ar">🇲🇦 AR</option>
+        </select>
+        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Connexion</a>
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
           Nos services
         </a>
       </div>
@@ -96,25 +103,25 @@
     <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/50 to-[#050505] pointer-events-none"></div>
 
     <div class="relative z-10 max-w-4xl mx-auto">
-      <span id="hero-badge" class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase">
+      <span id="hero-badge" class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase" data-i18n="hero.badge">
         Agence Créative — Maroc 🇲🇦
       </span>
       <h1 id="hero-title" class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 glow-text">
-        Votre vision,<br/>
-        <span class="text-brand">amplifiée.</span>
+        <span data-i18n="hero.title">Votre vision,</span><br/>
+        <span class="text-brand" data-i18n="hero.title.accent">amplifiée.</span>
       </h1>
-      <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+      <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" data-i18n="hero.desc">
         Design, vidéo et développement web premium pour les marques ambitieuses.
         Commandez en ligne, suivez votre projet en temps réel.
       </p>
       <div id="hero-cta" class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
            class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl text-lg transition glow">
-          Voir les services
-          <i class="fa-solid fa-arrow-right ml-2"></i>
+          <span data-i18n="hero.cta.primary">Voir les services</span>
+          <i class="fa-solid fa-arrow-right ms-2"></i>
         </a>
         <a href="auth.html"
-           class="border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl text-lg transition">
+           class="border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl text-lg transition" data-i18n="hero.cta.secondary">
           Créer un compte
         </a>
       </div>
@@ -124,19 +131,19 @@
     <div id="hero-stats" class="relative z-10 mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
       <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">150+</p>
-        <p class="text-gray-400 text-sm mt-1">Projets livrés</p>
+        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.projects">Projets livrés</p>
       </div>
       <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">98%</p>
-        <p class="text-gray-400 text-sm mt-1">Clients satisfaits</p>
+        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.clients">Clients satisfaits</p>
       </div>
       <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">72h</p>
-        <p class="text-gray-400 text-sm mt-1">Délai moyen</p>
+        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.delay">Délai moyen</p>
       </div>
       <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">5★</p>
-        <p class="text-gray-400 text-sm mt-1">Note moyenne</p>
+        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.rating">Note moyenne</p>
       </div>
     </div>
   </section>
@@ -145,8 +152,8 @@
   <section id="services" class="py-24 px-6">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-14 reveal">
-        <h2 class="text-4xl font-extrabold mb-3">Nos <span class="text-brand">Services</span></h2>
-        <p class="text-gray-400 max-w-xl mx-auto">Des solutions créatives sur-mesure pour propulser votre marque.</p>
+        <h2 class="text-4xl font-extrabold mb-3"><span data-i18n="services.title">Nos</span> <span class="text-brand" data-i18n="services.title.accent">Services</span></h2>
+        <p class="text-gray-400 max-w-xl mx-auto" data-i18n="services.desc">Des solutions créatives sur-mesure pour propulser votre marque.</p>
       </div>
 
       <div id="featured-services" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -157,7 +164,7 @@
       <div class="text-center mt-10">
         <a href="services.html"
            class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl transition">
-          Voir tous les services <i class="fa-solid fa-arrow-right ml-1"></i>
+          <span data-i18n="services.all">Voir tous les services</span> <i class="fa-solid fa-arrow-right ms-1"></i>
         </a>
       </div>
     </div>
@@ -167,30 +174,30 @@
   <section id="why" class="py-24 px-6 bg-surface-card border-y border-surface-border">
     <div class="max-w-7xl mx-auto">
       <div class="text-center mb-14 reveal">
-        <h2 class="text-4xl font-extrabold mb-3">Pourquoi <span class="text-brand">Pixel One</span> ?</h2>
-        <p class="text-gray-400 max-w-xl mx-auto">Un processus simple, transparent et efficace.</p>
+        <h2 class="text-4xl font-extrabold mb-3"><span data-i18n="why.title">Pourquoi</span> <span class="text-brand" data-i18n="why.title.accent">Pixel One</span><span data-i18n="why.title.suffix"> ?</span></h2>
+        <p class="text-gray-400 max-w-xl mx-auto" data-i18n="why.desc">Un processus simple, transparent et efficace.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
           <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
             <i class="fa-solid fa-bolt text-brand text-xl"></i>
           </div>
-          <h3 class="font-bold text-lg mb-2">Livraison Rapide</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">Délais respectés, toujours. Suivi en temps réel depuis votre tableau de bord.</p>
+          <h3 class="font-bold text-lg mb-2" data-i18n="why.fast.title">Livraison Rapide</h3>
+          <p class="text-gray-400 text-sm leading-relaxed" data-i18n="why.fast.desc">Délais respectés, toujours. Suivi en temps réel depuis votre tableau de bord.</p>
         </div>
         <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
           <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
             <i class="fa-solid fa-shield-halved text-brand text-xl"></i>
           </div>
-          <h3 class="font-bold text-lg mb-2">Paiement Sécurisé</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">Virement bancaire, CashPlus — votre preuve de paiement uploadée en un clic.</p>
+          <h3 class="font-bold text-lg mb-2" data-i18n="why.secure.title">Paiement Sécurisé</h3>
+          <p class="text-gray-400 text-sm leading-relaxed" data-i18n="why.secure.desc">Virement bancaire, CashPlus — votre preuve de paiement uploadée en un clic.</p>
         </div>
         <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
           <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
             <i class="fa-solid fa-headset text-brand text-xl"></i>
           </div>
-          <h3 class="font-bold text-lg mb-2">Support WhatsApp</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">Après commande, notifiez l'équipe directement sur WhatsApp en un clic.</p>
+          <h3 class="font-bold text-lg mb-2" data-i18n="why.support.title">Support WhatsApp</h3>
+          <p class="text-gray-400 text-sm leading-relaxed" data-i18n="why.support.desc">Après commande, notifiez l'équipe directement sur WhatsApp en un clic.</p>
         </div>
       </div>
     </div>
@@ -200,25 +207,25 @@
   <section class="py-24 px-6">
     <div class="max-w-4xl mx-auto text-center">
       <div class="reveal mb-14">
-        <h2 class="text-4xl font-extrabold mb-3">Comment ça <span class="text-brand">marche ?</span></h2>
-        <p class="text-gray-400">Quatre étapes, zéro friction.</p>
+        <h2 class="text-4xl font-extrabold mb-3"><span data-i18n="process.title">Comment ça</span> <span class="text-brand" data-i18n="process.title.accent">marche ?</span></h2>
+        <p class="text-gray-400" data-i18n="process.subtitle">Quatre étapes, zéro friction.</p>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div class="reveal flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">1</div>
-          <p class="text-sm text-gray-300 font-medium">Choisissez un service</p>
+          <p class="text-sm text-gray-300 font-medium" data-i18n="process.step1">Choisissez un service</p>
         </div>
         <div class="reveal flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">2</div>
-          <p class="text-sm text-gray-300 font-medium">Remplissez le formulaire</p>
+          <p class="text-sm text-gray-300 font-medium" data-i18n="process.step2">Remplissez le formulaire</p>
         </div>
         <div class="reveal flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">3</div>
-          <p class="text-sm text-gray-300 font-medium">Payez & uploadez le reçu</p>
+          <p class="text-sm text-gray-300 font-medium" data-i18n="process.step3">Payez & uploadez le reçu</p>
         </div>
         <div class="reveal flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">4</div>
-          <p class="text-sm text-gray-300 font-medium">Suivez votre commande</p>
+          <p class="text-sm text-gray-300 font-medium" data-i18n="process.step4">Suivez votre commande</p>
         </div>
       </div>
     </div>
@@ -227,18 +234,18 @@
   <!-- ── CONTACT CTA ────────────────────────────────────────── -->
   <section id="contact" class="py-24 px-6 bg-surface-card border-t border-surface-border">
     <div class="max-w-3xl mx-auto text-center reveal">
-      <h2 class="text-4xl font-extrabold mb-4">Prêt à démarrer votre <span class="text-brand">projet</span> ?</h2>
-      <p class="text-gray-400 mb-8">Notre équipe est disponible du lundi au vendredi, 9h–18h.</p>
+      <h2 class="text-4xl font-extrabold mb-4"><span data-i18n="contact.title">Prêt à démarrer votre</span> <span class="text-brand" data-i18n="contact.title.accent">projet</span><span data-i18n="contact.title.suffix"> ?</span></h2>
+      <p class="text-gray-400 mb-8" data-i18n="contact.desc">Notre équipe est disponible du lundi au vendredi, 9h–18h.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
-           class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl transition glow">
+           class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-4 rounded-xl transition glow" data-i18n="contact.cta">
           Commencer maintenant
         </a>
         <a id="whatsapp-cta" href="#"
            target="_blank"
            class="flex items-center gap-2 justify-center border border-surface-border hover:border-green-500/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-xl transition">
           <i class="fa-brands fa-whatsapp text-green-500 text-xl"></i>
-          WhatsApp
+          <span data-i18n="contact.whatsapp">WhatsApp</span>
         </a>
       </div>
     </div>
@@ -249,11 +256,11 @@
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-gray-500 text-sm">
       <p class="font-bold text-white"><span class="text-brand">Pixel</span>One © 2025</p>
       <div class="flex gap-6">
-        <a href="services.html" class="hover:text-white transition">Services</a>
-        <a href="auth.html" class="hover:text-white transition">Connexion</a>
-        <a href="dashboard.html" class="hover:text-white transition">Mon espace</a>
+        <a href="services.html" class="hover:text-white transition" data-i18n="footer.services">Services</a>
+        <a href="auth.html" class="hover:text-white transition" data-i18n="footer.login">Connexion</a>
+        <a href="dashboard.html" class="hover:text-white transition" data-i18n="footer.dashboard">Mon espace</a>
       </div>
-      <p>Made with <i class="fa-solid fa-heart text-brand"></i> au Maroc</p>
+      <p><i class="fa-solid fa-heart text-brand"></i> <span data-i18n="footer.made">Made in Morocco</span></p>
     </div>
   </footer>
 
@@ -261,6 +268,7 @@
 
 <!-- ── Scripts ─────────────────────────────────────────────── -->
 <script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script>
   // ── Render featured services ───────────────────────────────
   function renderFeatured() {
