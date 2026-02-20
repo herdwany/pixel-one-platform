@@ -783,9 +783,16 @@ const TRANSLATIONS = {
 
 // Font & direction config per language
 const LANG_CONFIG = {
-  fr: { font: 'Inter', dir: 'ltr' },
-  en: { font: 'Inter', dir: 'ltr' },
-  ar: { font: 'Cairo', dir: 'rtl' },
+  fr: { font: 'Outfit',  dir: 'ltr', lineHeight: '1.6' },
+  en: { font: 'Inter',   dir: 'ltr', lineHeight: '1.6' },
+  ar: { font: 'Tajawal', dir: 'rtl', lineHeight: '1.85' },
+};
+
+// Display metadata per language (flag, short code, native label)
+const LANG_META = {
+  fr: { flag: '🇫🇷', code: 'FR', label: 'Français' },
+  en: { flag: '🇺🇸', code: 'EN', label: 'English' },
+  ar: { flag: '🇲🇦', code: 'AR', label: 'العربية' },
 };
 
 /**
@@ -816,10 +823,10 @@ function getLang() {
  * Applies the chosen language to the page.
  * - Updates <html> lang + dir attributes
  * - Persists the choice to localStorage
- * - Updates body font-family
+ * - Updates body font-family and line-height
  * - Updates document <title>
- * - Translates all elements with data-i18n="key"
- * - Translates placeholder attributes with data-i18n-ph="key"
+ * - Translates all elements with data-i18n / data-i18n-key / data-i18n-ph
+ * - Updates the custom language-switcher dropdown UI
  *
  * @param {string} lang – 'fr' | 'en' | 'ar'
  */
@@ -827,20 +834,27 @@ function setLanguage(lang) {
   const dict = TRANSLATIONS[lang];
   if (!dict) return;
 
-  const cfg = LANG_CONFIG[lang];
+  const cfg  = LANG_CONFIG[lang];
+  const meta = LANG_META[lang];
   const html = document.documentElement;
 
   // Update <html> attributes
   html.setAttribute('lang', lang);
   html.setAttribute('dir', cfg.dir);
 
-  // Persist choice
+  // Persist choice & mark first-visit complete
   localStorage.setItem('px_lang', lang);
+  localStorage.setItem('px_lang_selected', '1');
 
-  // Update font-family
-  document.body.style.fontFamily = `'${cfg.font}', sans-serif`;
+  // Swap body lang class (lang-fr / lang-en / lang-ar)
+  ['lang-fr', 'lang-en', 'lang-ar'].forEach(c => document.body.classList.remove(c));
+  document.body.classList.add('lang-' + lang);
 
-  // Update page title (look for <title data-i18n="key"> first, then fall back to page.title)
+  // Update font-family and line-height
+  document.body.style.fontFamily   = `'${cfg.font}', sans-serif`;
+  document.body.style.lineHeight   = cfg.lineHeight;
+
+  // Update page title
   const titleEl = document.querySelector('title[data-i18n]');
   if (titleEl) {
     const key = titleEl.getAttribute('data-i18n');
@@ -849,21 +863,40 @@ function setLanguage(lang) {
     document.title = dict['page.title'];
   }
 
-  // Translate all marked elements (text content)
+  // Translate text content  (data-i18n)
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (dict[key] !== undefined) {
-      el.textContent = dict[key];
-    }
+    if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+
+  // Translate button / element text via data-i18n-key
+  document.querySelectorAll('[data-i18n-key]').forEach(el => {
+    const key = el.getAttribute('data-i18n-key');
+    if (dict[key] !== undefined) el.textContent = dict[key];
   });
 
   // Translate placeholder attributes
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     const key = el.getAttribute('data-i18n-ph');
-    if (dict[key] !== undefined) {
-      el.setAttribute('placeholder', dict[key]);
-    }
+    if (dict[key] !== undefined) el.setAttribute('placeholder', dict[key]);
   });
+
+  // ── Update custom language-dropdown button UI ────────────
+  const flagEl = document.getElementById('lang-flag');
+  const codeEl = document.getElementById('lang-code');
+  if (flagEl) flagEl.textContent = meta.flag;
+  if (codeEl) codeEl.textContent = meta.code;
+
+  // Highlight active option
+  document.querySelectorAll('.lang-opt').forEach(btn => {
+    const active = btn.dataset.lang === lang;
+    btn.classList.toggle('text-white',   active);
+    btn.classList.toggle('bg-brand/10',  active);
+  });
+
+  // Close the dropdown
+  const dd = document.getElementById('lang-dropdown');
+  if (dd) dd.classList.add('hidden');
 
   // Fire a custom event so page scripts can re-render dynamic content
   document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
@@ -877,10 +910,27 @@ function initI18n() {
   const valid = getLang();
   setLanguage(valid);
 
-  // Keep every language switcher on the page in sync
-  document.querySelectorAll('.lang-switcher').forEach(switcher => {
-    switcher.value = valid;
-    switcher.addEventListener('change', () => setLanguage(switcher.value));
+  // ── Custom dropdown toggle ──────────────────────────────
+  const langBtn = document.getElementById('lang-btn');
+  if (langBtn) {
+    langBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const dd = document.getElementById('lang-dropdown');
+      if (dd) dd.classList.toggle('hidden');
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', e => {
+    const wrapper = document.getElementById('lang-dropdown-wrapper');
+    const dd      = document.getElementById('lang-dropdown');
+    if (dd && wrapper && !wrapper.contains(e.target)) dd.classList.add('hidden');
+  });
+
+  // Legacy: keep old <select class="lang-switcher"> working
+  document.querySelectorAll('select.lang-switcher').forEach(sw => {
+    sw.value = valid;
+    sw.addEventListener('change', () => setLanguage(sw.value));
   });
 }
 
