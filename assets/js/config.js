@@ -120,4 +120,73 @@ const CONFIG = {
     review:      "En révision",
     done:        "Terminé",
   },
+
+  // ── Default popularity weights per category ──────────────
+  CATEGORY_BASE_SCORES: { video: 4, design: 3, web: 2 },
 };
+
+// ── Popular Offers Algorithm ─────────────────────────────────
+// Tracks user interactions in localStorage to surface personalised offers.
+
+// In-memory cache to avoid repeated JSON.parse calls within the same session
+let _viewsCache = null;
+let _prefsCache = null;
+
+function _getViewsCache() {
+  if (!_viewsCache) {
+    try { _viewsCache = JSON.parse(localStorage.getItem('px_svc_views') || '{}'); }
+    catch (_) { _viewsCache = {}; }
+  }
+  return _viewsCache;
+}
+function _getPrefsCache() {
+  if (!_prefsCache) {
+    try { _prefsCache = JSON.parse(localStorage.getItem('px_cat_prefs') || '{}'); }
+    catch (_) { _prefsCache = {}; }
+  }
+  return _prefsCache;
+}
+
+/**
+ * Records a service-detail page view.
+ * Called by service-details.html when a service is rendered.
+ * @param {number} serviceId
+ * @param {string} category
+ */
+function trackServiceView(serviceId, category) {
+  try {
+    const views = _getViewsCache();
+    views[serviceId] = (views[serviceId] || 0) + 1;
+    localStorage.setItem('px_svc_views', JSON.stringify(views));
+
+    if (category) {
+      const prefs = _getPrefsCache();
+      prefs[category] = (prefs[category] || 0) + 1;
+      localStorage.setItem('px_cat_prefs', JSON.stringify(prefs));
+    }
+  } catch (_) { /* localStorage unavailable */ }
+}
+
+/**
+ * Returns services sorted by a composite popularity score:
+ *   score = (personal views × 3) + (category preference × 2) + base category weight
+ * Falls back to catalog order when no interaction data exists.
+ * @param {number} [count] – number of services to return (default: all)
+ * @returns {Array}
+ */
+function getPopularServices(count) {
+  const views = _getViewsCache();
+  const prefs = _getPrefsCache();
+  const base  = CONFIG.CATEGORY_BASE_SCORES || {};
+  const n     = count || CONFIG.SERVICES.length;
+
+  return CONFIG.SERVICES
+    .map(s => ({
+      ...s,
+      _score: (views[s.id]      || 0) * 3
+            + (prefs[s.category] || 0) * 2
+            + (base[s.category]  || 1),
+    }))
+    .sort((a, b) => b._score - a._score)
+    .slice(0, n);
+}

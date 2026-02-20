@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,7 +18,7 @@
             brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
             surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'], cairo: ['Cairo', 'sans-serif'] },
+          fontFamily: { sans: ['Outfit', 'sans-serif'], tajawal: ['Tajawal', 'sans-serif'] },
         }
       }
     }
@@ -29,7 +29,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
-    body { background-color: #050505; font-family: 'Inter', sans-serif; }
+    body { background-color: #050505; font-family: 'Outfit', sans-serif; }
+    body.lang-fr { font-family: 'Outfit',  sans-serif; }
+    body.lang-en { font-family: 'Inter',   sans-serif; }
+    body.lang-ar { font-family: 'Tajawal', sans-serif; }
+    .site-logo { direction: ltr; unicode-bidi: isolate; }
     body::before {
       content: '';
       position: fixed; inset: 0;
@@ -42,21 +46,46 @@
   </style>
 </head>
 
-<body class="text-white min-h-screen flex items-center justify-center">
+<body class="text-white min-h-screen flex items-center justify-center lang-fr">
 <div class="content w-full max-w-md mx-auto px-6 py-16">
 
   <!-- Language switcher -->
   <div class="flex justify-end mb-4">
-    <select class="lang-switcher bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
-      <option value="fr">🇫🇷 FR</option>
-      <option value="en">🇺🇸 EN</option>
-      <option value="ar">🇲🇦 AR</option>
-    </select>
+    <div class="relative" id="lang-dropdown-wrapper">
+      <button id="lang-btn"
+              class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
+              aria-haspopup="listbox">
+        <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
+        <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
+        <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
+      </button>
+      <div id="lang-dropdown"
+           class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
+           style="min-width:160px" role="listbox">
+        <button onclick="setLanguage('fr')" data-lang="fr" role="option"
+                class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+          <span class="text-base leading-none">🇫🇷</span>
+          <div class="text-start"><p class="font-semibold text-xs leading-tight">Français</p><p class="text-[10px] text-gray-500">French</p></div>
+        </button>
+        <div class="h-px bg-[#282828]"></div>
+        <button onclick="setLanguage('en')" data-lang="en" role="option"
+                class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+          <span class="text-base leading-none">🇺🇸</span>
+          <div class="text-start"><p class="font-semibold text-xs leading-tight">English</p><p class="text-[10px] text-gray-500">English</p></div>
+        </button>
+        <div class="h-px bg-[#282828]"></div>
+        <button onclick="setLanguage('ar')" data-lang="ar" role="option"
+                class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+          <span class="text-base leading-none">🇲🇦</span>
+          <div class="text-start" style="font-family:'Tajawal',sans-serif"><p class="font-semibold text-xs leading-tight">العربية</p><p class="text-[10px] text-gray-500">Arabic</p></div>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Logo -->
   <div class="text-center mb-8">
-    <a href="index.html" class="text-2xl font-extrabold tracking-tight">
+    <a href="index.html" dir="ltr" class="site-logo text-2xl font-extrabold tracking-tight">
       <span class="text-brand">Pixel</span>One
     </a>
     <p class="text-gray-500 text-sm mt-1" data-i18n="auth.tagline">Votre espace créatif</p>
