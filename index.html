@@ -75,8 +75,7 @@
       </div>
       <div class="flex items-center gap-3">
         <!-- Language Switcher -->
-        <select id="lang-switcher"
-                class="bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
+        <select id="lang-switcher" class="lang-switcher bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
           <option value="fr">🇫🇷 FR</option>
           <option value="en">🇺🇸 EN</option>
           <option value="ar">🇲🇦 AR</option>
@@ -272,30 +271,34 @@
 <script>
   // ── Render featured services ───────────────────────────────
   function renderFeatured() {
+    const lang = getLang();
     const container = document.getElementById('featured-services');
     const services = CONFIG.SERVICES.slice(0, 6);
-    container.innerHTML = services.map(s => `
+    container.innerHTML = services.map(s => {
+      const title = (s.titles && s.titles[lang]) || s.title;
+      const features = (s.features_i18n && s.features_i18n[lang]) || s.features;
+      return `
       <a href="service-details.html?id=${s.id}"
          class="group bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/40 transition-all hover:-translate-y-1 duration-300 reveal">
         <div class="relative overflow-hidden h-48">
-          <img src="${s.image_url}" alt="${s.title}"
+          <img src="${s.image_url}" alt="${title}"
                class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
           <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-xs text-gray-300 px-3 py-1 rounded-full border border-surface-border">
-            ${CONFIG.CATEGORIES.find(c => c.value === s.category)?.label || s.category}
+            ${t('cat.' + s.category)}
           </span>
         </div>
         <div class="p-5">
-          <h3 class="font-bold text-base mb-2">${s.title}</h3>
+          <h3 class="font-bold text-base mb-2">${title}</h3>
           <ul class="text-gray-400 text-xs space-y-1 mb-4">
-            ${s.features.map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand text-[10px]"></i>${f}</li>`).join('')}
+            ${features.map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand text-[10px]"></i>${f}</li>`).join('')}
           </ul>
           <div class="flex items-center justify-between">
             <p class="text-brand font-extrabold text-lg">${s.price.toLocaleString('fr-FR')} MAD</p>
-            <span class="text-xs text-gray-500 group-hover:text-brand transition">Commander →</span>
+            <span class="text-xs text-gray-500 group-hover:text-brand transition">${t('svc.card.order')} →</span>
           </div>
         </div>
       </a>
-    `).join('');
+    `}).join('');
 
     // Trigger reveal for freshly injected cards
     setTimeout(triggerReveal, 50);
@@ -315,6 +318,11 @@
     // Inject WhatsApp link from CONFIG
     const waBtn = document.getElementById('whatsapp-cta');
     if (waBtn) waBtn.href = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}`;
+  });
+
+  // Re-render service cards when language changes
+  document.addEventListener('langchange', () => {
+    renderFeatured();
   });
 </script>
 <!-- ── GSAP Hero Animations ────────────────────────────────── -->

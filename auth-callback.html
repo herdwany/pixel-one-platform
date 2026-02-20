@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,7 +18,7 @@
             brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
             surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: { sans: ['Inter', 'sans-serif'], cairo: ['Cairo', 'sans-serif'] },
         }
       }
     }
@@ -57,8 +57,8 @@
 
   <!-- Status text -->
   <div>
-    <p id="status-text" class="text-lg font-semibold text-white">Vérification de votre compte…</p>
-    <p class="text-gray-500 text-sm mt-1">Veuillez patienter quelques instants.</p>
+    <p id="status-text" class="text-lg font-semibold text-white" data-i18n="callback.status">Vérification de votre compte…</p>
+    <p class="text-gray-500 text-sm mt-1" data-i18n="callback.patience">Veuillez patienter quelques instants.</p>
   </div>
 
   <!-- Brand -->
@@ -68,6 +68,7 @@
 </div>
 
 <script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/supabase-client.js"></script>
 <script>
   (function () {

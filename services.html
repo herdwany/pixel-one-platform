@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Services — Pixel One</title>
+  <title data-i18n="svc.page.title">Services — Pixel One</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,7 +18,7 @@
             brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
             surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
           },
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: { sans: ['Inter', 'sans-serif'], cairo: ['Cairo', 'sans-serif'] },
         }
       }
     }
@@ -52,9 +52,15 @@
         <span class="text-brand">Pixel</span><span>One</span>
       </a>
       <div class="flex items-center gap-3">
-        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition">Connexion</a>
+        <!-- Language Switcher -->
+        <select class="lang-switcher bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇺🇸 EN</option>
+          <option value="ar">🇲🇦 AR</option>
+        </select>
+        <a href="auth.html" id="nav-login-link" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Connexion</a>
         <a href="dashboard.html" class="bg-surface-card border border-surface-border hover:border-brand/40 text-sm px-4 py-2 rounded-lg transition">
-          Mon espace <i class="fa-solid fa-user ml-1 text-xs"></i>
+          <span data-i18n="nav.myspace">Mon espace</span> <i class="fa-solid fa-user ml-1 text-xs"></i>
         </a>
       </div>
     </div>
@@ -65,8 +71,8 @@
 
       <!-- Page header -->
       <div class="mb-10">
-        <h1 class="text-3xl font-extrabold mb-1">Catalogue des <span class="text-brand">Services</span></h1>
-        <p class="text-gray-400 text-sm">Choisissez votre service et commandez en quelques clics.</p>
+        <h1 class="text-3xl font-extrabold mb-1"><span data-i18n="svc.header.title1">Catalogue des</span> <span class="text-brand" data-i18n="svc.header.title2">Services</span></h1>
+        <p class="text-gray-400 text-sm" data-i18n="svc.header.desc">Choisissez votre service et commandez en quelques clics.</p>
       </div>
 
       <div class="flex flex-col lg:flex-row gap-8">
@@ -77,20 +83,22 @@
 
             <!-- Search -->
             <div>
-              <label class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-2 block">Recherche</label>
+              <label class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-2 block" data-i18n="svc.filter.search.label">Recherche</label>
               <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                <input id="search-input" type="text" placeholder="Montage vidéo…"
+                <input id="search-input" type="text"
+                       data-i18n-ph="svc.filter.search.ph"
+                       placeholder="Montage vidéo…"
                        class="w-full bg-surface border border-surface-border rounded-lg pl-9 pr-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
               </div>
             </div>
 
             <!-- Category -->
             <div>
-              <label class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-3 block">Catégorie</label>
+              <label class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-3 block" data-i18n="svc.filter.cat.label">Catégorie</label>
               <div class="flex flex-col gap-2" id="category-filters">
                 <button data-cat="" class="filter-chip active text-left text-sm border border-surface-border rounded-lg px-3 py-2">
-                  <i class="fa-solid fa-grip mr-2 text-xs"></i>Tout
+                  <i class="fa-solid fa-grip mr-2 text-xs"></i><span data-i18n="svc.filter.all">Tout</span>
                 </button>
                 <!-- Populated by JS -->
               </div>
@@ -98,7 +106,7 @@
 
             <!-- Price Range -->
             <div>
-              <label class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-3 block">Prix max</label>
+              <label class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-3 block" data-i18n="svc.filter.price.label">Prix max</label>
               <input id="price-range" type="range" min="0" max="10000" step="100" value="10000"
                      class="price-track w-full" />
               <div class="flex justify-between text-xs text-gray-500 mt-1">
@@ -110,7 +118,7 @@
             <!-- Reset -->
             <button id="reset-filters"
                     class="w-full text-sm text-gray-400 hover:text-white border border-surface-border hover:border-brand/40 rounded-lg py-2 transition">
-              <i class="fa-solid fa-rotate-left mr-1"></i>Réinitialiser
+              <i class="fa-solid fa-rotate-left mr-1"></i><span data-i18n="svc.filter.reset">Réinitialiser</span>
             </button>
           </div>
         </aside>
@@ -121,16 +129,16 @@
             <p id="result-count" class="text-sm text-gray-400"></p>
             <select id="sort-select"
                     class="bg-surface-card border border-surface-border text-sm text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brand/50">
-              <option value="default">Trier par défaut</option>
-              <option value="price-asc">Prix croissant</option>
-              <option value="price-desc">Prix décroissant</option>
+              <option value="default" data-i18n-opt="svc.sort.default">Trier par défaut</option>
+              <option value="price-asc" data-i18n-opt="svc.sort.asc">Prix croissant</option>
+              <option value="price-desc" data-i18n-opt="svc.sort.desc">Prix décroissant</option>
             </select>
           </div>
 
           <div id="services-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             <div class="col-span-3 text-center py-16 text-gray-500">
               <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
-              <p>Chargement…</p>
+              <p data-i18n="svc.loading">Chargement…</p>
             </div>
           </div>
         </div>
@@ -141,35 +149,54 @@
 
   <!-- ── FOOTER ─────────────────────────────────────────────── -->
   <footer class="border-t border-surface-border py-8 px-6 text-center text-gray-600 text-sm">
-    <span class="text-white font-bold"><span class="text-brand">Pixel</span>One</span> © 2025 — Agence Créative Maroc
+    <span class="text-white font-bold"><span class="text-brand">Pixel</span>One</span> © 2025 — <span data-i18n="svc.footer">Agence Créative Maroc</span>
   </footer>
 
 </div>
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
 <script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script>
   let activeCategory = '';
   let maxPrice = 10000;
   let searchQuery = '';
   let sortMode = 'default';
 
+  // Translate <select> option text
+  function translateSortOptions() {
+    document.querySelectorAll('#sort-select option[data-i18n-opt]').forEach(opt => {
+      opt.textContent = t(opt.dataset.i18nOpt);
+    });
+  }
+
   // Build category chips
-  const catContainer = document.getElementById('category-filters');
-  CONFIG.CATEGORIES.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.dataset.cat = cat.value;
-    btn.className = 'filter-chip text-left text-sm border border-surface-border rounded-lg px-3 py-2';
-    const icons = { video: 'fa-film', design: 'fa-pen-nib', web: 'fa-code' };
-    btn.innerHTML = `<i class="fa-solid ${icons[cat.value] || 'fa-tag'} mr-2 text-xs"></i>${cat.label}`;
-    catContainer.appendChild(btn);
-  });
+  function buildCategoryChips() {
+    const catContainer = document.getElementById('category-filters');
+    // Remove old dynamic chips (keep first "All" button)
+    catContainer.querySelectorAll('[data-cat]:not([data-cat=""])').forEach(el => el.remove());
+
+    CONFIG.CATEGORIES.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.dataset.cat = cat.value;
+      btn.className = 'filter-chip text-left text-sm border border-surface-border rounded-lg px-3 py-2';
+      const icons = { video: 'fa-film', design: 'fa-pen-nib', web: 'fa-code' };
+      btn.innerHTML = `<i class="fa-solid ${icons[cat.value] || 'fa-tag'} mr-2 text-xs"></i>${t('cat.' + cat.value)}`;
+      catContainer.appendChild(btn);
+    });
+  }
 
   // Filter state helpers
   function getFiltered() {
+    const lang = getLang();
     let list = [...CONFIG.SERVICES];
     if (activeCategory) list = list.filter(s => s.category === activeCategory);
-    if (searchQuery)    list = list.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (searchQuery) {
+      list = list.filter(s => {
+        const title = (s.titles && s.titles[lang]) || s.title;
+        return title.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+    }
     list = list.filter(s => s.price <= maxPrice);
     if (sortMode === 'price-asc')  list.sort((a, b) => a.price - b.price);
     if (sortMode === 'price-desc') list.sort((a, b) => b.price - a.price);
@@ -177,47 +204,58 @@
   }
 
   function renderGrid() {
+    const lang = getLang();
     const grid = document.getElementById('services-grid');
     const filtered = getFiltered();
-    document.getElementById('result-count').textContent = `${filtered.length} service(s) trouvé(s)`;
+    document.getElementById('result-count').textContent = `${filtered.length} ${t('svc.results')}`;
 
     if (!filtered.length) {
       grid.innerHTML = `
         <div class="col-span-3 text-center py-16 text-gray-500">
           <i class="fa-solid fa-face-meh text-3xl mb-3"></i>
-          <p>Aucun service trouvé pour ces critères.</p>
+          <p>${t('svc.empty')}</p>
         </div>`;
       return;
     }
 
     const catIcons = { video: 'fa-film', design: 'fa-pen-nib', web: 'fa-code' };
 
-    grid.innerHTML = filtered.map(s => `
+    grid.innerHTML = filtered.map(s => {
+      const title    = (s.titles && s.titles[lang]) || s.title;
+      const features = (s.features_i18n && s.features_i18n[lang]) || s.features;
+      return `
       <a href="service-details.html?id=${s.id}"
          class="group bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/40 transition-all hover:-translate-y-1 duration-300">
         <div class="relative overflow-hidden h-44">
-          <img src="${s.image_url}" alt="${s.title}"
+          <img src="${s.image_url}" alt="${title}"
                class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
           <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-sm text-xs text-gray-300 px-3 py-1 rounded-full border border-surface-border">
             <i class="fa-solid ${catIcons[s.category] || 'fa-tag'} mr-1 text-brand text-[10px]"></i>
-            ${CONFIG.CATEGORIES.find(c => c.value === s.category)?.label || s.category}
+            ${t('cat.' + s.category)}
           </span>
         </div>
         <div class="p-5">
-          <h3 class="font-bold text-base mb-2">${s.title}</h3>
+          <h3 class="font-bold text-base mb-2">${title}</h3>
           <ul class="text-gray-400 text-xs space-y-1 mb-4">
-            ${s.features.map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand text-[10px]"></i>${f}</li>`).join('')}
+            ${features.map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-check text-brand text-[10px]"></i>${f}</li>`).join('')}
           </ul>
           <div class="flex items-center justify-between mt-4 pt-4 border-t border-surface-border">
             <p class="text-brand font-extrabold text-xl">${s.price.toLocaleString('fr-FR')} <span class="text-sm font-normal text-gray-500">MAD</span></p>
             <span class="bg-brand/10 hover:bg-brand text-brand hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-brand/20 transition">
-              Commander
+              ${t('svc.card.order')}
             </span>
           </div>
         </div>
       </a>
-    `).join('');
+    `}).join('');
   }
+
+  // Re-render everything when language changes
+  document.addEventListener('langchange', () => {
+    buildCategoryChips();
+    translateSortOptions();
+    renderGrid();
+  });
 
   // Event listeners
   document.addEventListener('click', e => {
@@ -257,7 +295,11 @@
   });
 
   // Init
-  renderGrid();
+  document.addEventListener('DOMContentLoaded', () => {
+    buildCategoryChips();
+    translateSortOptions();
+    renderGrid();
+  });
 </script>
 </body>
 </html>
