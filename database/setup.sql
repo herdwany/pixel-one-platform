@@ -181,3 +181,6 @@ insert into public.services (title, category, price, features, image_url) values
     'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80'
   )
 on conflict do nothing;
+
+-- ── Reload PostgREST schema cache ────────────────────────────
+NOTIFY pgrst, 'reload schema';
