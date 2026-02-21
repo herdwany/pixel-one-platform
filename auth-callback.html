@@ -25,33 +25,31 @@
   <script>
     (async () => {
       const sb = getSupabaseClient();
-      
-      // 1. معالجة الرابط القادم من جوجل
-      try {
-        const { data: { session }, error } = await sb.auth.getSession();
-        
-        if (error) throw error;
-        
-        if (session) {
-          // 2. نجاح! توجيه إلى لوحة التحكم
-          // ننتظر قليلاً للتأكد من حفظ الجلسة
-          setTimeout(() => {
+
+      // ✅ الحل: نستمع لـ onAuthStateChange أولاً
+      // Supabase يعالج الـ hash تلقائياً ويطلق SIGNED_IN
+      const { data: { subscription } } = sb.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          subscription.unsubscribe(); // نوقف الاستماع بعد النجاح
+
+          try {
+            const profile = await getProfile(session.user.id);
+            window.location.href = profile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
+          } catch (_) {
             window.location.href = 'dashboard.html';
-          }, 1000);
-        } else {
-          // 3. فشل، العودة لتسجيل الدخول
-           // نستمع لأي تغيير في حالة تسجيل الدخول (لأن جوجل قد يتأخر ثانية)
-           sb.auth.onAuthStateChange((event, session) => {
-             if (event === 'SIGNED_IN' && session) {
-               window.location.href = 'dashboard.html';
-             }
-           });
+          }
         }
-      } catch (err) {
-        console.error(err);
-        alert("Erreur de connexion: " + err.message);
+
+        if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+          window.location.href = 'auth.html';
+        }
+      });
+
+      // ✅ Timeout احتياطي: إذا لم يحدث شيء خلال 8 ثوانٍ
+      setTimeout(() => {
+        subscription.unsubscribe();
         window.location.href = 'auth.html';
-      }
+      }, 8000);
     })();
   </script>
 </body>
