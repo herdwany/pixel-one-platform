@@ -80,12 +80,15 @@ alter table public.services  enable row level security;
 alter table public.orders    enable row level security;
 
 -- profiles: users can read/update their own row; admin sees all
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles
   for select using (auth.uid() = id);
 
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
   for update using (auth.uid() = id);
 
+drop policy if exists "profiles_admin_all" on public.profiles;
 create policy "profiles_admin_all" on public.profiles
   for all using (
     exists (
@@ -95,9 +98,11 @@ create policy "profiles_admin_all" on public.profiles
   );
 
 -- services: anyone can read; only admin can write
+drop policy if exists "services_select_all" on public.services;
 create policy "services_select_all" on public.services
   for select using (true);
 
+drop policy if exists "services_admin_write" on public.services;
 create policy "services_admin_write" on public.services
   for all using (
     exists (
@@ -107,15 +112,19 @@ create policy "services_admin_write" on public.services
   );
 
 -- orders: clients see only their own; admin sees all; anonymous orders allowed
+drop policy if exists "orders_select_own" on public.orders;
 create policy "orders_select_own" on public.orders
   for select using (auth.uid() = user_id or user_id is null);
 
+drop policy if exists "orders_insert_own" on public.orders;
 create policy "orders_insert_own" on public.orders
   for insert with check (auth.uid() = user_id or user_id is null);
 
+drop policy if exists "orders_update_own" on public.orders;
 create policy "orders_update_own" on public.orders
   for update using (auth.uid() = user_id);
 
+drop policy if exists "orders_admin_all" on public.orders;
 create policy "orders_admin_all" on public.orders
   for all using (
     exists (
@@ -129,16 +138,19 @@ insert into storage.buckets (id, name, public)
 values ('payment-proofs', 'payment-proofs', false)
 on conflict (id) do nothing;
 
+drop policy if exists "payment_proofs_insert" on storage.objects;
 create policy "payment_proofs_insert" on storage.objects
   for insert with check (
     bucket_id = 'payment-proofs' and auth.role() = 'authenticated'
   );
 
+drop policy if exists "payment_proofs_select_own" on storage.objects;
 create policy "payment_proofs_select_own" on storage.objects
   for select using (
     bucket_id = 'payment-proofs' and auth.uid()::text = (storage.foldername(name))[1]
   );
 
+drop policy if exists "payment_proofs_admin_select" on storage.objects;
 create policy "payment_proofs_admin_select" on storage.objects
   for select using (
     bucket_id = 'payment-proofs' and
