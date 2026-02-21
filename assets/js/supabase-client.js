@@ -9,8 +9,6 @@ let _supabaseClient = null;
 /**
  * Returns the singleton Supabase client instance.
  * Initialises it on first call using CONFIG values.
- *
- * @returns {import('@supabase/supabase-js').SupabaseClient}
  */
 function getSupabaseClient() {
   if (_supabaseClient) return _supabaseClient;
@@ -47,7 +45,9 @@ async function getCurrentUser() {
 
 /**
  * Returns the profile row for the given userId.
- * Returns null (instead of throwing) when no row exists yet — e.g. new Google OAuth users.
+ * Returns null (instead of throwing) when no profile row exists yet
+ * — normal for brand-new Google OAuth users before trigger fires.
+ * Valid roles: 'admin' | 'client'
  */
 async function getProfile(userId) {
   const { data, error } = await getSupabaseClient()
@@ -56,9 +56,9 @@ async function getProfile(userId) {
     .eq("id", userId)
     .single();
 
-  // PGRST116 = no rows found — normal for new OAuth users before profile is created
+  // PGRST116 = "no rows returned" — new user has no profile row yet
   if (error && error.code !== 'PGRST116') throw error;
-  return data; // may be null for brand-new users
+  return data ?? null;
 }
 
 /**
@@ -73,21 +73,18 @@ async function requireAuth(adminOnly = false) {
     window.location.href = "auth.html";
     return null;
   }
+  const profile = await getProfile(user.id);
   if (adminOnly) {
-    const profile = await getProfile(user.id);
     if (profile?.role !== "admin") {
       window.location.href = "dashboard.html";
       return null;
     }
-    return { user, profile };
   }
-  const profile = await getProfile(user.id);
   return { user, profile };
 }
 
 /**
  * Generates a unique order reference like "PX-A3F2".
- * Uses base-36 timestamp + random chars to reduce collision risk.
  */
 function generateOrderRef() {
   const ts  = Date.now().toString(36).toUpperCase().slice(-3);
@@ -97,8 +94,6 @@ function generateOrderRef() {
 
 /**
  * Builds a pre-filled WhatsApp link to notify the admin.
- *
- * @param {object} order – { order_ref, service_title, total }
  */
 function buildWhatsAppLink(order) {
   const text = encodeURIComponent(
