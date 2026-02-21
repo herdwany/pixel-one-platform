@@ -26,30 +26,33 @@
     (async () => {
       const sb = getSupabaseClient();
 
-      // ✅ الحل: نستمع لـ onAuthStateChange أولاً
-      // Supabase يعالج الـ hash تلقائياً ويطلق SIGNED_IN
       const { data: { subscription } } = sb.auth.onAuthStateChange(async (event, session) => {
+
         if (event === 'SIGNED_IN' && session) {
-          subscription.unsubscribe(); // نوقف الاستماع بعد النجاح
+          subscription.unsubscribe();
 
           try {
+            await new Promise(r => setTimeout(r, 1500));
+
             const profile = await getProfile(session.user.id);
             window.location.href = profile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
-          } catch (_) {
+          } catch (err) {
+            console.error('[auth-callback] getProfile error:', err);
             window.location.href = 'dashboard.html';
           }
+          return;
         }
 
-        if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+        if (event === 'SIGNED_OUT') {
+          subscription.unsubscribe();
           window.location.href = 'auth.html';
         }
       });
 
-      // ✅ Timeout احتياطي: إذا لم يحدث شيء خلال 8 ثوانٍ
       setTimeout(() => {
         subscription.unsubscribe();
         window.location.href = 'auth.html';
-      }, 8000);
+      }, 10000);
     })();
   </script>
 </body>
