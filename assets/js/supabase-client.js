@@ -47,6 +47,7 @@ async function getCurrentUser() {
 
 /**
  * Returns the profile row for the given userId.
+ * Returns null (instead of throwing) when no row exists yet — e.g. new Google OAuth users.
  */
 async function getProfile(userId) {
   const { data, error } = await getSupabaseClient()
@@ -55,8 +56,9 @@ async function getProfile(userId) {
     .eq("id", userId)
     .single();
 
-  if (error) throw error;
-  return data;
+  // PGRST116 = no rows found — normal for new OAuth users before profile is created
+  if (error && error.code !== 'PGRST116') throw error;
+  return data; // may be null for brand-new users
 }
 
 /**
