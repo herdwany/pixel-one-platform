@@ -124,6 +124,30 @@ create policy "orders_admin_all" on public.orders
     )
   );
 
+-- ── blog_posts ───────────────────────────────────────────────
+create table if not exists public.blog_posts (
+  id         bigint primary key generated always as identity,
+  title      text not null,
+  slug       text not null unique,
+  image      text,
+  content    text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.blog_posts enable row level security;
+
+-- blog_posts: anyone can read; only admin can write
+create policy "blog_posts_select_all" on public.blog_posts
+  for select using (true);
+
+create policy "blog_posts_admin_write" on public.blog_posts
+  for all using (
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.role = 'admin'
+    )
+  );
+
 -- ── Storage bucket for payment proofs ───────────────────────
 insert into storage.buckets (id, name, public)
 values ('payment-proofs', 'payment-proofs', false)
