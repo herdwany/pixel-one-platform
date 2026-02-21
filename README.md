@@ -22,13 +22,17 @@ Supabase Dashboard → SQL Editor → New query → paste database/migrations/00
 
 This migration is idempotent (`CREATE TABLE IF NOT EXISTS`, `DROP POLICY IF EXISTS`) and safe to re-run.
 
-### Incremental Migration (`payment_proof_path` column)
+### Incremental Migration (older `orders` table)
 
-If you have an older project that is missing the `payment_proof_path` column on the `orders` table:
+If you have an older project where `public.orders` is missing one or more columns (e.g. `order_ref`, `service_id`, `details`, `payment_proof_url`, `payment_proof_path`), apply the comprehensive migration:
 
 ```
 Supabase Dashboard → SQL Editor → New query → paste database/migration_add_payment_proof_path.sql → Run
 ```
+
+This migration uses `ADD COLUMN IF NOT EXISTS` for every column and `CREATE UNIQUE INDEX IF NOT EXISTS` for the `order_ref` index, so it is **fully idempotent** and safe to re-run.
+
+> **Schema cache delay:** After applying the migration, PostgREST may take up to 60 seconds to refresh its schema cache. If you still see a `PGRST204: Could not find the 'payment_proof_path' column` error immediately after running the migration, wait one minute and retry, or navigate to **Supabase Dashboard → Settings → API → Reload schema cache**.
 
 ### Applying SQL – step-by-step
 
