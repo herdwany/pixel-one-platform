@@ -22,6 +22,16 @@ Supabase Dashboard → SQL Editor → New query → paste database/migrations/00
 
 This migration is idempotent (`CREATE TABLE IF NOT EXISTS`, `DROP POLICY IF EXISTS`) and safe to re-run.
 
+### Incremental Migration (`order_ref` and `details` columns)
+
+If you have an older project where the `orders` table was created without the `order_ref` or `details` columns (symptom: Supabase returns `PGRST204: Could not find the 'order_ref' column`):
+
+```
+Supabase Dashboard → SQL Editor → New query → paste database/migrations/002_add_order_ref_and_details.sql → Run
+```
+
+This migration uses `ALTER TABLE … ADD COLUMN IF NOT EXISTS` and is safe to re-run on any existing install.
+
 ### Incremental Migration (`payment_proof_path` column)
 
 If you have an older project that is missing the `payment_proof_path` column on the `orders` table:
@@ -40,3 +50,11 @@ Supabase Dashboard → SQL Editor → New query → paste database/migration_add
 6. Verify success: go to **Table Editor** and confirm the expected tables appear under the `public` schema.
 
 > **Tip:** `setup.sql` is fully idempotent – all `CREATE TABLE` statements use `IF NOT EXISTS` and all `CREATE POLICY` statements are preceded by `DROP POLICY IF EXISTS`, so re-running the file is safe.
+
+### PostgREST schema cache
+
+After running any migration that adds columns, PostgREST may still return `PGRST204: Could not find the '…' column` for a short period while its schema cache refreshes.  The cache reloads automatically every few seconds.  If the error persists, you can force an immediate reload from:
+
+```
+Supabase Dashboard → API Settings → Reload schema cache
+```
