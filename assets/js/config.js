@@ -5,7 +5,7 @@
 const CONFIG = {
   // ── Supabase ────────────────────────────────────────────
   SUPABASE_URL: "https://spxayctwyigpyetprkej.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_-vkve_dZOn6BDCViDVHLrQ_EU2OL7SP",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNweGF5Y3R3eWlncHlldHBya2VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MDg1NTUsImV4cCI6MjA4NzE4NDU1NX0.WL42rSvFK5vziADKrPZ_j_hR0Vy9i6c3ZvsODq5h-rg",
 
   // ── Site Meta ───────────────────────────────────────────
   SITE_NAME: "Pixel One",
