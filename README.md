@@ -40,3 +40,40 @@ Supabase Dashboard → SQL Editor → New query → paste database/migration_add
 6. Verify success: go to **Table Editor** and confirm the expected tables appear under the `public` schema.
 
 > **Tip:** `setup.sql` is fully idempotent – all `CREATE TABLE` statements use `IF NOT EXISTS` and all `CREATE POLICY` statements are preceded by `DROP POLICY IF EXISTS`, so re-running the file is safe.
+
+## Verifying the `public.orders` Table Schema
+
+After running the setup, you can inspect the `public.orders` columns directly in the Supabase SQL Editor:
+
+```sql
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name   = 'orders'
+ORDER BY ordinal_position;
+```
+
+Expected results:
+
+| column_name        | data_type                   | is_nullable | column_default                    |
+|--------------------|-----------------------------|-------------|-----------------------------------|
+| id                 | bigint                      | NO          | generated always as identity      |
+| order_ref          | text                        | NO          |                                   |
+| user_id            | uuid                        | YES         |                                   |
+| service_id         | bigint                      | YES         |                                   |
+| status             | text                        | NO          | 'pending'::text                   |
+| details            | jsonb                       | YES         |                                   |
+| payment_proof_url  | text                        | YES         |                                   |
+| payment_proof_path | text                        | YES         |                                   |
+| created_at         | timestamp with time zone    | NO          | now()                             |
+| updated_at         | timestamp with time zone    | NO          | now()                             |
+
+- **`id`** – auto-incrementing primary key.
+- **`order_ref`** – unique human-readable order reference (e.g. `ORD-XXXXXXXX`).
+- **`user_id`** – references `auth.users`; `NULL` for anonymous orders.
+- **`service_id`** – references `public.services`; set to `NULL` if the service is deleted.
+- **`status`** – one of `pending`, `in_progress`, `review`, `done`.
+- **`details`** – freeform JSON payload (client notes, revision requests, etc.).
+- **`payment_proof_url`** – public URL of the uploaded payment proof (legacy).
+- **`payment_proof_path`** – Storage object path inside the `payment-proofs` bucket.
+- **`created_at`** / **`updated_at`** – managed automatically by the database.
