@@ -5,3 +5,6 @@
 
 alter table public.orders
   add column if not exists payment_proof_path text;
+
+-- Reload PostgREST schema cache so the new column is visible immediately
+NOTIFY pgrst, 'reload schema';
