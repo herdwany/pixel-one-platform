@@ -425,7 +425,10 @@
     if (activeStatusFilter) list = list.filter(o => o.status === activeStatusFilter);
     if (search) list = list.filter(o =>
       o.order_ref.toLowerCase().includes(search) ||
-      (o.services?.title || '').toLowerCase().includes(search)
+      (o.services?.title || '').toLowerCase().includes(search) ||
+      (o.details?.name || '').toLowerCase().includes(search) ||
+      (o.details?.email || '').toLowerCase().includes(search) ||
+      (o.details?.phone || '').toLowerCase().includes(search)
     );
 
     const tbody = document.getElementById('orders-tbody');
@@ -659,15 +662,28 @@
       console.warn('[PixelOne] Admin auth skipped (demo mode):', err.message);
     }
 
-    // Load orders
+    // Load orders — try with services join; fall back to plain query if FK not recognized
     try {
       const sb = getSupabaseClient();
-      const { data: orders, error } = await sb
-        .from('orders')
-        .select('*, services(title, price, category)')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      let orders = null;
+      try {
+        const { data, error } = await sb
+          .from('orders')
+          .select('*, services(title, price, category)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        orders = data;
+      } catch (_joinErr) {
+        const { data, error } = await sb
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        orders = (data || []).map(o => {
+          const svc = CONFIG.SERVICES.find(s => s.id === o.service_id);
+          return { ...o, services: svc ? { title: svc.title, price: svc.price, category: svc.category } : null };
+        });
+      }
       allOrders = orders || [];
     } catch (err) {
       allOrders = [];
