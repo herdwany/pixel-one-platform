@@ -265,7 +265,7 @@
 
 <!-- ── ORDER EDIT MODAL ─────────────────────────────────── -->
 <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-md p-6">
+  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-5">
       <h3 class="font-bold text-lg" data-i18n="admin.modal.title">Modifier la commande</h3>
       <button id="modal-close" class="text-gray-500 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -275,6 +275,38 @@
         <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.modal.ref.label">Référence</label>
         <p id="modal-ref" class="text-brand font-bold"></p>
       </div>
+
+      <!-- Client Info -->
+      <div class="bg-surface rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.client.title">Informations client</p>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.name">Nom</p>
+            <p id="modal-client-name" class="text-white font-medium mt-0.5">—</p>
+          </div>
+          <div>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.phone">Téléphone</p>
+            <p id="modal-client-phone" class="text-white font-medium mt-0.5">—</p>
+          </div>
+          <div class="col-span-2">
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.email">Email</p>
+            <p id="modal-client-email" class="text-white font-medium mt-0.5">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Details (dynamic fields + notes) -->
+      <div id="modal-order-details" class="hidden bg-surface rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.details.title">Détails de la commande</p>
+        <div id="modal-details-content" class="text-sm space-y-1.5 text-gray-300"></div>
+      </div>
+
+      <!-- Payment Proof -->
+      <div id="modal-proof-wrap" class="hidden">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-2" data-i18n="admin.modal.proof.label">Preuve de paiement</p>
+        <div id="modal-proof-content"></div>
+      </div>
+
       <div>
         <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.modal.status.label">Statut</label>
         <select id="modal-status"
@@ -463,12 +495,72 @@
   document.getElementById('order-search').addEventListener('input', async () => renderOrders(allOrders));
 
   // ── Edit order modal ──────────────────────────────────────
-  document.addEventListener('click', e => {
+  document.addEventListener('click', async e => {
     const btn = e.target.closest('.edit-order-btn');
     if (!btn) return;
     currentOrderId = Number(btn.dataset.id);
+    const order = allOrders.find(o => o.id === currentOrderId) || {};
+    const details = order.details || {};
+
     document.getElementById('modal-ref').textContent = btn.dataset.ref;
     document.getElementById('modal-status').value = btn.dataset.status;
+
+    // Populate client info
+    document.getElementById('modal-client-name').textContent =
+      details.name || '—';
+    document.getElementById('modal-client-phone').textContent = details.phone || '—';
+    document.getElementById('modal-client-email').textContent = details.email || '—';
+
+    // Populate dynamic fields + notes
+    const excludeKeys = ['name', 'phone', 'email'];
+    const entries = Object.entries(details).filter(([k]) => !excludeKeys.includes(k));
+    const detailsEl = document.getElementById('modal-order-details');
+    const detailsContent = document.getElementById('modal-details-content');
+    if (entries.length) {
+      detailsContent.innerHTML = entries.map(([k, v]) =>
+        `<p><span class="text-gray-500 capitalize">${esc(k)}:</span> ${esc(v)}</p>`
+      ).join('');
+      detailsEl.classList.remove('hidden');
+    } else {
+      detailsEl.classList.add('hidden');
+    }
+
+    // Populate payment proof
+    const proofWrap = document.getElementById('modal-proof-wrap');
+    const proofContent = document.getElementById('modal-proof-content');
+    proofWrap.classList.add('hidden');
+    proofContent.innerHTML = '';
+    if (order.payment_proof_path || order.payment_proof_url) {
+      let proofUrl = order.payment_proof_url || null;
+      if (order.payment_proof_path) {
+        try {
+          const sb = getSupabaseClient();
+          const { data } = await sb.storage
+            .from('payment-proofs')
+            .createSignedUrl(order.payment_proof_path, 3600);
+          proofUrl = data?.signedUrl || proofUrl;
+        } catch (_) {}
+      }
+      if (proofUrl && proofUrl.startsWith('http')) {
+        const safeUrl = esc(proofUrl);
+        const proofLabel = t('admin.modal.proof.label');
+        const isImage = /\.(jpe?g|png|gif|webp)(\?|$)/i.test(proofUrl);
+        proofContent.innerHTML = isImage
+          ? `<a href="${safeUrl}" target="_blank" rel="noopener">
+               <img src="${safeUrl}" alt="${esc(proofLabel)}" class="w-full rounded-lg max-h-52 object-contain bg-surface border border-surface-border" />
+             </a>
+             <a href="${safeUrl}" target="_blank" rel="noopener"
+                class="text-xs text-brand hover:underline mt-1.5 inline-flex items-center gap-1">
+               <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>${t('admin.modal.proof.open')}
+             </a>`
+          : `<a href="${safeUrl}" target="_blank" rel="noopener"
+                class="inline-flex items-center gap-2 text-sm text-brand hover:underline">
+               <i class="fa-solid fa-file"></i>${t('admin.receipt.btn')}
+             </a>`;
+        proofWrap.classList.remove('hidden');
+      }
+    }
+
     document.getElementById('modal-overlay').classList.remove('hidden');
   });
 
