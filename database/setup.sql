@@ -160,6 +160,33 @@ create policy "payment_proofs_admin_select" on storage.objects
     )
   );
 
+-- ── Ensure FK constraint on orders.service_id ───────────────
+-- Runs after table creation so it is safe even when the table
+-- already existed without the constraint.
+do $$
+begin
+  if not exists (
+    select 1
+    from   information_schema.table_constraints tc
+    join   information_schema.key_column_usage   kcu
+           on  kcu.constraint_name   = tc.constraint_name
+           and kcu.constraint_schema = tc.constraint_schema
+    where  tc.constraint_type  = 'FOREIGN KEY'
+    and    tc.table_schema      = 'public'
+    and    tc.table_name        = 'orders'
+    and    kcu.column_name      = 'service_id'
+  ) then
+    alter table public.orders
+      add constraint orders_service_id_fkey
+      foreign key (service_id)
+      references public.services (id)
+      on delete set null;
+  end if;
+end;
+$$;
+
+create index if not exists orders_service_id_idx on public.orders (service_id);
+
 -- ── Seed Services ────────────────────────────────────────────
 insert into public.services (title, category, price, features, image_url) values
   (
