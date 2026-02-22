@@ -342,7 +342,7 @@
 <script src="assets/js/supabase-client.js"></script>
 <script>
   /* ========== admin page JS (renderOrders + modal handlers) ==========
-     This is the same logic used earlier (no conflicts). Keep ensure:
+     Ensure:
      - getSupabaseClient() exists in supabase-client.js
      - CONFIG contains SERVICES and ORDER_STATUSES
   ===================================================================== */
@@ -511,7 +511,8 @@
     const btn = e.target.closest('.edit-order-btn');
     if (!btn) return;
     currentOrderId = Number(btn.dataset.id);
-    const order = allOrders.find(o => o.id === currentOrderId) || {};
+    const order = allOrders.find(o => o.id === currentOrderId);
+    if (!order) return;
     const details = order.details || {};
     const service = order.services || {};
 
