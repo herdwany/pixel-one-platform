@@ -275,10 +275,10 @@ const TRANSLATIONS = {
     'admin.modal.client.name':  'Nom',
     'admin.modal.client.phone': 'Téléphone',
     'admin.modal.client.email': 'Email',
-    'admin.modal.service':    'Service',
     'admin.modal.details.title': 'Détails de la commande',
     'admin.modal.proof.label':  'Preuve de paiement',
     'admin.modal.proof.open':   'Ouvrir en plein écran',
+    'admin.modal.service':    'Service',
     'admin.view.btn':         'Détails',
 
     // ── Auth callback page ────────────────────────────────────
@@ -538,10 +538,10 @@ const TRANSLATIONS = {
     'admin.modal.client.name':  'Name',
     'admin.modal.client.phone': 'Phone',
     'admin.modal.client.email': 'Email',
-    'admin.modal.service':    'Service',
     'admin.modal.details.title': 'Order details',
     'admin.modal.proof.label':  'Payment proof',
     'admin.modal.proof.open':   'Open full screen',
+    'admin.modal.service':    'Service',
     'admin.view.btn':         'Details',
 
     'callback.status':   'Verifying your account…',
@@ -800,10 +800,10 @@ const TRANSLATIONS = {
     'admin.modal.client.name':  'الاسم',
     'admin.modal.client.phone': 'الهاتف',
     'admin.modal.client.email': 'البريد الإلكتروني',
-    'admin.modal.service':    'الخدمة',
     'admin.modal.details.title': 'تفاصيل الطلب',
     'admin.modal.proof.label':  'إيصال الدفع',
     'admin.modal.proof.open':   'فتح بملء الشاشة',
+    'admin.modal.service':    'الخدمة',
     'admin.view.btn':         'التفاصيل',
 
     'callback.status':   'جارٍ التحقق من حسابك…',

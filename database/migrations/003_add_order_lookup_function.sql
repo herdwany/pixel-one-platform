@@ -16,10 +16,10 @@ as $$
   from public.orders o
   where o.order_ref = p_ref
     and (
-      o.details->>'email' = p_email
+      lower(trim(o.details->>'email')) = lower(trim(p_email))
       or exists (
         select 1 from auth.users u
-        where u.id = o.user_id and u.email = p_email
+        where u.id = o.user_id and lower(trim(u.email)) = lower(trim(p_email))
       )
     )
   limit 1;
