@@ -371,6 +371,7 @@
         if (error) throw error;
         orders = data;
       } catch (_joinErr) {
+        // FK join can fail if PostgREST schema cache is stale — fall back to plain query
         const { data, error } = await sb
           .from('orders')
           .select('*')
@@ -393,7 +394,7 @@
               .from('payment-proofs')
               .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
             proofUrl = data?.signedUrl || null;
-          } catch (_) { /* storage error – skip */ }
+          } catch (_storageErr) { /* storage access error – skip proof URL */ }
         } else {
           proofUrl = order.payment_proof_url || null;
         }
