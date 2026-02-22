@@ -1,3 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="admin.page.title">Admin — Pixel One</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: { sans: ['Outfit', 'sans-serif'], tajawal: ['Tajawal', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body { background-color: #050505; font-family: 'Outfit', sans-serif; }
+    body.lang-fr { font-family: 'Outfit',  sans-serif; }
+    body.lang-en { font-family: 'Inter',   sans-serif; }
+    body.lang-ar { font-family: 'Tajawal', sans-serif; }
+    .site-logo { direction: ltr; unicode-bidi: isolate; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+    .status-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 9999px; }
+    .status-pending     { background: rgba(234,179,8,0.1);  color: #eab308; }
+    .status-in_progress { background: rgba(59,130,246,0.1); color: #3b82f6; }
+    .status-review      { background: rgba(168,85,247,0.1); color: #a855f7; }
+    .status-done        { background: rgba(34,197,94,0.1);  color: #22c55e; }
+
+    /* Modal */
+    #modal-overlay { transition: opacity .2s; }
+    #modal-overlay.hidden { pointer-events: none; opacity: 0; }
+
+    /* Sidebar nav */
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; cursor: pointer; transition: all .2s; font-size: 14px; color: #9ca3af; }
+    .nav-item:hover, .nav-item.active { background: rgba(255,0,0,0.08); color: #fff; }
+    .nav-item.active i { color: #ff0000; }
+  </style>
+</head>
+
+<body class="text-white lang-fr">
+<div class="content flex h-screen overflow-hidden">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="w-64 shrink-0 bg-surface-card border-r border-surface-border flex flex-col py-6 px-4">
+    <a href="index.html" dir="ltr" class="site-logo font-bold text-lg tracking-tight mb-8 px-2">
+      <span class="text-brand">Pixel</span>One <span class="text-xs text-gray-500 font-normal">Admin</span>
+    </a>
+
+    <nav class="flex-1 space-y-1">
+      <div class="nav-item active" data-section="orders">
+        <i class="fa-solid fa-list-check w-4"></i><span data-i18n="admin.nav.orders">Commandes</span>
+      </div>
+      <div class="nav-item" data-section="services">
+        <i class="fa-solid fa-briefcase w-4"></i><span data-i18n="admin.nav.services">Services</span>
+      </div>
+      <div class="nav-item" data-section="blog">
+        <i class="fa-solid fa-pen-to-square w-4"></i><span data-i18n="admin.nav.blog">Blog</span>
+      </div>
+      <div class="nav-item" data-section="stats">
+        <i class="fa-solid fa-chart-bar w-4"></i><span data-i18n="admin.nav.stats">Statistiques</span>
+      </div>
+    </nav>
+
+    <div class="border-t border-surface-border pt-4 space-y-1">
+      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-user w-4"></i><span data-i18n="admin.nav.client">Vue client</span></a>
+      <button id="logout-btn" class="nav-item w-full text-left text-red-500 hover:bg-red-500/10 hover:text-red-400">
+        <i class="fa-solid fa-right-from-bracket w-4"></i><span data-i18n="admin.nav.logout">Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="flex-1 overflow-y-auto">
+
+    <!-- Top bar -->
+    <div class="sticky top-0 z-10 bg-black/70 backdrop-blur-md border-b border-surface-border px-8 py-4 flex items-center justify-between">
+      <h1 id="section-title" class="font-bold text-lg" data-i18n="admin.orders.title">Commandes</h1>
+      <div class="flex items-center gap-3">
+        <div class="relative" id="lang-dropdown-wrapper">
+          <button id="lang-btn"
+                  class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
+                  aria-haspopup="listbox">
+            <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
+            <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
+            <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
+          </button>
+          <div id="lang-dropdown"
+               class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
+               style="min-width:160px" role="listbox">
+            <button onclick="setLanguage('fr')" data-lang="fr" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇫🇷</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">Français</p><p class="text-[10px] text-gray-500">French</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('en')" data-lang="en" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇺🇸</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">English</p><p class="text-[10px] text-gray-500">English</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('ar')" data-lang="ar" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇲🇦</span>
+              <div class="text-start" style="font-family:'Tajawal',sans-serif"><p class="font-semibold text-xs leading-tight">العربية</p><p class="text-[10px] text-gray-500">Arabic</p></div>
+            </button>
+          </div>
+        </div>
+        <span id="admin-name" class="text-sm text-gray-400"></span>
+        <span class="bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-3 py-1 rounded-full">God Mode</span>
+      </div>
+    </div>
+
+    <div class="p-8 space-y-8">
+
+      <!-- ── STATS ROW ────────────────────────────────────── -->
+      <div id="stats-row" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+          <p class="text-2xl font-extrabold text-brand" id="stat-total">—</p>
+          <p class="text-gray-500 text-xs mt-1" data-i18n="admin.stat.total">Commandes totales</p>
+        </div>
+        <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+          <p class="text-2xl font-extrabold text-yellow-400" id="stat-pending">—</p>
+          <p class="text-gray-500 text-xs mt-1" data-i18n="admin.stat.pending">En attente</p>
+        </div>
+        <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+          <p class="text-2xl font-extrabold text-blue-400" id="stat-progress">—</p>
+          <p class="text-gray-500 text-xs mt-1" data-i18n="admin.stat.progress">En cours</p>
+        </div>
+        <div class="bg-surface-card border border-surface-border rounded-xl p-5">
+          <p class="text-2xl font-extrabold text-green-400" id="stat-done">—</p>
+          <p class="text-gray-500 text-xs mt-1" data-i18n="admin.stat.done">Terminées</p>
+        </div>
+      </div>
+
+      <!-- ── SECTIONS ──────────────────────────────────────── -->
+
+      <!-- ORDERS section -->
+      <section id="section-orders" class="space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+          <div class="flex gap-2 flex-wrap" id="status-filter-btns">
+            <button class="status-filter-btn active text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card hover:border-brand/40" data-status="" data-i18n="admin.filter.all">Toutes</button>
+            <button class="status-filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card hover:border-brand/40" data-status="pending" data-i18n="admin.filter.pending">En attente</button>
+            <button class="status-filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card hover:border-brand/40" data-status="in_progress" data-i18n="admin.filter.progress">En cours</button>
+            <button class="status-filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card hover:border-brand/40" data-status="review" data-i18n="admin.filter.review">Révision</button>
+            <button class="status-filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card hover:border-brand/40" data-status="done" data-i18n="admin.filter.done">Terminées</button>
+          </div>
+          <input id="order-search" type="text"
+                 data-i18n-ph="admin.search.ph"
+                 placeholder="Rechercher une ref…"
+                 class="bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 w-48" />
+        </div>
+
+        <div id="orders-loading" class="text-center py-10 text-gray-500">
+          <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+        </div>
+
+        <div id="orders-table-wrap" class="hidden bg-surface-card border border-surface-border rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="border-b border-surface-border text-gray-500 text-xs uppercase">
+                <tr>
+                  <th class="text-left px-5 py-3" data-i18n="admin.table.ref">Réf.</th>
+                  <th class="text-left px-5 py-3" data-i18n="admin.table.client">Client</th>
+                  <th class="text-left px-5 py-3" data-i18n="admin.table.service">Service</th>
+                  <th class="text-left px-5 py-3" data-i18n="admin.table.status">Statut</th>
+                  <th class="text-left px-5 py-3" data-i18n="admin.table.date">Date</th>
+                  <th class="text-left px-5 py-3" data-i18n="admin.table.actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-tbody" class="divide-y divide-surface-border"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SERVICES section -->
+      <section id="section-services" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-lg" data-i18n="admin.services.title">Gestion des Services</h2>
+          <button id="add-service-btn"
+                  class="bg-brand hover:bg-brand-dark text-white text-sm font-bold px-4 py-2 rounded-xl transition">
+            <i class="fa-solid fa-plus mr-1"></i><span data-i18n="admin.services.add">Ajouter</span>
+          </button>
+        </div>
+        <div id="services-admin-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- BLOG section -->
+      <section id="section-blog" class="hidden space-y-4">
+        <h2 class="font-bold text-lg" data-i18n="admin.blog.title">Publier un Article de Blog</h2>
+        <div class="bg-surface-card border border-surface-border rounded-2xl p-6 max-w-2xl">
+          <form id="blog-form" class="space-y-5">
+            <div>
+              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article</label>
+              <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
+                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+            </div>
+            <div>
+              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.slug.label">Slug (URL)</label>
+              <input id="blog-slug" type="text" required placeholder="top-5-tendances-design-2025"
+                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+            </div>
+            <div>
+              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.img.label">Image de couverture (URL)</label>
+              <input id="blog-image" type="url" placeholder="https://…"
+                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+            </div>
+            <div>
+              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (Markdown supporté)</label>
+              <textarea id="blog-content" rows="8" required placeholder="Rédigez votre article…"
+                        class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+            </div>
+            <button type="submit"
+                    class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition">
+              <i class="fa-solid fa-upload mr-2"></i><span data-i18n="admin.blog.submit">Publier l'article</span>
+            </button>
+          </form>
+          <div id="blog-alert" class="hidden mt-4 px-4 py-3 rounded-lg text-sm"></div>
+        </div>
+      </section>
+
+      <!-- STATS section -->
+      <section id="section-stats" class="hidden">
+        <h2 class="font-bold text-lg mb-6" data-i18n="admin.stats.title">Statistiques</h2>
+        <div id="stats-charts" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Simple text-based stats when no chart lib -->
+          <div class="bg-surface-card border border-surface-border rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider" data-i18n="admin.stats.by_status">Commandes par statut</h3>
+            <div id="stat-by-status" class="space-y-3"></div>
+          </div>
+          <div class="bg-surface-card border border-surface-border rounded-2xl p-6">
+            <h3 class="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider" data-i18n="admin.stats.by_cat">Revenus par catégorie</h3>
+            <div id="stat-by-category" class="space-y-3"></div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /p-8 -->
+  </main>
+</div><!-- /flex -->
+
+<!-- ── EDIT ORDER MODAL (merged & improved) ───────────────── -->
 <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
 
@@ -10,63 +276,405 @@
 
     <div class="space-y-4">
       <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Référence</label>
+        <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.modal.ref.label">Référence</label>
         <p id="modal-ref" class="text-brand font-bold"></p>
       </div>
 
-      <!-- Client Info -->
+      <!-- Client Info (grid layout from main, preserved IDs used in scripts) -->
       <div class="bg-surface rounded-xl p-4">
-        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3">
-          Informations client
-        </p>
-
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.client.title">Informations client</p>
         <div class="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <p class="text-gray-500 text-xs">Nom</p>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.name">Nom</p>
             <p id="modal-client-name" class="text-white font-medium mt-0.5">—</p>
           </div>
           <div>
-            <p class="text-gray-500 text-xs">Téléphone</p>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.phone">Téléphone</p>
             <p id="modal-client-phone" class="text-white font-medium mt-0.5">—</p>
           </div>
           <div class="col-span-2">
-            <p class="text-gray-500 text-xs">Email</p>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.email">Email</p>
             <p id="modal-client-email" class="text-white font-medium mt-0.5">—</p>
           </div>
         </div>
       </div>
 
-      <!-- Order Details -->
+      <!-- Order Details (dynamic fields + notes) -->
       <div id="modal-order-details" class="hidden bg-surface rounded-xl p-4">
-        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3">
-          Détails de la commande
-        </p>
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.details.title">Détails de la commande</p>
         <div id="modal-details-content" class="text-sm space-y-1.5 text-gray-300"></div>
       </div>
 
       <!-- Payment Proof -->
       <div id="modal-proof-wrap" class="hidden">
-        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-2">
-          Preuve de paiement
-        </p>
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-2" data-i18n="admin.modal.proof.label">Preuve de paiement</p>
         <div id="modal-proof-content"></div>
       </div>
 
       <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Statut</label>
+        <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.modal.status.label">Statut</label>
         <select id="modal-status"
-          class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white">
-          <option value="pending">En attente</option>
-          <option value="in_progress">En cours</option>
-          <option value="review">En révision</option>
-          <option value="done">Terminé</option>
+                class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/50 transition">
+          <option value="pending" data-i18n-opt="status.pending">En attente</option>
+          <option value="in_progress" data-i18n-opt="status.in_progress">En cours</option>
+          <option value="review" data-i18n-opt="status.review">En révision</option>
+          <option value="done" data-i18n-opt="status.done">Terminé</option>
         </select>
       </div>
 
       <button id="modal-save"
-        class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl">
+              class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl transition" data-i18n="admin.modal.save">
         Enregistrer
       </button>
     </div>
   </div>
 </div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script>
+  /* ========== admin page JS (renderOrders + modal handlers) ==========
+     This is the same logic used earlier (no conflicts). Keep ensure:
+     - getSupabaseClient() exists in supabase-client.js
+     - CONFIG contains SERVICES and ORDER_STATUSES
+  ===================================================================== */
+
+  let allOrders = [];
+  let activeStatusFilter = '';
+  let currentOrderId = null;
+
+  function esc(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function translateModalStatusOptions() {
+    document.querySelectorAll('#modal-status option[data-i18n-opt]').forEach(opt => {
+      opt.textContent = t(opt.dataset.i18nOpt);
+    });
+  }
+
+  document.addEventListener('langchange', () => {
+    translateModalStatusOptions();
+    if (allOrders.length) renderOrders(allOrders);
+    updateStats(allOrders);
+  });
+
+  // Section navigation (unchanged)
+  const sections = { orders: null, services: null, blog: null, stats: null };
+  document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item[data-section]').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      const sec = item.dataset.section;
+      const spanEl = item.querySelector('[data-i18n]');
+      document.getElementById('section-title').textContent = spanEl ? spanEl.textContent.trim() : item.textContent.trim();
+      Object.keys(sections).forEach(k => {
+        const el = document.getElementById(`section-${k}`);
+        if (el) el.classList.toggle('hidden', k !== sec);
+      });
+    });
+  });
+
+  function updateStats(orders) {
+    document.getElementById('stat-total').textContent   = orders.length;
+    document.getElementById('stat-pending').textContent = orders.filter(o => o.status === 'pending').length;
+    document.getElementById('stat-progress').textContent= orders.filter(o => o.status === 'in_progress').length;
+    document.getElementById('stat-done').textContent    = orders.filter(o => o.status === 'done').length;
+
+    // By status and by category (same logic)
+    const statusEl = document.getElementById('stat-by-status');
+    const statusCounts = CONFIG.ORDER_STATUSES.map(s => ({
+      label: t('status.' + s),
+      count: orders.filter(o => o.status === s).length,
+    }));
+    const maxCount = Math.max(...statusCounts.map(s => s.count), 1);
+    statusEl.innerHTML = statusCounts.map(s => `
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-gray-400">${s.label}</span>
+          <span class="text-white font-semibold">${s.count}</span>
+        </div>
+        <div class="bg-surface rounded-full h-2 overflow-hidden">
+          <div class="bg-brand h-full rounded-full transition-all" style="width:${(s.count/maxCount)*100}%"></div>
+        </div>
+      </div>`).join('');
+
+    const catEl = document.getElementById('stat-by-category');
+    const cats = CONFIG.CATEGORIES.map(c => {
+      const catOrders = orders.filter(o => o.services?.category === c.value);
+      const revenue = catOrders.reduce((sum, o) => sum + Number(o.services?.price || 0), 0);
+      return { label: t('cat.' + c.value), revenue };
+    });
+    const maxRev = Math.max(...cats.map(c => c.revenue), 1);
+    catEl.innerHTML = cats.map(c => `
+      <div>
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-gray-400">${c.label}</span>
+          <span class="text-white font-semibold">${c.revenue.toLocaleString('fr-FR')} MAD</span>
+        </div>
+        <div class="bg-surface rounded-full h-2 overflow-hidden">
+          <div class="bg-blue-500 h-full rounded-full transition-all" style="width:${(c.revenue/maxRev)*100}%"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Render orders
+  async function renderOrders(orders) {
+    const search = document.getElementById('order-search').value.toLowerCase();
+    let list = orders;
+    if (activeStatusFilter) list = list.filter(o => o.status === activeStatusFilter);
+    if (search) list = list.filter(o =>
+      (o.order_ref || '').toLowerCase().includes(search) ||
+      (o.services?.title || '').toLowerCase().includes(search) ||
+      (o.details?.name || o.profiles?.full_name || '').toLowerCase().includes(search) ||
+      (o.details?.email || '').toLowerCase().includes(search) ||
+      (o.details?.phone || '').toLowerCase().includes(search)
+    );
+
+    const tbody = document.getElementById('orders-tbody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-gray-500">${t('admin.table.empty')}</td></tr>`;
+      return;
+    }
+
+    const sb = getSupabaseClient();
+    const SIGNED_URL_EXPIRY_SECONDS = 60;
+    const signedUrls = await Promise.all(list.map(async order => {
+      if (order.payment_proof_path) {
+        try {
+          const { data } = await sb.storage.from('payment-proofs').createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
+          return data?.signedUrl || null;
+        } catch (_) { return null; }
+      }
+      return order.payment_proof_url || null;
+    }));
+
+    const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+    tbody.innerHTML = list.map((order, idx) => {
+      const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
+      const clientName = esc(order.details?.name || order.profiles?.full_name || '—');
+      const clientEmail = esc(order.details?.email || '');
+      const clientPhone = esc(order.details?.phone || '');
+      const proofUrl = signedUrls[idx];
+      return `
+        <tr class="hover:bg-surface/40 transition">
+          <td class="px-5 py-3.5 font-bold text-brand text-sm">${esc(order.order_ref)}</td>
+          <td class="px-5 py-3.5 text-sm text-gray-300">
+            <p>${clientName}</p>
+            ${clientEmail ? `<p class="text-xs text-gray-500"><i class="fa-solid fa-envelope mr-1 text-[10px]"></i>${clientEmail}</p>` : ''}
+            ${clientPhone ? `<p class="text-xs text-gray-500"><i class="fa-solid fa-phone mr-1 text-[10px]"></i>${clientPhone}</p>` : ''}
+          </td>
+          <td class="px-5 py-3.5 text-sm text-gray-300">${esc(order.services?.title || '—')}</td>
+          <td class="px-5 py-3.5">
+            <span class="status-badge status-${esc(order.status)}">${t('status.' + order.status) || esc(order.status)}</span>
+          </td>
+          <td class="px-5 py-3.5 text-xs text-gray-500">${esc(date)}</td>
+          <td class="px-5 py-3.5">
+            <div class="flex items-center gap-2">
+              <button class="edit-order-btn text-xs text-brand hover:underline" data-id="${esc(String(order.id))}" data-ref="${esc(order.order_ref)}" data-status="${esc(order.status)}">
+                <i class="fa-solid fa-pen-to-square mr-1"></i>${t('admin.edit.btn')}
+              </button>
+              ${proofUrl ? `<a href="${esc(proofUrl)}" target="_blank" class="text-xs text-gray-500 hover:text-white"><i class="fa-solid fa-receipt mr-1"></i>${t('admin.receipt.btn')}</a>` : ''}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // Status filter
+  document.querySelectorAll('.status-filter-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active', 'border-brand/40', 'text-white'));
+      btn.classList.add('active', 'border-brand/40', 'text-white');
+      activeStatusFilter = btn.dataset.status;
+      await renderOrders(allOrders);
+    });
+  });
+
+  document.getElementById('order-search').addEventListener('input', async () => renderOrders(allOrders));
+
+  // Edit order modal (populate + proof signed url)
+  document.addEventListener('click', async e => {
+    const btn = e.target.closest('.edit-order-btn');
+    if (!btn) return;
+    currentOrderId = Number(btn.dataset.id);
+    const order = allOrders.find(o => o.id === currentOrderId) || {};
+    const details = order.details || {};
+
+    document.getElementById('modal-ref').textContent = btn.dataset.ref;
+    document.getElementById('modal-status').value = btn.dataset.status;
+
+    document.getElementById('modal-client-name').textContent = details.name || order.profiles?.full_name || '—';
+    document.getElementById('modal-client-phone').textContent = details.phone || '—';
+    document.getElementById('modal-client-email').textContent = details.email || '—';
+
+    const excludeKeys = ['name', 'phone', 'email'];
+    const entries = Object.entries(details).filter(([k]) => !excludeKeys.includes(k));
+    const detailsEl = document.getElementById('modal-order-details');
+    const detailsContent = document.getElementById('modal-details-content');
+    if (entries.length) {
+      detailsContent.innerHTML = entries.map(([k, v]) =>
+        `<p><span class="text-gray-500 capitalize">${esc(k)}:</span> ${esc(typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''))}</p>`
+      ).join('');
+      detailsEl.classList.remove('hidden');
+    } else {
+      detailsEl.classList.add('hidden');
+    }
+
+    // proof
+    const proofWrap = document.getElementById('modal-proof-wrap');
+    const proofContent = document.getElementById('modal-proof-content');
+    proofWrap.classList.add('hidden');
+    proofContent.innerHTML = '';
+    let proofUrl = order.payment_proof_url || null;
+    if (order.payment_proof_path) {
+      try {
+        const sb = getSupabaseClient();
+        const { data } = await sb.storage.from('payment-proofs').createSignedUrl(order.payment_proof_path, 3600);
+        proofUrl = data?.signedUrl || proofUrl;
+      } catch (_) {}
+    }
+    if (proofUrl && proofUrl.startsWith('http')) {
+      const safeUrl = esc(proofUrl);
+      const isImage = /\.(jpe?g|png|gif|webp)(\?|$)/i.test(proofUrl);
+      proofContent.innerHTML = isImage
+        ? `<a href="${safeUrl}" target="_blank" rel="noopener"><img src="${safeUrl}" class="w-full rounded-lg max-h-52 object-contain bg-surface border border-surface-border" /></a>
+           <a href="${safeUrl}" target="_blank" rel="noopener" class="text-xs text-brand hover:underline mt-1.5 inline-flex items-center gap-1"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>${t('admin.modal.proof.open')}</a>`
+        : `<a href="${safeUrl}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm text-brand hover:underline"><i class="fa-solid fa-file"></i>${t('admin.receipt.btn')}</a>`;
+      proofWrap.classList.remove('hidden');
+    }
+
+    document.getElementById('modal-overlay').classList.remove('hidden');
+  });
+
+  document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('modal-overlay').classList.add('hidden');
+  });
+
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-overlay')) document.getElementById('modal-overlay').classList.add('hidden');
+  });
+
+  document.getElementById('modal-save').addEventListener('click', async () => {
+    const newStatus = document.getElementById('modal-status').value;
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('orders').update({ status: newStatus }).eq('id', currentOrderId);
+      if (error) throw error;
+      const order = allOrders.find(o => o.id === currentOrderId);
+      if (order) order.status = newStatus;
+      await renderOrders(allOrders);
+      updateStats(allOrders);
+      document.getElementById('modal-overlay').classList.add('hidden');
+    } catch (err) {
+      alert('Erreur: ' + err.message);
+    }
+  });
+
+  // Services grid
+  function renderAdminServices(services) {
+    const grid = document.getElementById('services-admin-grid');
+    grid.innerHTML = services.map(s => `
+      <div class="bg-surface border border-surface-border rounded-xl p-4 flex gap-3">
+        <img src="${s.image_url}" class="w-16 h-16 rounded-lg object-cover shrink-0" alt="${s.title}" />
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm truncate">${s.title}</p>
+          <p class="text-xs text-gray-500">${t('cat.' + s.category)}</p>
+          <p class="text-brand font-bold text-sm mt-1">${Number(s.price).toLocaleString('fr-FR')} MAD</p>
+        </div>
+      </div>`).join('');
+  }
+
+  // Blog form
+  document.getElementById('blog-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById('blog-alert');
+    const payload = {
+      title:   document.getElementById('blog-title').value.trim(),
+      slug:    document.getElementById('blog-slug').value.trim(),
+      image:   document.getElementById('blog-image').value.trim(),
+      content: document.getElementById('blog-content').value.trim(),
+    };
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('blog_posts').insert(payload);
+      if (error) throw error;
+      alertEl.textContent = t('admin.blog.success');
+      alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
+      alertEl.classList.remove('hidden');
+      e.target.reset();
+    } catch (err) {
+      alertEl.textContent = '✗ ' + err.message;
+      alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
+      alertEl.classList.remove('hidden');
+    }
+  });
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    try { await getSupabaseClient().auth.signOut(); } catch (_) {}
+    window.location.href = 'auth.html';
+  });
+
+  // Init: load profile, orders (with profiles join + fallback), services
+  (async () => {
+    let profile = null;
+    try {
+      const auth = await requireAuth(true);
+      if (!auth) return;
+      profile = auth.profile;
+      document.getElementById('admin-name').textContent = profile?.full_name || auth.user.email;
+    } catch (err) {
+      console.warn('[PixelOne] Admin auth skipped (demo mode):', err.message);
+    }
+
+    try {
+      const sb = getSupabaseClient();
+      let orders = null;
+      try {
+        const { data, error } = await sb
+          .from('orders')
+          .select('*, services(title, price, category), profiles(full_name)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        orders = data;
+      } catch (_joinErr) {
+        // FK join can fail if PostgREST schema cache is stale — fallback
+        const { data, error } = await sb
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        orders = (data || []).map(o => {
+          const svc = CONFIG.SERVICES.find(s => s.id === o.service_id);
+          return { ...o, services: svc ? { title: svc.title, price: svc.price, category: svc.category } : null };
+        });
+      }
+      allOrders = orders || [];
+    } catch (err) {
+      allOrders = [];
+      console.warn('[PixelOne] Orders load failed (demo mode):', err.message);
+    }
+
+    document.getElementById('orders-loading').classList.add('hidden');
+    document.getElementById('orders-table-wrap').classList.remove('hidden');
+    await renderOrders(allOrders);
+    updateStats(allOrders);
+
+    try {
+      const sb = getSupabaseClient();
+      const { data: services } = await sb.from('services').select('*');
+      renderAdminServices(services || CONFIG.SERVICES);
+    } catch (_) {
+      renderAdminServices(CONFIG.SERVICES);
+    }
+  })();
+</script>
+</body>
+</html>
