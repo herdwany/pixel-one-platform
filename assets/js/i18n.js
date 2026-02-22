@@ -225,6 +225,7 @@ const TRANSLATIONS = {
     'dash.order.noproof':    'Reçu manquant',
     'dash.order.details':    'Détails de la commande',
     'dash.order.whatsapp':   'Contacter via WhatsApp',
+    'dash.err.relogin':      'Se reconnecter',
 
     // ── Admin page ────────────────────────────────────────────
     'admin.page.title':       'Admin — Pixel One',
@@ -270,6 +271,13 @@ const TRANSLATIONS = {
     'admin.modal.ref.label':  'Référence',
     'admin.modal.status.label': 'Statut',
     'admin.modal.save':       'Enregistrer',
+    'admin.modal.client.title': 'Informations client',
+    'admin.modal.client.name':  'Nom',
+    'admin.modal.client.phone': 'Téléphone',
+    'admin.modal.client.email': 'Email',
+    'admin.modal.details.title': 'Détails de la commande',
+    'admin.modal.proof.label':  'Preuve de paiement',
+    'admin.modal.proof.open':   'Ouvrir en plein écran',
 
     // ── Auth callback page ────────────────────────────────────
     'callback.status':   'Vérification de votre compte…',
@@ -479,6 +487,7 @@ const TRANSLATIONS = {
     'dash.order.noproof': 'Receipt missing',
     'dash.order.details': 'Order details',
     'dash.order.whatsapp': 'Contact via WhatsApp',
+    'dash.err.relogin':   'Sign in again',
 
     'admin.page.title':       'Admin — Pixel One',
     'admin.nav.orders':       'Orders',
@@ -523,6 +532,13 @@ const TRANSLATIONS = {
     'admin.modal.ref.label':  'Reference',
     'admin.modal.status.label': 'Status',
     'admin.modal.save':       'Save',
+    'admin.modal.client.title': 'Client information',
+    'admin.modal.client.name':  'Name',
+    'admin.modal.client.phone': 'Phone',
+    'admin.modal.client.email': 'Email',
+    'admin.modal.details.title': 'Order details',
+    'admin.modal.proof.label':  'Payment proof',
+    'admin.modal.proof.open':   'Open full screen',
 
     'callback.status':   'Verifying your account…',
     'callback.patience': 'Please wait a moment.',
@@ -731,6 +747,7 @@ const TRANSLATIONS = {
     'dash.order.noproof': 'الإيصال مفقود',
     'dash.order.details': 'تفاصيل الطلب',
     'dash.order.whatsapp': 'التواصل عبر واتساب',
+    'dash.err.relogin':   'تسجيل الدخول مجدداً',
 
     'admin.page.title':       'الإدارة — بيكسل ون',
     'admin.nav.orders':       'الطلبات',
@@ -775,6 +792,13 @@ const TRANSLATIONS = {
     'admin.modal.ref.label':  'المرجع',
     'admin.modal.status.label': 'الحالة',
     'admin.modal.save':       'حفظ',
+    'admin.modal.client.title': 'معلومات العميل',
+    'admin.modal.client.name':  'الاسم',
+    'admin.modal.client.phone': 'الهاتف',
+    'admin.modal.client.email': 'البريد الإلكتروني',
+    'admin.modal.details.title': 'تفاصيل الطلب',
+    'admin.modal.proof.label':  'إيصال الدفع',
+    'admin.modal.proof.open':   'فتح بملء الشاشة',
 
     'callback.status':   'جارٍ التحقق من حسابك…',
     'callback.patience': 'يرجى الانتظار لحظات.',
