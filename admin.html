@@ -264,10 +264,10 @@
 </div><!-- /flex -->
 
 <!-- ── ORDER EDIT MODAL ─────────────────────────────────── -->
-<div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+<div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-5">
-      <h3 class="font-bold text-lg" data-i18n="admin.modal.title">Modifier la commande</h3>
+      <h3 id="modal-title" class="font-bold text-lg" data-i18n="admin.modal.title">Modifier la commande</h3>
       <button id="modal-close" class="text-gray-500 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
     </div>
     <div class="space-y-4">
@@ -531,7 +531,7 @@
     const detailsEl = document.getElementById('modal-details-content');
     if (detailEntries.length) {
       detailsEl.innerHTML = detailEntries.map(([k, v]) =>
-        `<p><span class="text-gray-500">${esc(k)}:</span> ${esc(v)}</p>`
+        `<p><span class="text-gray-500">${esc(k)}:</span> ${esc(typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''))}</p>`
       ).join('');
       document.getElementById('modal-details-section').classList.remove('hidden');
     } else {
@@ -555,7 +555,8 @@
         } else {
           proofSection.classList.add('hidden');
         }
-      } catch (_) {
+      } catch (err) {
+        console.error('Failed to load payment proof:', err);
         proofSection.classList.add('hidden');
       }
     } else if (order.payment_proof_url) {
