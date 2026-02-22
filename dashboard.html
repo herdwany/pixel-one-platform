@@ -217,18 +217,10 @@
     const container = document.getElementById('orders-container');
     container.classList.remove('hidden');
 
-    // Pre-generate signed URLs for orders that have a storage path
-    const sb = getSupabaseClient();
-    const SIGNED_URL_EXPIRY_SECONDS = 60;
-    const signedUrls = await Promise.all(orders.map(async order => {
-      if (order.payment_proof_path) {
-        const { data } = await sb.storage
-          .from('payment-proofs')
-          .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
-        return data?.signedUrl || null;
-      }
-      return order.payment_proof_url || null;
-    }));
+    // Use pre-computed signed URLs stored in order._proofUrl
+    const signedUrls = orders.map(order =>
+      (order._proofUrl && order._proofUrl.startsWith('http')) ? order._proofUrl : null
+    );
 
     renderOrdersHTML(orders, signedUrls);
   }
@@ -297,6 +289,7 @@
         const service = order.services || {};
         const details = order.details || {};
         const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
+        const proofUrl = (order._proofUrl && order._proofUrl.startsWith('http')) ? order._proofUrl : null;
 
         return `
           <div class="bg-surface-card border border-surface-border rounded-2xl p-6 hover:border-brand/20 transition">
@@ -311,8 +304,8 @@
               </div>
               <div class="text-right">
                 <p class="text-brand font-extrabold text-xl">${Number(service.price || 0).toLocaleString('fr-FR')} MAD</p>
-                ${order._proofUrl
-                  ? `<a href="${order._proofUrl}" target="_blank"
+                ${proofUrl
+                  ? `<a href="${proofUrl}" target="_blank"
                         class="text-xs text-gray-500 hover:text-white mt-1 inline-flex items-center gap-1 transition">
                        <i class="fa-solid fa-receipt"></i>${t('dash.order.receipt')}
                      </a>`
@@ -384,8 +377,13 @@
 
       await renderOrders(ordersWithUrls);
     } catch (err) {
-      document.getElementById('loading-state').innerHTML =
-        `<p class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${err.message}</p>`;
+      const loadingEl = document.getElementById('loading-state');
+      loadingEl.classList.remove('hidden');
+      loadingEl.innerHTML =
+        `<div class="text-center">
+          <p class="text-red-400 mb-4"><i class="fa-solid fa-triangle-exclamation mr-2"></i>${err.message}</p>
+          <a href="auth.html" class="text-sm text-brand hover:underline">${t('dash.err.relogin')}</a>
+        </div>`;
     }
   })();
 
