@@ -907,7 +907,9 @@ function setLanguage(lang) {
 
   // ── Update custom language-dropdown button UI ────────────
   const flagEl = document.getElementById('lang-flag');
+  const codeEl = document.getElementById('lang-code');
   if (flagEl) flagEl.textContent = meta.flag;
+  if (codeEl) codeEl.textContent = meta.code;
 
   // Highlight active option
   document.querySelectorAll('.lang-opt').forEach(btn => {
