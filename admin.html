@@ -265,7 +265,7 @@
 
 <!-- ── ORDER EDIT MODAL ─────────────────────────────────── -->
 <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-md p-6">
+  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-5">
       <h3 class="font-bold text-lg" data-i18n="admin.modal.title">Modifier la commande</h3>
       <button id="modal-close" class="text-gray-500 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -275,6 +275,37 @@
         <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.modal.ref.label">Référence</label>
         <p id="modal-ref" class="text-brand font-bold"></p>
       </div>
+
+      <!-- Client Info -->
+      <div id="modal-client-info" class="bg-surface border border-surface-border rounded-xl p-4 space-y-2">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.client">Client</p>
+        <p id="modal-client-name" class="text-sm text-gray-300"></p>
+        <p id="modal-client-email" class="text-sm text-gray-400"></p>
+        <p id="modal-client-phone" class="text-sm text-gray-400"></p>
+      </div>
+
+      <!-- Service Info -->
+      <div id="modal-service-info" class="bg-surface border border-surface-border rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.service">Service</p>
+        <p id="modal-service-title" class="text-sm text-white font-semibold"></p>
+        <p id="modal-service-price" class="text-sm text-brand font-bold"></p>
+      </div>
+
+      <!-- Order Details -->
+      <div id="modal-details-section" class="bg-surface border border-surface-border rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.details">Détails</p>
+        <div id="modal-details-content" class="space-y-1 text-sm text-gray-300"></div>
+      </div>
+
+      <!-- Payment Proof Image -->
+      <div id="modal-proof-section" class="hidden">
+        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.proof">Preuve de paiement</p>
+        <a id="modal-proof-link" href="#" target="_blank" class="block">
+          <img id="modal-proof-img" src="" alt="Payment proof"
+               class="w-full max-h-64 object-contain rounded-xl border border-surface-border bg-surface" />
+        </a>
+      </div>
+
       <div>
         <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.modal.status.label">Statut</label>
         <select id="modal-status"
@@ -420,6 +451,7 @@
     tbody.innerHTML = list.map((order, idx) => {
       const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
       const clientName = esc(order.details?.name || '—');
+      const clientEmail = esc(order.details?.email || '');
       const clientPhone = esc(order.details?.phone || '');
       const proofUrl = signedUrls[idx];
       return `
@@ -427,7 +459,8 @@
           <td class="px-5 py-3.5 font-bold text-brand text-sm">${esc(order.order_ref)}</td>
           <td class="px-5 py-3.5 text-sm text-gray-300">
             <p>${clientName}</p>
-            ${clientPhone ? `<p class="text-xs text-gray-500">${clientPhone}</p>` : ''}
+            ${clientEmail ? `<p class="text-xs text-gray-500"><i class="fa-solid fa-envelope mr-1 text-[10px]"></i>${clientEmail}</p>` : ''}
+            ${clientPhone ? `<p class="text-xs text-gray-500"><i class="fa-solid fa-phone mr-1 text-[10px]"></i>${clientPhone}</p>` : ''}
           </td>
           <td class="px-5 py-3.5 text-sm text-gray-300">${esc(order.services?.title || '—')}</td>
           <td class="px-5 py-3.5">
@@ -463,12 +496,78 @@
   document.getElementById('order-search').addEventListener('input', async () => renderOrders(allOrders));
 
   // ── Edit order modal ──────────────────────────────────────
-  document.addEventListener('click', e => {
+  document.addEventListener('click', async (e) => {
     const btn = e.target.closest('.edit-order-btn');
     if (!btn) return;
     currentOrderId = Number(btn.dataset.id);
-    document.getElementById('modal-ref').textContent = btn.dataset.ref;
-    document.getElementById('modal-status').value = btn.dataset.status;
+    const order = allOrders.find(o => o.id === currentOrderId);
+    if (!order) return;
+
+    const details = order.details || {};
+    const service = order.services || {};
+
+    // Reference
+    document.getElementById('modal-ref').textContent = order.order_ref;
+
+    // Client info
+    document.getElementById('modal-client-name').innerHTML = details.name
+      ? `<i class="fa-solid fa-user mr-2 text-xs text-gray-500"></i>${esc(details.name)}`
+      : '';
+    document.getElementById('modal-client-email').innerHTML = details.email
+      ? `<i class="fa-solid fa-envelope mr-2 text-xs text-gray-500"></i>${esc(details.email)}`
+      : '';
+    document.getElementById('modal-client-phone').innerHTML = details.phone
+      ? `<i class="fa-solid fa-phone mr-2 text-xs text-gray-500"></i>${esc(details.phone)}`
+      : '';
+
+    // Service info
+    document.getElementById('modal-service-title').textContent = service.title || '—';
+    document.getElementById('modal-service-price').textContent = service.price
+      ? `${Number(service.price).toLocaleString('fr-FR')} MAD`
+      : '';
+
+    // Order details (all keys from details except name/email/phone)
+    const detailEntries = Object.entries(details).filter(([k]) => !['name','email','phone'].includes(k));
+    const detailsEl = document.getElementById('modal-details-content');
+    if (detailEntries.length) {
+      detailsEl.innerHTML = detailEntries.map(([k, v]) =>
+        `<p><span class="text-gray-500">${esc(k)}:</span> ${esc(v)}</p>`
+      ).join('');
+      document.getElementById('modal-details-section').classList.remove('hidden');
+    } else {
+      document.getElementById('modal-details-section').classList.add('hidden');
+    }
+
+    // Payment proof image
+    const proofSection = document.getElementById('modal-proof-section');
+    const proofImg = document.getElementById('modal-proof-img');
+    const proofLink = document.getElementById('modal-proof-link');
+    if (order.payment_proof_path) {
+      try {
+        const sb = getSupabaseClient();
+        const { data } = await sb.storage
+          .from('payment-proofs')
+          .createSignedUrl(order.payment_proof_path, 300);
+        if (data?.signedUrl) {
+          proofImg.src = data.signedUrl;
+          proofLink.href = data.signedUrl;
+          proofSection.classList.remove('hidden');
+        } else {
+          proofSection.classList.add('hidden');
+        }
+      } catch (_) {
+        proofSection.classList.add('hidden');
+      }
+    } else if (order.payment_proof_url) {
+      proofImg.src = order.payment_proof_url;
+      proofLink.href = order.payment_proof_url;
+      proofSection.classList.remove('hidden');
+    } else {
+      proofSection.classList.add('hidden');
+    }
+
+    // Status
+    document.getElementById('modal-status').value = order.status;
     document.getElementById('modal-overlay').classList.remove('hidden');
   });
 
