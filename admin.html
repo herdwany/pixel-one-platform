@@ -451,7 +451,7 @@
     const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
     tbody.innerHTML = list.map((order, idx) => {
       const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
-      const clientName = esc(order.details?.name || '—');
+      const clientName = esc(order.details?.name || order.profiles?.full_name || '—');
       const clientPhone = esc(order.details?.phone || '');
       const proofUrl = signedUrls[idx];
       return `
@@ -656,7 +656,7 @@
       const sb = getSupabaseClient();
       const { data: orders, error } = await sb
         .from('orders')
-        .select('*, services(title, price, category)')
+        .select('*, services(title, price, category), profiles(full_name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
