@@ -360,22 +360,41 @@
 
     try {
       const sb = getSupabaseClient();
-      const { data: orders, error } = await sb
-        .from('orders')
-        .select('*, services(title, price, category)')
-        .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      // Try with services join first; fall back to plain query if FK not recognized
+      let orders = null;
+      try {
+        const { data, error } = await sb
+          .from('orders')
+          .select('*, services(title, price, category)')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        orders = data;
+      } catch (_joinErr) {
+        // FK join can fail if PostgREST schema cache is stale — fall back to plain query
+        const { data, error } = await sb
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        // Enrich with service info from CONFIG.SERVICES fallback
+        orders = (data || []).map(o => {
+          const svc = CONFIG.SERVICES.find(s => s.id === o.service_id);
+          return { ...o, services: svc ? { title: svc.title, price: svc.price, category: svc.category } : null };
+        });
+      }
 
       // Attach signed URLs to order objects for re-rendering
       const SIGNED_URL_EXPIRY_SECONDS = 60;
       const ordersWithUrls = await Promise.all((orders || []).map(async order => {
         let proofUrl = null;
         if (order.payment_proof_path) {
-          const { data } = await sb.storage
-            .from('payment-proofs')
-            .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
-          proofUrl = data?.signedUrl || null;
+          try {
+            const { data } = await sb.storage
+              .from('payment-proofs')
+              .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
+            proofUrl = data?.signedUrl || null;
+          } catch (_storageErr) { /* storage access error – skip proof URL */ }
         } else {
           proofUrl = order.payment_proof_url || null;
         }
