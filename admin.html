@@ -277,33 +277,41 @@
       </div>
 
       <!-- Client Info -->
-      <div id="modal-client-info" class="bg-surface border border-surface-border rounded-xl p-4 space-y-2">
-        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.client">Client</p>
-        <p id="modal-client-name" class="text-sm text-gray-300"></p>
-        <p id="modal-client-email" class="text-sm text-gray-400"></p>
-        <p id="modal-client-phone" class="text-sm text-gray-400"></p>
+      <div class="bg-surface rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.client.title">Informations client</p>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.name">Nom</p>
+            <p id="modal-client-name" class="text-white font-medium mt-0.5">—</p>
+          </div>
+          <div>
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.phone">Téléphone</p>
+            <p id="modal-client-phone" class="text-white font-medium mt-0.5">—</p>
+          </div>
+          <div class="col-span-2">
+            <p class="text-gray-500 text-xs" data-i18n="admin.modal.client.email">Email</p>
+            <p id="modal-client-email" class="text-white font-medium mt-0.5">—</p>
+          </div>
+        </div>
       </div>
 
       <!-- Service Info -->
-      <div id="modal-service-info" class="bg-surface border border-surface-border rounded-xl p-4">
-        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.service">Service</p>
+      <div id="modal-service-info" class="bg-surface rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.service">Service</p>
         <p id="modal-service-title" class="text-sm text-white font-semibold"></p>
-        <p id="modal-service-price" class="text-sm text-brand font-bold"></p>
+        <p id="modal-service-price" class="text-sm text-brand font-bold mt-1"></p>
       </div>
 
-      <!-- Order Details -->
-      <div id="modal-details-section" class="bg-surface border border-surface-border rounded-xl p-4">
-        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.details">Détails</p>
-        <div id="modal-details-content" class="space-y-1 text-sm text-gray-300"></div>
+      <!-- Order Details (dynamic fields + notes) -->
+      <div id="modal-order-details" class="hidden bg-surface rounded-xl p-4">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-3" data-i18n="admin.modal.details.title">Détails de la commande</p>
+        <div id="modal-details-content" class="text-sm space-y-1.5 text-gray-300"></div>
       </div>
 
-      <!-- Payment Proof Image -->
-      <div id="modal-proof-section" class="hidden">
-        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2" data-i18n="admin.modal.proof">Preuve de paiement</p>
-        <a id="modal-proof-link" href="#" target="_blank" class="block">
-          <img id="modal-proof-img" src="" alt="Payment proof"
-               class="w-full max-h-64 object-contain rounded-xl border border-surface-border bg-surface" />
-        </a>
+      <!-- Payment Proof -->
+      <div id="modal-proof-wrap" class="hidden">
+        <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-2" data-i18n="admin.modal.proof.label">Preuve de paiement</p>
+        <div id="modal-proof-content"></div>
       </div>
 
       <div>
@@ -453,7 +461,7 @@
     const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
     tbody.innerHTML = list.map((order, idx) => {
       const date = new Date(order.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' });
-      const clientName = esc(order.details?.name || '—');
+      const clientName = esc(order.details?.name || order.profiles?.full_name || '—');
       const clientEmail = esc(order.details?.email || '');
       const clientPhone = esc(order.details?.phone || '');
       const proofUrl = signedUrls[idx];
@@ -511,17 +519,12 @@
 
     // Reference
     document.getElementById('modal-ref').textContent = order.order_ref;
+    document.getElementById('modal-status').value = order.status;
 
-    // Client info
-    document.getElementById('modal-client-name').innerHTML = details.name
-      ? `<i class="fa-solid fa-user mr-2 text-xs text-gray-500"></i>${esc(details.name)}`
-      : '';
-    document.getElementById('modal-client-email').innerHTML = details.email
-      ? `<i class="fa-solid fa-envelope mr-2 text-xs text-gray-500"></i>${esc(details.email)}`
-      : '';
-    document.getElementById('modal-client-phone').innerHTML = details.phone
-      ? `<i class="fa-solid fa-phone mr-2 text-xs text-gray-500"></i>${esc(details.phone)}`
-      : '';
+    // Populate client info
+    document.getElementById('modal-client-name').textContent = details.name || '—';
+    document.getElementById('modal-client-phone').textContent = details.phone || '—';
+    document.getElementById('modal-client-email').textContent = details.email || '—';
 
     // Service info
     document.getElementById('modal-service-title').textContent = service.title || '—';
@@ -529,49 +532,56 @@
       ? `${Number(service.price).toLocaleString('fr-FR')} MAD`
       : '';
 
-    // Order details (all keys from details except name/email/phone)
-    const detailEntries = Object.entries(details).filter(([k]) => !['name','email','phone'].includes(k));
-    const detailsEl = document.getElementById('modal-details-content');
-    if (detailEntries.length) {
-      detailsEl.innerHTML = detailEntries.map(([k, v]) =>
-        `<p><span class="text-gray-500">${esc(k)}:</span> ${esc(typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''))}</p>`
+    // Populate dynamic fields + notes
+    const excludeKeys = ['name', 'phone', 'email'];
+    const entries = Object.entries(details).filter(([k]) => !excludeKeys.includes(k));
+    const detailsEl = document.getElementById('modal-order-details');
+    const detailsContent = document.getElementById('modal-details-content');
+    if (entries.length) {
+      detailsContent.innerHTML = entries.map(([k, v]) =>
+        `<p><span class="text-gray-500 capitalize">${esc(k)}:</span> ${esc(typeof v === 'object' ? JSON.stringify(v) : String(v ?? ''))}</p>`
       ).join('');
-      document.getElementById('modal-details-section').classList.remove('hidden');
+      detailsEl.classList.remove('hidden');
     } else {
-      document.getElementById('modal-details-section').classList.add('hidden');
+      detailsEl.classList.add('hidden');
     }
 
-    // Payment proof image
-    const proofSection = document.getElementById('modal-proof-section');
-    const proofImg = document.getElementById('modal-proof-img');
-    const proofLink = document.getElementById('modal-proof-link');
-    if (order.payment_proof_path) {
-      try {
-        const sb = getSupabaseClient();
-        const { data } = await sb.storage
-          .from('payment-proofs')
-          .createSignedUrl(order.payment_proof_path, 300);
-        if (data?.signedUrl) {
-          proofImg.src = data.signedUrl;
-          proofLink.href = data.signedUrl;
-          proofSection.classList.remove('hidden');
-        } else {
-          proofSection.classList.add('hidden');
-        }
-      } catch (err) {
-        console.error('Failed to load payment proof:', err);
-        proofSection.classList.add('hidden');
+    // Populate payment proof
+    const proofWrap = document.getElementById('modal-proof-wrap');
+    const proofContent = document.getElementById('modal-proof-content');
+    proofWrap.classList.add('hidden');
+    proofContent.innerHTML = '';
+    if (order.payment_proof_path || order.payment_proof_url) {
+      let proofUrl = order.payment_proof_url || null;
+      if (order.payment_proof_path) {
+        try {
+          const sb = getSupabaseClient();
+          const { data } = await sb.storage
+            .from('payment-proofs')
+            .createSignedUrl(order.payment_proof_path, 3600);
+          proofUrl = data?.signedUrl || proofUrl;
+        } catch (_) {}
       }
-    } else if (order.payment_proof_url) {
-      proofImg.src = order.payment_proof_url;
-      proofLink.href = order.payment_proof_url;
-      proofSection.classList.remove('hidden');
-    } else {
-      proofSection.classList.add('hidden');
+      if (proofUrl && proofUrl.startsWith('http')) {
+        const safeUrl = esc(proofUrl);
+        const proofLabel = t('admin.modal.proof.label');
+        const isImage = /\.(jpe?g|png|gif|webp)(\?|$)/i.test(proofUrl);
+        proofContent.innerHTML = isImage
+          ? `<a href="${safeUrl}" target="_blank" rel="noopener">
+               <img src="${safeUrl}" alt="${esc(proofLabel)}" class="w-full rounded-lg max-h-52 object-contain bg-surface border border-surface-border" />
+             </a>
+             <a href="${safeUrl}" target="_blank" rel="noopener"
+                class="text-xs text-brand hover:underline mt-1.5 inline-flex items-center gap-1">
+               <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>${t('admin.modal.proof.open')}
+             </a>`
+          : `<a href="${safeUrl}" target="_blank" rel="noopener"
+                class="inline-flex items-center gap-2 text-sm text-brand hover:underline">
+               <i class="fa-solid fa-file"></i>${t('admin.receipt.btn')}
+             </a>`;
+        proofWrap.classList.remove('hidden');
+      }
     }
 
-    // Status
-    document.getElementById('modal-status').value = order.status;
     document.getElementById('modal-overlay').classList.remove('hidden');
   });
 
@@ -669,7 +679,7 @@
       try {
         const { data, error } = await sb
           .from('orders')
-          .select('*, services(title, price, category)')
+          .select('*, services(title, price, category), profiles(full_name)')
           .order('created_at', { ascending: false });
         if (error) throw error;
         orders = data;

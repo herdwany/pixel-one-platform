@@ -225,6 +225,7 @@ const TRANSLATIONS = {
     'dash.order.noproof':    'Reçu manquant',
     'dash.order.details':    'Détails de la commande',
     'dash.order.whatsapp':   'Contacter via WhatsApp',
+    'dash.err.relogin':      'Se reconnecter',
 
     // ── Admin page ────────────────────────────────────────────
     'admin.page.title':       'Admin — Pixel One',
@@ -268,12 +269,16 @@ const TRANSLATIONS = {
     'admin.stats.by_cat':     'Revenus par catégorie',
     'admin.modal.title':      'Modifier la commande',
     'admin.modal.ref.label':  'Référence',
-    'admin.modal.client':     'Client',
-    'admin.modal.service':    'Service',
-    'admin.modal.details':    'Détails',
-    'admin.modal.proof':      'Preuve de paiement',
     'admin.modal.status.label': 'Statut',
     'admin.modal.save':       'Enregistrer',
+    'admin.modal.client.title': 'Informations client',
+    'admin.modal.client.name':  'Nom',
+    'admin.modal.client.phone': 'Téléphone',
+    'admin.modal.client.email': 'Email',
+    'admin.modal.service':    'Service',
+    'admin.modal.details.title': 'Détails de la commande',
+    'admin.modal.proof.label':  'Preuve de paiement',
+    'admin.modal.proof.open':   'Ouvrir en plein écran',
     'admin.view.btn':         'Détails',
 
     // ── Auth callback page ────────────────────────────────────
@@ -484,6 +489,7 @@ const TRANSLATIONS = {
     'dash.order.noproof': 'Receipt missing',
     'dash.order.details': 'Order details',
     'dash.order.whatsapp': 'Contact via WhatsApp',
+    'dash.err.relogin':   'Sign in again',
 
     'admin.page.title':       'Admin — Pixel One',
     'admin.nav.orders':       'Orders',
@@ -526,12 +532,16 @@ const TRANSLATIONS = {
     'admin.stats.by_cat':     'Revenue by category',
     'admin.modal.title':      'Edit order',
     'admin.modal.ref.label':  'Reference',
-    'admin.modal.client':     'Client',
-    'admin.modal.service':    'Service',
-    'admin.modal.details':    'Details',
-    'admin.modal.proof':      'Payment proof',
     'admin.modal.status.label': 'Status',
     'admin.modal.save':       'Save',
+    'admin.modal.client.title': 'Client information',
+    'admin.modal.client.name':  'Name',
+    'admin.modal.client.phone': 'Phone',
+    'admin.modal.client.email': 'Email',
+    'admin.modal.service':    'Service',
+    'admin.modal.details.title': 'Order details',
+    'admin.modal.proof.label':  'Payment proof',
+    'admin.modal.proof.open':   'Open full screen',
     'admin.view.btn':         'Details',
 
     'callback.status':   'Verifying your account…',
@@ -741,6 +751,7 @@ const TRANSLATIONS = {
     'dash.order.noproof': 'الإيصال مفقود',
     'dash.order.details': 'تفاصيل الطلب',
     'dash.order.whatsapp': 'التواصل عبر واتساب',
+    'dash.err.relogin':   'تسجيل الدخول مجدداً',
 
     'admin.page.title':       'الإدارة — بيكسل ون',
     'admin.nav.orders':       'الطلبات',
@@ -783,12 +794,16 @@ const TRANSLATIONS = {
     'admin.stats.by_cat':     'الإيرادات حسب الفئة',
     'admin.modal.title':      'تعديل الطلب',
     'admin.modal.ref.label':  'المرجع',
-    'admin.modal.client':     'العميل',
-    'admin.modal.service':    'الخدمة',
-    'admin.modal.details':    'التفاصيل',
-    'admin.modal.proof':      'إثبات الدفع',
     'admin.modal.status.label': 'الحالة',
     'admin.modal.save':       'حفظ',
+    'admin.modal.client.title': 'معلومات العميل',
+    'admin.modal.client.name':  'الاسم',
+    'admin.modal.client.phone': 'الهاتف',
+    'admin.modal.client.email': 'البريد الإلكتروني',
+    'admin.modal.service':    'الخدمة',
+    'admin.modal.details.title': 'تفاصيل الطلب',
+    'admin.modal.proof.label':  'إيصال الدفع',
+    'admin.modal.proof.open':   'فتح بملء الشاشة',
     'admin.view.btn':         'التفاصيل',
 
     'callback.status':   'جارٍ التحقق من حسابك…',
@@ -898,7 +913,9 @@ function setLanguage(lang) {
 
   // ── Update custom language-dropdown button UI ────────────
   const flagEl = document.getElementById('lang-flag');
+  const codeEl = document.getElementById('lang-code');
   if (flagEl) flagEl.textContent = meta.flag;
+  if (codeEl) codeEl.textContent = meta.code;
 
   // Highlight active option
   document.querySelectorAll('.lang-opt').forEach(btn => {
