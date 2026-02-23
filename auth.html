@@ -214,12 +214,7 @@
     loginForm.querySelector('button[type="submit"]').textContent  = t('auth.btn.login');
     signupForm.querySelector('button[type="submit"]').textContent = t('auth.btn.signup');
   }
-// في ملف auth.html - سطر 216 تقريباً
-options: {
-  redirectTo: window.location.origin + '/auth-callback.html',
-  // أضف هذا السطر لضمان أن سوبابيس يعرف الدومين الجديد
-  emailRedirectTo: window.location.origin + '/dashboard.html' 
-},
+
   document.addEventListener('langchange', syncSubmitLabels);
 
   // ── Tab switching ─────────────────────────────────────────
@@ -254,7 +249,7 @@ options: {
     alertBox.textContent = msg;
     alertBox.className = `mb-4 px-4 py-3 rounded-lg text-sm font-medium ${
       type === 'error' ? 'bg-red-500/10 border border-red-500/30 text-red-400'
-                       : 'bg-green-500/10 border border-green-500/30 text-green-400'
+ : 'bg-green-500/10 border border-green-500/30 text-green-400'
     }`;
     alertBox.classList.remove('hidden');
   }
