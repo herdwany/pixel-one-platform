@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Pixel One</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: '#ff0000', surface: '#0d0d0d', card: '#141414' } } }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>body { background-color: #050505; color: white; font-family: 'Outfit', sans-serif; }</style>
+</head>
+<body>
+
+  <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-[#1f1f1f]">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="index.html" class="font-bold text-xl"><span class="text-brand">Pixel</span>One</a>
+      <a href="index.html" class="text-sm text-gray-400 hover:text-white">Retour à l'accueil</a>
+    </div>
+  </nav>
+
+  <div class="pt-32 pb-12 px-6 text-center">
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Notre <span class="text-brand">Blog</span></h1>
+    <p class="text-gray-400">Dernières actualités et astuces design.</p>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 pb-20">
+    <div id="blog-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="col-span-3 text-center py-20 text-gray-500">
+        <i class="fa-solid fa-spinner fa-spin text-2xl"></i> Chargement...
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script>
+    (async () => {
+      const sb = getSupabaseClient();
+      // جلب المقالات من الجدول الجديد
+      const { data: posts, error } = await sb
+        .from('blog_posts')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      const container = document.getElementById('blog-grid');
+      
+      if (!posts || posts.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center text-gray-500">Aucun article pour le moment.</div>`;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => `
+        <article class="bg-card border border-[#1f1f1f] rounded-2xl overflow-hidden hover:border-brand/50 transition group">
+          <div class="h-48 overflow-hidden relative">
+            <img src="${post.image_url || 'https://via.placeholder.com/400x200'}" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="${post.title}">
+          </div>
+          <div class="p-6">
+            <h2 class="text-xl font-bold mb-2 leading-tight">${post.title}</h2>
+            <p class="text-gray-400 text-sm line-clamp-3 mb-4">${post.content.substring(0, 100)}...</p>
+            <span class="text-xs text-brand font-bold uppercase tracking-widest">Lire la suite</span>
+          </div>
+        </article>
+      `).join('');
+    })();
+  </script>
+</body>
+</html>
