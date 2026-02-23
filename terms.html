@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Terms of Service — Pixel One</title>
-  <link rel="icon" type="image/png" sizes="96x96" href="/icon/favicon-96x96.png" />
-  <link rel="icon" type="image/svg+xml" href="/icon/favicon.svg" />
-  <link rel="shortcut icon" href="/icon/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/icon/apple-touch-icon.png" />
-  <link rel="manifest" href="/icon/site.webmanifest" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/icon/black/favicon-96x96.png" />
+  <link rel="icon" type="image/svg+xml" href="/icon/black/favicon.svg" />
+  <link rel="shortcut icon" href="/icon/black/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon/black/apple-touch-icon.png" />
+  <link rel="manifest" href="/icon/black/site.webmanifest" />
+
+  <!-- Theme Manager -->
+  <script src="assets/js/theme-manager.js"></script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,6 +22,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -71,6 +75,9 @@
         <a href="index.html#contact" class="hover:text-white transition">Contact</a>
       </div>
       <div class="flex items-center gap-3">
+        <button id="theme-toggle" onclick="toggleTheme()" class="text-gray-400 hover:text-white transition text-lg" aria-label="Toggle theme">
+          <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
+        </button>
         <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition">Login</a>
         <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition">
           Our Services
