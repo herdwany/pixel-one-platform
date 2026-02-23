@@ -214,7 +214,12 @@
     loginForm.querySelector('button[type="submit"]').textContent  = t('auth.btn.login');
     signupForm.querySelector('button[type="submit"]').textContent = t('auth.btn.signup');
   }
-
+// في ملف auth.html - سطر 216 تقريباً
+options: {
+  redirectTo: window.location.origin + '/auth-callback.html',
+  // أضف هذا السطر لضمان أن سوبابيس يعرف الدومين الجديد
+  emailRedirectTo: window.location.origin + '/dashboard.html' 
+},
   document.addEventListener('langchange', syncSubmitLabels);
 
   // ── Tab switching ─────────────────────────────────────────
