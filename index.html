@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pixel One — Agence Créative Maroc</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
 
   <!-- Google Fonts: Inter (EN/FR) · IBM Plex Sans Arabic (AR) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -161,48 +163,13 @@
         <a href="#contact"  class="hover:text-white transition" data-i18n="nav.contact">Contact</a>
       </div>
       <div class="flex items-center gap-3">
-
-        <!-- ── Custom Language Switcher ── -->
-        <div class="relative" id="lang-dropdown-wrapper">
-          <button id="lang-btn"
-                  class="flex items-center gap-1.5 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
-                  aria-haspopup="listbox" aria-expanded="false">
-            <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
-            <i class="fa-solid fa-chevron-down text-[9px] opacity-50"></i>
-          </button>
-          <div id="lang-dropdown"
-               class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
-               role="listbox">
-            <button onclick="setLanguage('fr')" data-lang="fr" role="option"
-                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
-              <span class="text-base leading-none">🇫🇷</span>
-              <div class="text-start">
-                <p class="font-semibold text-xs leading-tight">Français</p>
-                <p class="text-[10px] text-gray-500">French</p>
-              </div>
-            </button>
-            <div class="h-px bg-[#282828]"></div>
-            <button onclick="setLanguage('en')" data-lang="en" role="option"
-                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
-              <span class="text-base leading-none">🇺🇸</span>
-              <div class="text-start">
-                <p class="font-semibold text-xs leading-tight">English</p>
-                <p class="text-[10px] text-gray-500">English</p>
-              </div>
-            </button>
-            <div class="h-px bg-[#282828]"></div>
-            <button onclick="setLanguage('ar')" data-lang="ar" role="option"
-                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
-              <span class="text-base leading-none">🇲🇦</span>
-              <div class="text-start" style="font-family:'IBM Plex Sans Arabic',sans-serif">
-                <p class="font-semibold text-xs leading-tight">العربية</p>
-                <p class="text-[10px] text-gray-500">Arabic</p>
-              </div>
-            </button>
-          </div>
-        </div>
-        <!-- ── /Language Switcher ── -->
-
+        <!-- Language Switcher -->
+        <select id="lang-switcher"
+                class="bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
+          <option value="fr">🇫🇷 FR</option>
+          <option value="en">🇺🇸 EN</option>
+          <option value="ar">🇲🇦 AR</option>
+        </select>
         <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Connexion</a>
         <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
           Nos services
