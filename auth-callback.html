@@ -26,32 +26,32 @@
     (async () => {
       const sb = getSupabaseClient();
 
+      // فحص فوري للجلسة قبل انتظار التغيير
+      const { data: { session: initialSession } } = await sb.auth.getSession();
+      if (initialSession) {
+        handleRedirect(initialSession.user);
+        return;
+      }
+
       const { data: { subscription } } = sb.auth.onAuthStateChange(async (event, session) => {
-
-        if (event === 'SIGNED_IN' && session) {
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
           subscription.unsubscribe();
-
-          try {
-            await new Promise(r => setTimeout(r, 1500));
-
-            const profile = await getProfile(session.user.id);
-            window.location.href = profile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
-          } catch (err) {
-            console.error('[auth-callback] getProfile error:', err);
-            window.location.href = 'dashboard.html';
-          }
-          return;
-        }
-
-        if (event === 'SIGNED_OUT') {
-          subscription.unsubscribe();
-          window.location.href = 'auth.html';
+          handleRedirect(session.user);
         }
       });
 
+      async function handleRedirect(user) {
+        try {
+          const profile = await getProfile(user.id);
+          window.location.href = profile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
+        } catch (err) {
+          window.location.href = 'dashboard.html';
+        }
+      }
+
+      // Timeout fallback
       setTimeout(() => {
-        subscription.unsubscribe();
-        window.location.href = 'auth.html';
+        window.location.href = 'auth.html?timeout=true';
       }, 10000);
     })();
   </script>
