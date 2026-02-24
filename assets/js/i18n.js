@@ -318,6 +318,11 @@ const TRANSLATIONS = {
     'terms.updated':      'Dernière mise à jour : 23 février 2026',
     'terms.back':         'Retour à l\'accueil',
 
+    // ── Language names ────────────────────────────────────────
+    'lang.fr.desc':  'Français',
+    'lang.en.desc':  'Anglais',
+    'lang.ar.desc':  'Arabe',
+
     // ── Footer extra ──────────────────────────────────────────
     'footer.privacy':     'Politique de Confidentialité',
     'footer.terms':       'Conditions d\'Utilisation',
@@ -618,6 +623,11 @@ const TRANSLATIONS = {
     'terms.updated':      'Last updated: February 23, 2026',
     'terms.back':         'Back to Home',
 
+    // ── Language names ────────────────────────────────────────
+    'lang.fr.desc':  'French',
+    'lang.en.desc':  'English',
+    'lang.ar.desc':  'Arabic',
+
     // ── Footer extra ──────────────────────────────────────────
     'footer.privacy':     'Privacy Policy',
     'footer.terms':       'Terms of Service',
@@ -917,6 +927,11 @@ const TRANSLATIONS = {
     'terms.title':        'شروط الاستخدام',
     'terms.updated':      'آخر تحديث: 23 فبراير 2026',
     'terms.back':         'العودة إلى الرئيسية',
+
+    // ── Language names ────────────────────────────────────────
+    'lang.fr.desc':  'الفرنسية',
+    'lang.en.desc':  'الإنجليزية',
+    'lang.ar.desc':  'العربية',
 
     // ── Footer extra ──────────────────────────────────────────
     'footer.privacy':     'سياسة الخصوصية',

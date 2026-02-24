@@ -141,21 +141,54 @@
     }
     html.dark #theme-toggle:hover { background-color: rgba(255,255,255,0.08); }
     html:not(.dark) #theme-toggle:hover { background-color: rgba(0,0,0,0.06); }
+
+    /* ── Mobile Menu ── */
+    #mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #mobile-menu.open { max-height: 600px; }
+
+    /* ── Dropdown animation ── */
+    @keyframes px-dropdown-in {
+      from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    #lang-dropdown:not(.hidden) { animation: px-dropdown-in 0.2s ease-out; }
+
+    /* ── Nav scroll shadow ── */
+    nav.scrolled { box-shadow: 0 1px 12px rgba(0,0,0,0.25); }
+    html:not(.dark) nav.scrolled { box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+
+    /* ── Page entrance animations ── */
+    @keyframes px-fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .animate-fade-up { animation: px-fade-up 0.6s ease-out both; }
+
+    @keyframes px-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .animate-fade-in { animation: px-fade-in 0.5s ease-out both; }
   `;
   document.head.appendChild(css);
 
 
   /* ── 2. Determine & apply theme (runs synchronously in <head>) ── */
   const STORAGE_KEY = 'px_theme';
-  const saved = localStorage.getItem(STORAGE_KEY);
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = saved ? saved === 'dark' : prefersDark;
+  const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-  if (isDark) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
+  function getEffectiveTheme() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return saved === 'dark';
+    return systemQuery.matches;
   }
+
+  const isDark = getEffectiveTheme();
+  document.documentElement.classList.toggle('dark', isDark);
 
 
   /* ── 3. Favicon switching ──────────────────────────────────── */
@@ -175,100 +208,90 @@
   }
 
 
-  /* ── 4. Update toggle icon ─────────────────────────────────── */
+  /* ── 4. Update toggle icon(s) ──────────────────────────────── */
   function updateToggleIcon(dark) {
-    const icon = document.getElementById('theme-toggle-icon');
-    if (!icon) return;
-    // Dark mode active → show Sun (click to go Light)
-    // Light mode active → show Moon (click to go Dark)
-    icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    const cls = 'theme-toggle-icon fa-solid ' + (dark ? 'fa-sun' : 'fa-moon');
+    document.querySelectorAll('.theme-toggle-icon').forEach(function (i) { i.className = cls; });
+    const legacy = document.getElementById('theme-toggle-icon');
+    if (legacy) legacy.className = cls;
   }
 
 
-  /* ── 5. Public toggle function ─────────────────────────────── */
+  /* ── 5. Apply theme with transition ────────────────────────── */
+  function applyTheme(dark, animate) {
+    if (animate) document.documentElement.classList.add('theme-transition');
+    document.documentElement.classList.toggle('dark', dark);
+    updateFavicons(dark);
+    updateToggleIcon(dark);
+    if (animate) setTimeout(function () { document.documentElement.classList.remove('theme-transition'); }, 350);
+  }
+
+
+  /* ── 6. Public toggle function ─────────────────────────────── */
   window.toggleTheme = function () {
-    // Smooth transition class
-    document.documentElement.classList.add('theme-transition');
-
-    const nowDark = document.documentElement.classList.toggle('dark');
+    const nowDark = !document.documentElement.classList.contains('dark');
     localStorage.setItem(STORAGE_KEY, nowDark ? 'dark' : 'light');
-    updateFavicons(nowDark);
-    updateToggleIcon(nowDark);
-
-    // Remove transition class after animation completes
-    setTimeout(() => {
-      document.documentElement.classList.remove('theme-transition');
-    }, 350);
+    applyTheme(nowDark, true);
   };
 
 
-  /* ── 6. Apply on load ──────────────────────────────────────── */
-  // Attempt immediate favicon update (link tags may already be parsed)
-  updateFavicons(isDark);
-
-  // Re-apply once DOM is fully ready (ensures all link tags are available)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      updateFavicons(isDark);
-      updateToggleIcon(isDark);
-      showThemeSuggestion(isDark);
+  /* ── 7. Listen for system theme changes ─────────────────────── */
+  try {
+    systemQuery.addEventListener('change', function (e) {
+      if (!localStorage.getItem(STORAGE_KEY)) applyTheme(e.matches, true);
     });
-  } else {
-    updateToggleIcon(isDark);
-    showThemeSuggestion(isDark);
+  } catch (_) { /* Safari < 14 fallback */ }
+
+
+  /* ── 8. Mobile menu toggle ─────────────────────────────────── */
+  window.toggleMobileMenu = function () {
+    const menu = document.getElementById('mobile-menu');
+    const icon = document.querySelector('#mobile-menu-btn i');
+    if (!menu) return;
+    const opening = !menu.classList.contains('open');
+    if (opening) {
+      menu.classList.remove('hidden');
+      requestAnimationFrame(function () {
+        menu.style.maxHeight = menu.scrollHeight + 'px';
+        menu.classList.add('open');
+      });
+      if (icon) icon.className = 'fa-solid fa-xmark text-sm';
+    } else {
+      menu.style.maxHeight = '0';
+      menu.classList.remove('open');
+      if (icon) icon.className = 'fa-solid fa-bars text-sm';
+      setTimeout(function () { if (!menu.classList.contains('open')) menu.classList.add('hidden'); }, 350);
+    }
+  };
+
+
+  /* ── 9. Navbar scroll effect ───────────────────────────────── */
+  function initNavScroll() {
+    const nav = document.getElementById('main-nav') || document.querySelector('nav');
+    if (!nav) return;
+    var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 10); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
 
-  /* ── 7. Floating theme suggestion (first visit only) ─────── */
-  function showThemeSuggestion(dark) {
-    if (localStorage.getItem(STORAGE_KEY)) return; // User already chose
-    const label = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-    const icon  = dark ? 'fa-sun' : 'fa-moon';
-    const pill = document.createElement('div');
-    pill.id = 'theme-suggest';
-    pill.setAttribute('role', 'button');
-    pill.setAttribute('tabindex', '0');
-    pill.innerHTML = `
-      <div style="
-        position:fixed; bottom:24px; right:24px; z-index:9999;
-        display:flex; align-items:center; gap:10px;
-        background:${dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
-        backdrop-filter:blur(12px); border:1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
-        color:${dark ? '#e5e7eb' : '#374151'};
-        padding:10px 18px; border-radius:999px;
-        font-size:13px; font-weight:500; cursor:pointer;
-        box-shadow:0 4px 20px rgba(0,0,0,0.15);
-        animation:px-suggest-in 0.4s ease-out;
-        transition:opacity 0.3s, transform 0.3s;
-      " id="theme-suggest-inner">
-        <i class="fa-solid ${icon}" style="color:#ff0000;font-size:16px"></i>
-        <span>${label}</span>
-      </div>
-    `;
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes px-suggest-in {
-        from { opacity:0; transform:translateY(20px); }
-        to   { opacity:1; transform:translateY(0); }
-      }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(pill);
+  /* ── 10. Apply on load ─────────────────────────────────────── */
+  updateFavicons(isDark);
 
-    pill.addEventListener('click', () => {
-      window.toggleTheme();
-      pill.remove();
+  function onReady() {
+    updateFavicons(isDark);
+    updateToggleIcon(isDark);
+    initNavScroll();
+    document.addEventListener('langchange', function () {
+      var menu = document.getElementById('mobile-menu');
+      if (menu && menu.classList.contains('open')) window.toggleMobileMenu();
     });
+  }
 
-    // Auto-dismiss after 8 seconds
-    setTimeout(() => {
-      const inner = document.getElementById('theme-suggest-inner');
-      if (inner) {
-        inner.style.opacity = '0';
-        inner.style.transform = 'translateY(20px)';
-        setTimeout(() => pill.remove(), 350);
-      }
-    }, 8000);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReady);
+  } else {
+    onReady();
   }
 
 })();
