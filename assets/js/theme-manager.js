@@ -95,6 +95,13 @@
     /* ── Status badges (keep their own colors) ── */
     html:not(.dark) [class*="status-"] { color: inherit; }
 
+    /* ── Hardcoded gray text (privacy/terms/blog pages) ── */
+    html:not(.dark) [class*="text-[#e5e5e5]"] { color: #374151 !important; }
+    html:not(.dark) [class*="text-[#e5e"] { color: #374151 !important; }
+
+    /* ── bg-card alias (blog page) ── */
+    html:not(.dark) .bg-card { background-color: #ffffff !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
     /* ── Select / Input elements ── */
     html:not(.dark) select,
     html:not(.dark) input:not([type="submit"]):not([type="button"]),
@@ -204,9 +211,64 @@
     document.addEventListener('DOMContentLoaded', function () {
       updateFavicons(isDark);
       updateToggleIcon(isDark);
+      showThemeSuggestion(isDark);
     });
   } else {
     updateToggleIcon(isDark);
+    showThemeSuggestion(isDark);
+  }
+
+
+  /* ── 7. Floating theme suggestion (first visit only) ─────── */
+  function showThemeSuggestion(dark) {
+    if (localStorage.getItem(STORAGE_KEY)) return; // User already chose
+    const label = dark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    const icon  = dark ? 'fa-sun' : 'fa-moon';
+    const pill = document.createElement('div');
+    pill.id = 'theme-suggest';
+    pill.setAttribute('role', 'button');
+    pill.setAttribute('tabindex', '0');
+    pill.innerHTML = `
+      <div style="
+        position:fixed; bottom:24px; right:24px; z-index:9999;
+        display:flex; align-items:center; gap:10px;
+        background:${dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'};
+        backdrop-filter:blur(12px); border:1px solid ${dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'};
+        color:${dark ? '#e5e7eb' : '#374151'};
+        padding:10px 18px; border-radius:999px;
+        font-size:13px; font-weight:500; cursor:pointer;
+        box-shadow:0 4px 20px rgba(0,0,0,0.15);
+        animation:px-suggest-in 0.4s ease-out;
+        transition:opacity 0.3s, transform 0.3s;
+      " id="theme-suggest-inner">
+        <i class="fa-solid ${icon}" style="color:#ff0000;font-size:16px"></i>
+        <span>${label}</span>
+      </div>
+    `;
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes px-suggest-in {
+        from { opacity:0; transform:translateY(20px); }
+        to   { opacity:1; transform:translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(pill);
+
+    pill.addEventListener('click', () => {
+      window.toggleTheme();
+      pill.remove();
+    });
+
+    // Auto-dismiss after 8 seconds
+    setTimeout(() => {
+      const inner = document.getElementById('theme-suggest-inner');
+      if (inner) {
+        inner.style.opacity = '0';
+        inner.style.transform = 'translateY(20px)';
+        setTimeout(() => pill.remove(), 350);
+      }
+    }, 8000);
   }
 
 })();

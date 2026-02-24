@@ -12,80 +12,205 @@
 
   <!-- Theme Manager -->
   <script src="assets/js/theme-manager.js"></script>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: { extend: { colors: { brand: '#ff0000', surface: '#0d0d0d', card: '#141414' } } }
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000', light: '#ff3333' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: {
+            sans:   ['Inter', 'sans-serif'],
+            arabic: ['"IBM Plex Sans Arabic"', 'sans-serif'],
+          },
+        }
+      }
     }
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>body { background-color: #050505; color: white; font-family: 'Outfit', sans-serif; }</style>
-</head>
-<body>
 
-  <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-[#1f1f1f]">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="index.html" class="font-bold text-xl"><span class="text-brand">Pixel</span>One</a>
+  <style>
+    body {
+      background-color: #050505;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+    .site-logo { direction: ltr; unicode-bidi: isolate; }
+  </style>
+</head>
+
+<body class="text-white">
+<div class="content">
+
+  <!-- ── NAVBAR ──────────────────────────────────────────────── -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md border-b border-surface-border">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+      <a href="index.html" dir="ltr"
+         class="site-logo flex items-center gap-2 font-bold text-xl tracking-tight shrink-0">
+        <span class="text-brand">Pixel</span><span>One</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
+        <a href="index.html#services" class="hover:text-white transition" data-i18n="nav.services">Services</a>
+        <a href="index.html#why" class="hover:text-white transition" data-i18n="nav.why">Why Us</a>
+        <a href="index.html#contact" class="hover:text-white transition" data-i18n="nav.contact">Contact</a>
+      </div>
       <div class="flex items-center gap-3">
         <button id="theme-toggle" onclick="toggleTheme()" class="text-gray-400 hover:text-white transition text-lg" aria-label="Toggle theme">
           <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
         </button>
-        <a href="index.html" class="text-sm text-gray-400 hover:text-white">Retour à l'accueil</a>
+        <!-- Language Switcher -->
+        <div class="relative" id="lang-dropdown-wrapper">
+          <button id="lang-btn"
+                  class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
+                  aria-haspopup="listbox">
+            <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
+            <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
+            <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
+          </button>
+          <div id="lang-dropdown"
+               class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
+               style="min-width:160px" role="listbox">
+            <button onclick="setLanguage('fr');renderBlog()" data-lang="fr" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇫🇷</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">Français</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('en');renderBlog()" data-lang="en" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇺🇸</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">English</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('ar');renderBlog()" data-lang="ar" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇲🇦</span>
+              <div class="text-start" style="font-family:'IBM Plex Sans Arabic',sans-serif"><p class="font-semibold text-xs leading-tight">العربية</p></div>
+            </button>
+          </div>
+        </div>
+        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Login</a>
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
+          Our Services
+        </a>
       </div>
     </div>
   </nav>
 
-  <div class="pt-32 pb-12 px-6 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Notre <span class="text-brand">Blog</span></h1>
-    <p class="text-gray-400">Dernières actualités et astuces design.</p>
-  </div>
+  <!-- ── BLOG CONTENT ────────────────────────────────────────── -->
+  <main class="pt-28 pb-20 px-6">
+    <div class="max-w-6xl mx-auto">
 
-  <div class="max-w-7xl mx-auto px-6 pb-20">
-    <div id="blog-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="col-span-3 text-center py-20 text-gray-500">
-        <i class="fa-solid fa-spinner fa-spin text-2xl"></i> Chargement...
+      <!-- Back to Home -->
+      <a href="index.html" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition mb-8 group">
+        <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+        <span data-i18n="blog.back">← Back to Home</span>
+      </a>
+
+      <!-- Page Header -->
+      <div class="mb-12">
+        <div class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-4 tracking-widest uppercase">
+          <i class="fa-solid fa-pen-to-square mr-1"></i> <span data-i18n="footer.blog">Blog</span>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter mb-4">
+          <span data-i18n="blog.header.title">Our</span> <span class="text-brand" data-i18n="blog.header.accent">Blog</span>
+        </h1>
+        <p class="text-gray-500 text-sm" data-i18n="blog.header.desc">Latest news and design tips.</p>
+      </div>
+
+      <!-- Blog Grid -->
+      <div id="blog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="col-span-full text-center py-20 text-gray-500">
+          <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+          <p data-i18n="blog.loading">Loading articles…</p>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/supabase-client.js"></script>
-  <script>
-    (async () => {
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="border-t border-surface-border py-10 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-gray-500 text-sm">
+      <p class="font-bold text-white site-logo" dir="ltr"><span class="text-brand">Pixel</span>One © 2025</p>
+      <div class="flex gap-6">
+        <a href="services.html"  class="hover:text-white transition" data-i18n="footer.services">Services</a>
+        <a href="privacy.html"   class="hover:text-white transition" data-i18n="footer.privacy">Privacy Policy</a>
+        <a href="terms.html"     class="hover:text-white transition" data-i18n="footer.terms">Terms of Service</a>
+      </div>
+      <p><i class="fa-solid fa-heart text-brand"></i> <span data-i18n="footer.made">Made in Morocco</span></p>
+    </div>
+  </footer>
+
+</div><!-- /content -->
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script>
+  let _blogPosts = [];
+
+  function renderBlog() {
+    const container = document.getElementById('blog-grid');
+    if (!_blogPosts.length) {
+      container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">${t('blog.empty')}</div>`;
+      return;
+    }
+    container.innerHTML = _blogPosts.map(post => `
+      <article class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition group">
+        <div class="h-48 overflow-hidden relative">
+          <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+               alt="${post.title}" loading="lazy">
+        </div>
+        <div class="p-6">
+          <p class="text-xs text-gray-500 mb-2">
+            <i class="fa-regular fa-calendar mr-1"></i>
+            ${new Date(post.created_at).toLocaleDateString(getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR'), { day:'2-digit', month:'short', year:'numeric' })}
+          </p>
+          <h2 class="text-xl font-bold mb-2 leading-tight">${post.title}</h2>
+          <p class="text-gray-400 text-sm line-clamp-3 mb-4">${(post.content || '').substring(0, 120)}…</p>
+          <span class="text-xs text-brand font-bold uppercase tracking-widest">${t('blog.readmore')}</span>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  (async () => {
+    try {
       const sb = getSupabaseClient();
-      // جلب المقالات من الجدول الجديد
       const { data: posts, error } = await sb
         .from('blog_posts')
         .select('*')
         .eq('is_published', true)
         .order('created_at', { ascending: false });
 
-      const container = document.getElementById('blog-grid');
-      
-      if (!posts || posts.length === 0) {
-        container.innerHTML = `<div class="col-span-3 text-center text-gray-500">Aucun article pour le moment.</div>`;
-        return;
-      }
+      _blogPosts = posts || [];
+    } catch (err) {
+      console.warn('[PixelOne] Blog load:', err.message);
+      _blogPosts = [];
+    }
+    renderBlog();
+  })();
 
-      container.innerHTML = posts.map(post => `
-        <article class="bg-card border border-[#1f1f1f] rounded-2xl overflow-hidden hover:border-brand/50 transition group">
-          <div class="h-48 overflow-hidden relative">
-            <img src="${post.image_url || 'https://via.placeholder.com/400x200'}" 
-                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="${post.title}">
-          </div>
-          <div class="p-6">
-            <h2 class="text-xl font-bold mb-2 leading-tight">${post.title}</h2>
-            <p class="text-gray-400 text-sm line-clamp-3 mb-4">${post.content.substring(0, 100)}...</p>
-            <span class="text-xs text-brand font-bold uppercase tracking-widest">Lire la suite</span>
-          </div>
-        </article>
-      `).join('');
-    })();
-  </script>
+  document.addEventListener('langchange', renderBlog);
+</script>
 </body>
 </html>

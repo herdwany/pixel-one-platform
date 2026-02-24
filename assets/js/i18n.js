@@ -282,6 +282,35 @@ const TRANSLATIONS = {
     // ── Auth callback page ────────────────────────────────────
     'callback.status':   'Vérification de votre compte…',
     'callback.patience': 'Veuillez patienter quelques instants.',
+
+    // ── Blog page ─────────────────────────────────────────────
+    'blog.page.title':    'Blog — Pixel One',
+    'blog.header.title':  'Notre',
+    'blog.header.accent': 'Blog',
+    'blog.header.desc':   'Dernières actualités et astuces design.',
+    'blog.back':          '← Retour à l\'accueil',
+    'blog.loading':       'Chargement des articles…',
+    'blog.empty':         'Aucun article pour le moment.',
+    'blog.readmore':      'Lire la suite',
+
+    // ── Privacy page ──────────────────────────────────────────
+    'privacy.page.title': 'Politique de Confidentialité — Pixel One',
+    'privacy.badge':      'Juridique',
+    'privacy.title':      'Politique de Confidentialité',
+    'privacy.updated':    'Dernière mise à jour : 23 février 2026',
+    'privacy.back':       'Retour à l\'accueil',
+
+    // ── Terms page ────────────────────────────────────────────
+    'terms.page.title':   'Conditions d\'Utilisation — Pixel One',
+    'terms.badge':        'Juridique',
+    'terms.title':        'Conditions d\'Utilisation',
+    'terms.updated':      'Dernière mise à jour : 23 février 2026',
+    'terms.back':         'Retour à l\'accueil',
+
+    // ── Footer extra ──────────────────────────────────────────
+    'footer.privacy':     'Politique de Confidentialité',
+    'footer.terms':       'Conditions d\'Utilisation',
+    'footer.blog':        'Blog',
   },
 
   en: {
@@ -542,6 +571,35 @@ const TRANSLATIONS = {
 
     'callback.status':   'Verifying your account…',
     'callback.patience': 'Please wait a moment.',
+
+    // ── Blog page ─────────────────────────────────────────────
+    'blog.page.title':    'Blog — Pixel One',
+    'blog.header.title':  'Our',
+    'blog.header.accent': 'Blog',
+    'blog.header.desc':   'Latest news and design tips.',
+    'blog.back':          '← Back to Home',
+    'blog.loading':       'Loading articles…',
+    'blog.empty':         'No articles yet.',
+    'blog.readmore':      'Read more',
+
+    // ── Privacy page ──────────────────────────────────────────
+    'privacy.page.title': 'Privacy Policy — Pixel One',
+    'privacy.badge':      'Legal',
+    'privacy.title':      'Privacy Policy',
+    'privacy.updated':    'Last updated: February 23, 2026',
+    'privacy.back':       'Back to Home',
+
+    // ── Terms page ────────────────────────────────────────────
+    'terms.page.title':   'Terms of Service — Pixel One',
+    'terms.badge':        'Legal',
+    'terms.title':        'Terms of Service',
+    'terms.updated':      'Last updated: February 23, 2026',
+    'terms.back':         'Back to Home',
+
+    // ── Footer extra ──────────────────────────────────────────
+    'footer.privacy':     'Privacy Policy',
+    'footer.terms':       'Terms of Service',
+    'footer.blog':        'Blog',
   },
 
   ar: {
@@ -802,6 +860,35 @@ const TRANSLATIONS = {
 
     'callback.status':   'جارٍ التحقق من حسابك…',
     'callback.patience': 'يرجى الانتظار لحظات.',
+
+    // ── Blog page ─────────────────────────────────────────────
+    'blog.page.title':    'المدونة — بيكسل ون',
+    'blog.header.title':  'المدونة',
+    'blog.header.accent': '',
+    'blog.header.desc':   'آخر الأخبار ونصائح التصميم.',
+    'blog.back':          '→ العودة إلى الرئيسية',
+    'blog.loading':       'جارٍ تحميل المقالات…',
+    'blog.empty':         'لا توجد مقالات حالياً.',
+    'blog.readmore':      'اقرأ المزيد',
+
+    // ── Privacy page ──────────────────────────────────────────
+    'privacy.page.title': 'سياسة الخصوصية — بيكسل ون',
+    'privacy.badge':      'قانوني',
+    'privacy.title':      'سياسة الخصوصية',
+    'privacy.updated':    'آخر تحديث: 23 فبراير 2026',
+    'privacy.back':       'العودة إلى الرئيسية',
+
+    // ── Terms page ────────────────────────────────────────────
+    'terms.page.title':   'شروط الاستخدام — بيكسل ون',
+    'terms.badge':        'قانوني',
+    'terms.title':        'شروط الاستخدام',
+    'terms.updated':      'آخر تحديث: 23 فبراير 2026',
+    'terms.back':         'العودة إلى الرئيسية',
+
+    // ── Footer extra ──────────────────────────────────────────
+    'footer.privacy':     'سياسة الخصوصية',
+    'footer.terms':       'شروط الاستخدام',
+    'footer.blog':        'المدونة',
   },
 };
 

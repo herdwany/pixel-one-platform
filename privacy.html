@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="fr" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,12 +13,10 @@
   <!-- Theme Manager -->
   <script src="assets/js/theme-manager.js"></script>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,7 +36,6 @@
     }
   </script>
 
-  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
@@ -70,16 +67,47 @@
         <span class="text-brand">Pixel</span><span>One</span>
       </a>
       <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
-        <a href="index.html#services" class="hover:text-white transition">Services</a>
-        <a href="index.html#why" class="hover:text-white transition">Why Us</a>
-        <a href="index.html#contact" class="hover:text-white transition">Contact</a>
+        <a href="index.html#services" class="hover:text-white transition" data-i18n="nav.services">Services</a>
+        <a href="index.html#why" class="hover:text-white transition" data-i18n="nav.why">Why Us</a>
+        <a href="index.html#contact" class="hover:text-white transition" data-i18n="nav.contact">Contact</a>
       </div>
       <div class="flex items-center gap-3">
         <button id="theme-toggle" onclick="toggleTheme()" class="text-gray-400 hover:text-white transition text-lg" aria-label="Toggle theme">
           <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
         </button>
-        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition">Login</a>
-        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition">
+        <!-- Language Switcher -->
+        <div class="relative" id="lang-dropdown-wrapper">
+          <button id="lang-btn"
+                  class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
+                  aria-haspopup="listbox">
+            <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
+            <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
+            <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
+          </button>
+          <div id="lang-dropdown"
+               class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
+               style="min-width:160px" role="listbox">
+            <button onclick="setLanguage('fr');renderLegalPage('privacy')" data-lang="fr" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇫🇷</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">Français</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('en');renderLegalPage('privacy')" data-lang="en" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇺🇸</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">English</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('ar');renderLegalPage('privacy')" data-lang="ar" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇲🇦</span>
+              <div class="text-start" style="font-family:'IBM Plex Sans Arabic',sans-serif"><p class="font-semibold text-xs leading-tight">العربية</p></div>
+            </button>
+          </div>
+        </div>
+        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Login</a>
+        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
           Our Services
         </a>
       </div>
@@ -93,169 +121,30 @@
       <!-- Back to Home -->
       <a href="index.html" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition mb-8 group">
         <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-        Back to Home
+        <span id="legal-back-text">Retour à l'accueil</span>
       </a>
 
       <!-- Page Header -->
       <div class="mb-12">
         <div class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-4 tracking-widest uppercase">
-          <i class="fa-solid fa-shield-halved mr-1"></i> Legal
+          <i class="fa-solid fa-shield-halved mr-1"></i> <span id="legal-badge">Juridique</span>
         </div>
-        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter mb-4">Privacy Policy</h1>
-        <p class="text-gray-500 text-sm">Last updated: February 23, 2026</p>
+        <h1 id="legal-title" class="text-4xl md:text-5xl font-extrabold tracking-tighter mb-4">Politique de Confidentialité</h1>
+        <p id="legal-updated" class="text-gray-500 text-sm">Dernière mise à jour : 23 février 2026</p>
       </div>
 
-      <!-- Sections -->
-      <div class="space-y-8">
-
-        <!-- Introduction -->
-        <section class="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-              <i class="fa-solid fa-eye text-brand text-sm"></i>
-            </div>
-            <h2 class="text-xl font-bold">1. Introduction</h2>
-          </div>
-          <p class="text-[#e5e5e5] leading-relaxed">
-            At <strong class="text-white">Pixel One</strong>, we respect your privacy and are committed to protecting the personal information you share with us. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website and services.
-          </p>
-        </section>
-
-        <!-- Data Collection -->
-        <section class="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-              <i class="fa-solid fa-database text-brand text-sm"></i>
-            </div>
-            <h2 class="text-xl font-bold">2. Data We Collect</h2>
-          </div>
-          <p class="text-[#e5e5e5] leading-relaxed mb-4">
-            When you sign in using <strong class="text-white">Google OAuth</strong>, we collect the following information for authentication purposes only:
-          </p>
-          <ul class="space-y-2 text-[#e5e5e5]">
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-check text-brand text-xs mt-1.5"></i>
-              <span><strong class="text-white">Full Name</strong> — as provided by your Google account.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-check text-brand text-xs mt-1.5"></i>
-              <span><strong class="text-white">Email Address</strong> — used to identify your account.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-check text-brand text-xs mt-1.5"></i>
-              <span><strong class="text-white">Profile Picture</strong> — displayed within your user dashboard.</span>
-            </li>
-          </ul>
-          <p class="text-gray-500 text-sm mt-4">
-            We do not collect any additional data beyond what is required for authentication and account management.
-          </p>
-        </section>
-
-        <!-- Data Usage -->
-        <section class="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-              <i class="fa-solid fa-gear text-brand text-sm"></i>
-            </div>
-            <h2 class="text-xl font-bold">3. How We Use Your Data</h2>
-          </div>
-          <p class="text-[#e5e5e5] leading-relaxed mb-3">Your personal information is used exclusively to:</p>
-          <ul class="space-y-2 text-[#e5e5e5]">
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i>
-              <span>Create and maintain your user account on our platform.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i>
-              <span>Manage and track your service orders and project deliveries.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i>
-              <span>Communicate with you regarding your orders and account updates.</span>
-            </li>
-          </ul>
-          <p class="text-gray-500 text-sm mt-4">
-            We do not sell, rent, or share your personal data with third parties for marketing purposes.
-          </p>
-        </section>
-
-        <!-- Third Parties -->
-        <section class="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-              <i class="fa-solid fa-link text-brand text-sm"></i>
-            </div>
-            <h2 class="text-xl font-bold">4. Third-Party Services</h2>
-          </div>
-          <p class="text-[#e5e5e5] leading-relaxed mb-3">We rely on the following trusted third-party providers:</p>
-          <div class="grid sm:grid-cols-2 gap-4 mt-4">
-            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
-              <p class="font-semibold text-white mb-1">Supabase</p>
-              <p class="text-gray-400 text-sm">Used for user authentication (via Google OAuth) and secure database management.</p>
-            </div>
-            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
-              <p class="font-semibold text-white mb-1">Google OAuth</p>
-              <p class="text-gray-400 text-sm">Provides secure sign-in functionality. Data shared is governed by Google's own privacy policy.</p>
-            </div>
-          </div>
-          <p class="text-gray-500 text-sm mt-4">
-            These services have their own privacy policies, and we encourage you to review them.
-          </p>
-        </section>
-
-        <!-- User Rights -->
-        <section class="bg-surface-card border border-surface-border rounded-2xl p-6 md:p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-              <i class="fa-solid fa-user-shield text-brand text-sm"></i>
-            </div>
-            <h2 class="text-xl font-bold">5. Your Rights</h2>
-          </div>
-          <p class="text-[#e5e5e5] leading-relaxed mb-3">You have the right to:</p>
-          <ul class="space-y-2 text-[#e5e5e5]">
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-check text-brand text-xs mt-1.5"></i>
-              <span><strong class="text-white">Access</strong> — Request a copy of the personal data we hold about you.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-check text-brand text-xs mt-1.5"></i>
-              <span><strong class="text-white">Deletion</strong> — Request the complete deletion of your account and associated data.</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <i class="fa-solid fa-check text-brand text-xs mt-1.5"></i>
-              <span><strong class="text-white">Correction</strong> — Request correction of any inaccurate personal information.</span>
-            </li>
-          </ul>
-          <p class="text-[#e5e5e5] mt-4">
-            To exercise any of these rights, please contact our support team at the email address provided below.
-          </p>
-        </section>
-
-        <!-- Contact -->
-        <section class="bg-surface-card border border-brand/20 rounded-2xl p-6 md:p-8">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-9 h-9 rounded-lg bg-brand/10 flex items-center justify-center">
-              <i class="fa-solid fa-envelope text-brand text-sm"></i>
-            </div>
-            <h2 class="text-xl font-bold">6. Contact Us</h2>
-          </div>
-          <p class="text-[#e5e5e5] leading-relaxed mb-4">
-            If you have any questions or concerns about this Privacy Policy, or if you wish to exercise your data rights, please reach out to us:
-          </p>
-          <a href="mailto:contact@pixelonevisuals.tech"
-             class="inline-flex items-center gap-3 bg-brand/10 border border-brand/30 hover:border-brand/60 text-white px-5 py-3 rounded-xl transition group">
-            <i class="fa-solid fa-paper-plane text-brand group-hover:translate-x-0.5 transition-transform"></i>
-            <span class="font-medium">contact@pixelonevisuals.tech</span>
-          </a>
-        </section>
-
+      <!-- Dynamic Sections -->
+      <div id="legal-sections" class="space-y-8">
+        <div class="text-center py-20 text-gray-500">
+          <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+        </div>
       </div>
 
       <!-- Back to Home (Bottom) -->
       <div class="mt-12 text-center">
         <a href="index.html" class="inline-flex items-center gap-2 bg-surface-card border border-surface-border hover:border-brand/40 text-white text-sm font-semibold px-6 py-3 rounded-xl transition">
           <i class="fa-solid fa-arrow-left"></i>
-          Back to Home
+          <span id="legal-back-bottom-text">Retour à l'accueil</span>
         </a>
       </div>
 
@@ -265,16 +154,24 @@
   <!-- ── FOOTER ─────────────────────────────────────────────── -->
   <footer class="border-t border-surface-border py-10 px-6">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-gray-500 text-sm">
-      <p class="font-bold text-white site-logo" dir="ltr"><span class="text-brand">Pixel</span>One &copy; 2025</p>
+      <p class="font-bold text-white site-logo" dir="ltr"><span class="text-brand">Pixel</span>One © 2025</p>
       <div class="flex gap-6">
-        <a href="services.html"  class="hover:text-white transition">Services</a>
-        <a href="privacy.html"   class="text-white transition">Privacy</a>
-        <a href="terms.html"     class="hover:text-white transition">Terms</a>
+        <a href="services.html"  class="hover:text-white transition" data-i18n="footer.services">Services</a>
+        <a href="privacy.html"   class="text-white transition" data-i18n="footer.privacy">Privacy Policy</a>
+        <a href="terms.html"     class="hover:text-white transition" data-i18n="footer.terms">Terms of Service</a>
       </div>
-      <p><i class="fa-solid fa-heart text-brand"></i> Made in Morocco</p>
+      <p><i class="fa-solid fa-heart text-brand"></i> <span data-i18n="footer.made">Made in Morocco</span></p>
     </div>
   </footer>
 
 </div><!-- /content -->
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/legal-content.js"></script>
+<script>
+  renderLegalPage('privacy');
+  document.addEventListener('langchange', () => renderLegalPage('privacy'));
+</script>
 </body>
 </html>
