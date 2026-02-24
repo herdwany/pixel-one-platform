@@ -275,6 +275,7 @@
                 <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.slug.label">Slug (URL)</label>
                 <input id="blog-slug" type="text" required placeholder="top-5-tendances-design-2025"
                        class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                <p class="text-xs text-gray-500 mt-1.5"><i class="fa-solid fa-circle-info mr-1"></i>Slug is auto-formatted for SEO (lowercase, no spaces).</p>
               </div>
               <div>
                 <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.img.label">Image de couverture (URL)</label>
@@ -1264,6 +1265,25 @@
       alert('Error: ' + err.message);
     }
   }
+
+  // ── Slug helpers ─────────────────────────────────────────
+  function toSlug(text) {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-{2,}/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  document.getElementById('blog-title').addEventListener('input', (e) => {
+    document.getElementById('blog-slug').value = toSlug(e.target.value);
+  });
+
+  document.getElementById('blog-slug').addEventListener('input', (e) => {
+    e.target.value = toSlug(e.target.value);
+  });
 
   document.getElementById('blog-form').addEventListener('submit', async (e) => {
     e.preventDefault();
