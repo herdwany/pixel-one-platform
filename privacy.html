@@ -60,56 +60,62 @@
 <div class="content">
 
   <!-- ── NAVBAR ──────────────────────────────────────────────── -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/70 backdrop-blur-md border-b border-surface-border">
-    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
-      <a href="index.html" dir="ltr"
-         class="site-logo flex items-center gap-2 font-bold text-xl tracking-tight shrink-0">
-        <span class="text-brand">Pixel</span><span>One</span>
-      </a>
-      <div class="hidden md:flex items-center gap-8 text-sm text-gray-400">
-        <a href="index.html#services" class="hover:text-white transition" data-i18n="nav.services">Services</a>
-        <a href="index.html#why" class="hover:text-white transition" data-i18n="nav.why">Why Us</a>
-        <a href="index.html#contact" class="hover:text-white transition" data-i18n="nav.contact">Contact</a>
-      </div>
-      <div class="flex items-center gap-3">
-        <button id="theme-toggle" onclick="toggleTheme()" class="text-gray-400 hover:text-white transition text-lg" aria-label="Toggle theme">
-          <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
-        </button>
-        <!-- Language Switcher -->
-        <div class="relative" id="lang-dropdown-wrapper">
-          <button id="lang-btn"
-                  class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
-                  aria-haspopup="listbox">
-            <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
-            <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
-            <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
-          </button>
-          <div id="lang-dropdown"
-               class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
-               style="min-width:160px" role="listbox">
-            <button onclick="setLanguage('fr');renderLegalPage('privacy')" data-lang="fr" role="option"
-                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
-              <span class="text-base leading-none">🇫🇷</span>
-              <div class="text-start"><p class="font-semibold text-xs leading-tight">Français</p></div>
-            </button>
-            <div class="h-px bg-[#282828]"></div>
-            <button onclick="setLanguage('en');renderLegalPage('privacy')" data-lang="en" role="option"
-                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
-              <span class="text-base leading-none">🇺🇸</span>
-              <div class="text-start"><p class="font-semibold text-xs leading-tight">English</p></div>
-            </button>
-            <div class="h-px bg-[#282828]"></div>
-            <button onclick="setLanguage('ar');renderLegalPage('privacy')" data-lang="ar" role="option"
-                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
-              <span class="text-base leading-none">🇲🇦</span>
-              <div class="text-start" style="font-family:'IBM Plex Sans Arabic',sans-serif"><p class="font-semibold text-xs leading-tight">العربية</p></div>
-            </button>
-          </div>
-        </div>
-        <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Login</a>
-        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
-          Our Services
+  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/[0.06] transition-shadow duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" dir="ltr" class="site-logo flex items-center gap-1.5 font-bold text-xl tracking-tight shrink-0">
+          <span class="text-brand">Pixel</span><span>One</span>
         </a>
+        <div class="hidden lg:flex items-center gap-7 text-sm text-gray-400">
+          <a href="index.html#services" class="hover:text-white transition-colors duration-200" data-i18n="nav.services">Services</a>
+          <a href="index.html#why" class="hover:text-white transition-colors duration-200" data-i18n="nav.why">Why Us</a>
+          <a href="index.html#contact" class="hover:text-white transition-colors duration-200" data-i18n="nav.contact">Contact</a>
+          <a href="blog.html" class="hover:text-white transition-colors duration-200" data-i18n="footer.blog">Blog</a>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button id="theme-toggle" onclick="toggleTheme()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-200" aria-label="Toggle theme">
+            <i id="theme-toggle-icon" class="theme-toggle-icon fa-solid fa-sun text-sm"></i>
+          </button>
+          <div class="relative" id="lang-dropdown-wrapper">
+            <button id="lang-btn" class="flex items-center gap-1.5 h-9 px-2.5 rounded-lg border border-white/[0.08] hover:border-brand/30 text-gray-400 hover:text-white text-sm transition-all duration-200 cursor-pointer" aria-haspopup="listbox">
+              <span id="lang-flag" class="text-base leading-none">🇫🇷</span>
+              <span id="lang-code" class="font-medium text-xs tracking-wide hidden sm:inline">FR</span>
+              <i class="fa-solid fa-chevron-down text-[8px] opacity-40"></i>
+            </button>
+            <div id="lang-dropdown" class="hidden absolute end-0 top-full mt-2 w-44 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50" role="listbox">
+              <button onclick="setLanguage('fr')" data-lang="fr" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+                <span class="text-base leading-none">🇫🇷</span>
+                <div class="text-start flex-1"><p class="font-semibold text-xs">Français</p><p class="text-[10px] text-gray-500" data-i18n="lang.fr.desc">Français</p></div>
+              </button>
+              <div class="h-px bg-[#282828]"></div>
+              <button onclick="setLanguage('en')" data-lang="en" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+                <span class="text-base leading-none">🇺🇸</span>
+                <div class="text-start flex-1"><p class="font-semibold text-xs">English</p><p class="text-[10px] text-gray-500" data-i18n="lang.en.desc">Anglais</p></div>
+              </button>
+              <div class="h-px bg-[#282828]"></div>
+              <button onclick="setLanguage('ar')" data-lang="ar" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+                <span class="text-base leading-none">🇲🇦</span>
+                <div class="text-start flex-1" style="font-family:'IBM Plex Sans Arabic',sans-serif"><p class="font-semibold text-xs">العربية</p><p class="text-[10px] text-gray-500" data-i18n="lang.ar.desc">Arabe</p></div>
+              </button>
+            </div>
+          </div>
+          <a href="auth.html" class="hidden sm:flex items-center text-sm text-gray-400 hover:text-white transition-colors duration-200 px-2 py-1.5" data-i18n="nav.login">Connexion</a>
+          <a href="services.html" class="hidden sm:flex items-center bg-brand hover:bg-brand-dark text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition-colors duration-200" data-i18n="nav.cta">Nos services</a>
+          <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-200" aria-label="Menu">
+            <i class="fa-solid fa-bars text-sm"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-white/[0.06] bg-black/95 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-4 py-3 space-y-1">
+        <a href="index.html#services" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.services">Services</a>
+        <a href="index.html#why" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.why">Pourquoi nous</a>
+        <a href="index.html#contact" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.contact">Contact</a>
+        <a href="blog.html" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="footer.blog">Blog</a>
+        <div class="h-px bg-white/[0.06] my-2"></div>
+        <a href="auth.html" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.login">Connexion</a>
+        <a href="services.html" class="block px-4 py-3 rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-white transition text-sm font-semibold text-center" data-i18n="nav.cta">Nos services</a>
       </div>
     </div>
   </nav>
