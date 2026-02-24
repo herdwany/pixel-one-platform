@@ -593,6 +593,25 @@
 
   // Edit order modal (populate + proof signed url)
   document.addEventListener('click', async e => {
+    // Delete order handler
+    const delBtn = e.target.closest('.del-order-btn');
+    if (delBtn) {
+      const orderId = Number(delBtn.dataset.id);
+      const orderRef = delBtn.dataset.ref;
+      if (!confirm(`Supprimer la commande ${orderRef} ?`)) return;
+      try {
+        const sb = getSupabaseClient();
+        const { error } = await sb.from('orders').delete().eq('id', orderId);
+        if (error) throw error;
+        allOrders = allOrders.filter(o => o.id !== orderId);
+        await renderOrders(allOrders);
+        updateStats(allOrders);
+      } catch (err) {
+        alert('Erreur: ' + err.message);
+      }
+      return;
+    }
+
     const btn = e.target.closest('.edit-order-btn');
     if (!btn) return;
     currentOrderId = Number(btn.dataset.id);
