@@ -223,35 +223,60 @@
 
       <!-- BLOG section -->
       <section id="section-blog" class="hidden space-y-4">
-        <h2 class="font-bold text-lg" data-i18n="admin.blog.title">Publier un Article de Blog</h2>
-        <div class="bg-surface-card border border-surface-border rounded-2xl p-6 max-w-2xl">
-          <form id="blog-form" class="space-y-5">
-            <div>
-              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article</label>
-              <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
-                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-lg" data-i18n="admin.blog.title">Gestion du Blog</h2>
+          <button id="add-blog-btn"
+                  class="bg-brand hover:bg-brand-dark text-white text-sm font-bold px-4 py-2 rounded-xl transition">
+            <i class="fa-solid fa-plus mr-1"></i><span data-i18n="admin.blog.add">Nouvel article</span>
+          </button>
+        </div>
+
+        <!-- Blog posts list -->
+        <div id="blog-posts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Blog form modal -->
+        <div id="blog-modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-5">
+              <h3 id="blog-modal-title" class="font-bold text-lg">Nouvel article</h3>
+              <button id="blog-modal-close" class="text-gray-500 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-xl"></i>
+              </button>
             </div>
-            <div>
-              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.slug.label">Slug (URL)</label>
-              <input id="blog-slug" type="text" required placeholder="top-5-tendances-design-2025"
-                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
-            </div>
-            <div>
-              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.img.label">Image de couverture (URL)</label>
-              <input id="blog-image" type="url" placeholder="https://…"
-                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
-            </div>
-            <div>
-              <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (Markdown supporté)</label>
-              <textarea id="blog-content" rows="8" required placeholder="Rédigez votre article…"
-                        class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
-            </div>
-            <button type="submit"
-                    class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition">
-              <i class="fa-solid fa-upload mr-2"></i><span data-i18n="admin.blog.submit">Publier l'article</span>
-            </button>
-          </form>
-          <div id="blog-alert" class="hidden mt-4 px-4 py-3 rounded-lg text-sm"></div>
+            <form id="blog-form" class="space-y-4">
+              <div>
+                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article</label>
+                <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
+                       class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+              </div>
+              <div>
+                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.slug.label">Slug (URL)</label>
+                <input id="blog-slug" type="text" required placeholder="top-5-tendances-design-2025"
+                       class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+              </div>
+              <div>
+                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.img.label">Image de couverture (URL)</label>
+                <input id="blog-image" type="url" placeholder="https://…"
+                       class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+              </div>
+              <div>
+                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (Markdown supporté)</label>
+                <textarea id="blog-content" rows="8" required placeholder="Rédigez votre article…"
+                          class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+              </div>
+              <div class="flex items-center gap-3">
+                <label class="text-sm text-gray-400">Publié</label>
+                <input id="blog-published" type="checkbox" checked class="accent-brand w-4 h-4" />
+              </div>
+              <button type="submit"
+                      class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl transition">
+                <i class="fa-solid fa-save mr-2"></i><span id="blog-submit-text" data-i18n="admin.blog.submit">Publier l'article</span>
+              </button>
+            </form>
+            <div id="blog-alert" class="hidden mt-4 px-4 py-3 rounded-lg text-sm"></div>
+          </div>
         </div>
       </section>
 
