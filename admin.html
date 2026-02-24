@@ -211,7 +211,7 @@
       </section>
 
       <!-- SERVICES section -->
-      <section id="section-services" class="hidden space-y-4">
+      <section id="section-services" class="hidden space-y-6">
         <div class="flex items-center justify-between">
           <h2 class="font-bold text-lg" data-i18n="admin.services.title">Gestion des Services</h2>
           <button id="add-service-btn"
@@ -219,6 +219,20 @@
             <i class="fa-solid fa-plus mr-1"></i><span data-i18n="admin.services.add">Ajouter</span>
           </button>
         </div>
+
+        <!-- Service filter tabs -->
+        <div class="flex gap-2 flex-wrap">
+          <button class="admin-svc-filter active text-xs font-semibold px-3 py-1.5 rounded-lg border border-brand/40 bg-brand/10 text-white" data-filter="active">
+            <i class="fa-solid fa-circle-check mr-1 text-green-400"></i>Actifs
+          </button>
+          <button class="admin-svc-filter text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-400 hover:border-brand/40" data-filter="coming_soon">
+            <i class="fa-solid fa-clock mr-1 text-yellow-400"></i>Bientôt disponible
+          </button>
+          <button class="admin-svc-filter text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-400 hover:border-brand/40" data-filter="all">
+            <i class="fa-solid fa-grip mr-1"></i>Tous
+          </button>
+        </div>
+
         <div id="services-admin-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Populated by JS -->
         </div>
@@ -388,52 +402,172 @@
 
 <script src="assets/js/config.js"></script>
 
-<!-- ── SERVICE CRUD MODAL ─────────────────────────────────── -->
+<!-- ── SERVICE CRUD MODAL (Comprehensive) ──────────────────── -->
 <div id="svc-modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
-  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between mb-5">
       <h3 id="svc-modal-title" class="font-bold text-lg">Ajouter un Service</h3>
       <button id="svc-modal-close" class="text-gray-500 hover:text-white transition">
         <i class="fa-solid fa-xmark text-xl"></i>
       </button>
     </div>
-    <form id="svc-form" class="space-y-4">
-      <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Titre</label>
-        <input id="svc-title" type="text" required
-               class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
-               placeholder="Montage Vidéo Pro" />
+    <form id="svc-form" class="space-y-5">
+
+      <!-- Tabs: Info / I18n / Options -->
+      <div class="flex gap-2 border-b border-surface-border pb-3">
+        <button type="button" class="svc-form-tab active text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/30 text-white" data-tab="info">
+          <i class="fa-solid fa-info-circle mr-1"></i>Informations
+        </button>
+        <button type="button" class="svc-form-tab text-xs font-semibold px-3 py-1.5 rounded-lg bg-surface border border-surface-border text-gray-400" data-tab="i18n">
+          <i class="fa-solid fa-language mr-1"></i>Traductions
+        </button>
+        <button type="button" class="svc-form-tab text-xs font-semibold px-3 py-1.5 rounded-lg bg-surface border border-surface-border text-gray-400" data-tab="options">
+          <i class="fa-solid fa-sliders mr-1"></i>Options
+        </button>
       </div>
-      <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Catégorie</label>
-        <select id="svc-category"
-                class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/50 transition">
-          <option value="video">Vidéo & Motion</option>
-          <option value="design">Design Graphique</option>
-          <option value="web">Développement Web</option>
-        </select>
+
+      <!-- TAB: Info -->
+      <div id="svc-tab-info" class="svc-tab-content space-y-4">
+        <div>
+          <label class="text-sm text-gray-400 mb-1.5 block">Titre principal (FR)</label>
+          <input id="svc-title" type="text" required
+                 class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                 placeholder="Montage Vidéo Pro" />
+        </div>
+        <div>
+          <label class="text-sm text-gray-400 mb-1.5 block">Description (FR)</label>
+          <textarea id="svc-description" rows="2"
+                    class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                    placeholder="Description courte du service…"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm text-gray-400 mb-1.5 block">Catégorie</label>
+            <select id="svc-category"
+                    class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/50 transition">
+              <option value="video">Vidéo & Motion</option>
+              <option value="design">Design Graphique</option>
+              <option value="web">Développement Web</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-1.5 block">Prix (MAD)</label>
+            <input id="svc-price" type="number" step="0.01" min="0" required
+                   class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                   placeholder="500" />
+          </div>
+        </div>
+        <div>
+          <label class="text-sm text-gray-400 mb-1.5 block">Image (URL)</label>
+          <input id="svc-image" type="url"
+                 class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                 placeholder="https://images.unsplash.com/..." />
+          <div id="svc-image-preview" class="mt-2 hidden">
+            <img id="svc-image-preview-img" src="" alt="Preview" class="w-full h-32 object-cover rounded-lg border border-surface-border" />
+          </div>
+        </div>
+        <div>
+          <label class="text-sm text-gray-400 mb-1.5 block">Caractéristiques FR (une par ligne)</label>
+          <textarea id="svc-features" rows="4"
+                    class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                    placeholder="Jusqu'à 5 min&#10;Sous-titres inclus&#10;2 révisions"></textarea>
+        </div>
       </div>
-      <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Prix (MAD)</label>
-        <input id="svc-price" type="number" step="0.01" min="0" required
-               class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
-               placeholder="500" />
+
+      <!-- TAB: I18n (Translations) -->
+      <div id="svc-tab-i18n" class="svc-tab-content hidden space-y-4">
+        <div class="bg-surface rounded-xl p-4 space-y-3">
+          <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center gap-2">
+            <span class="text-base">🇺🇸</span> English
+          </p>
+          <div>
+            <label class="text-sm text-gray-400 mb-1 block">Title (EN)</label>
+            <input id="svc-title-en" type="text"
+                   class="w-full bg-surface-card border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                   placeholder="Pro Video Editing" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-1 block">Description (EN)</label>
+            <textarea id="svc-desc-en" rows="2"
+                      class="w-full bg-surface-card border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                      placeholder="Short service description…"></textarea>
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-1 block">Features (EN, one per line)</label>
+            <textarea id="svc-features-en" rows="3"
+                      class="w-full bg-surface-card border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                      placeholder="Up to 5 min&#10;Subtitles included"></textarea>
+          </div>
+        </div>
+        <div class="bg-surface rounded-xl p-4 space-y-3">
+          <p class="text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center gap-2">
+            <span class="text-base">🇲🇦</span> العربية
+          </p>
+          <div>
+            <label class="text-sm text-gray-400 mb-1 block">العنوان (AR)</label>
+            <input id="svc-title-ar" type="text" dir="rtl" style="font-family:Tajawal,sans-serif"
+                   class="w-full bg-surface-card border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                   placeholder="مونتاج فيديو احترافي" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-1 block">الوصف (AR)</label>
+            <textarea id="svc-desc-ar" rows="2" dir="rtl" style="font-family:Tajawal,sans-serif"
+                      class="w-full bg-surface-card border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                      placeholder="وصف قصير للخدمة…"></textarea>
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-1 block">المميزات (AR, سطر لكل ميزة)</label>
+            <textarea id="svc-features-ar" rows="3" dir="rtl" style="font-family:Tajawal,sans-serif"
+                      class="w-full bg-surface-card border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                      placeholder="حتى 5 دقائق&#10;ترجمة مشمولة"></textarea>
+          </div>
+        </div>
       </div>
-      <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Image (URL)</label>
-        <input id="svc-image" type="url"
-               class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
-               placeholder="https://..." />
+
+      <!-- TAB: Options -->
+      <div id="svc-tab-options" class="svc-tab-content hidden space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm text-gray-400 mb-1.5 block">Délai de livraison</label>
+            <input id="svc-delivery" type="text"
+                   class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                   placeholder="48h, 72h, 5 jours…" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-400 mb-1.5 block">Nombre de révisions</label>
+            <input id="svc-revisions" type="number" min="0" value="2"
+                   class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+          </div>
+        </div>
+        <div>
+          <label class="text-sm text-gray-400 mb-1.5 block">Ordre d'affichage</label>
+          <input id="svc-sort" type="number" min="0" value="0"
+                 class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                 placeholder="0 = premier" />
+        </div>
+        <div class="grid grid-cols-2 gap-4 bg-surface rounded-xl p-4">
+          <div class="flex items-center gap-3">
+            <input id="svc-active" type="checkbox" checked class="accent-brand w-4 h-4" />
+            <div>
+              <label for="svc-active" class="text-sm text-white font-medium cursor-pointer">Service actif</label>
+              <p class="text-xs text-gray-500">Visible et commandable</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <input id="svc-coming-soon" type="checkbox" class="accent-yellow-400 w-4 h-4" />
+            <div>
+              <label for="svc-coming-soon" class="text-sm text-white font-medium cursor-pointer">Bientôt disponible</label>
+              <p class="text-xs text-gray-500">Affiché avec badge "Soon"</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <label class="text-sm text-gray-400 mb-1.5 block">Caractéristiques (une par ligne)</label>
-        <textarea id="svc-features" rows="4"
-                  class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
-                  placeholder="Jusqu'à 5 min&#10;Sous-titres inclus&#10;2 révisions"></textarea>
-      </div>
+
+      <div id="svc-alert" class="hidden px-4 py-3 rounded-lg text-sm"></div>
+
       <button type="submit"
               class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl transition">
-        <i class="fa-solid fa-save mr-2"></i>Enregistrer
+        <i class="fa-solid fa-save mr-2"></i><span id="svc-submit-text">Enregistrer</span>
       </button>
     </form>
   </div>
@@ -707,31 +841,101 @@
     }
   });
 
-  // ── Services CRUD ──────────────────────────────────────────
+  // ── Services CRUD (Enhanced) ─────────────────────────────
   let adminServices = [];
+  let adminSvcFilter = 'active'; // 'active' | 'coming_soon' | 'all'
+
+  // Service form tab switching
+  document.querySelectorAll('.svc-form-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.svc-form-tab').forEach(t => {
+        t.classList.remove('active', 'bg-brand/10', 'border-brand/30', 'text-white');
+        t.classList.add('bg-surface', 'border-surface-border', 'text-gray-400');
+      });
+      tab.classList.add('active', 'bg-brand/10', 'border-brand/30', 'text-white');
+      tab.classList.remove('bg-surface', 'border-surface-border', 'text-gray-400');
+      document.querySelectorAll('.svc-tab-content').forEach(c => c.classList.add('hidden'));
+      document.getElementById(`svc-tab-${tab.dataset.tab}`).classList.remove('hidden');
+    });
+  });
+
+  // Admin service filter tabs
+  document.querySelectorAll('.admin-svc-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.admin-svc-filter').forEach(b => {
+        b.classList.remove('active', 'border-brand/40', 'bg-brand/10', 'text-white');
+        b.classList.add('border-surface-border', 'bg-surface-card', 'text-gray-400');
+      });
+      btn.classList.add('active', 'border-brand/40', 'bg-brand/10', 'text-white');
+      btn.classList.remove('border-surface-border', 'bg-surface-card', 'text-gray-400');
+      adminSvcFilter = btn.dataset.filter;
+      renderAdminServices(adminServices);
+    });
+  });
+
+  // Image preview
+  document.getElementById('svc-image')?.addEventListener('input', (e) => {
+    const url = e.target.value.trim();
+    const preview = document.getElementById('svc-image-preview');
+    const img = document.getElementById('svc-image-preview-img');
+    if (url && url.startsWith('http')) {
+      img.src = url;
+      preview.classList.remove('hidden');
+    } else {
+      preview.classList.add('hidden');
+    }
+  });
 
   function renderAdminServices(services) {
     adminServices = services;
     const grid = document.getElementById('services-admin-grid');
-    grid.innerHTML = services.map(s => `
-      <div class="bg-surface border border-surface-border rounded-xl p-4">
-        <div class="flex gap-3 mb-3">
-          <img src="${esc(s.image_url || '')}" class="w-16 h-16 rounded-lg object-cover shrink-0" alt="${esc(s.title)}" />
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-sm truncate">${esc(s.title)}</p>
-            <p class="text-xs text-gray-500">${t('cat.' + s.category)}</p>
-            <p class="text-brand font-bold text-sm mt-1">${Number(s.price).toLocaleString('fr-FR')} MAD</p>
+
+    // Apply filter
+    let filtered = services;
+    if (adminSvcFilter === 'active') {
+      filtered = services.filter(s => s.is_active && !s.is_coming_soon);
+    } else if (adminSvcFilter === 'coming_soon') {
+      filtered = services.filter(s => s.is_coming_soon);
+    }
+
+    if (!filtered.length) {
+      grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Aucun service dans cette catégorie.</p>';
+      return;
+    }
+
+    const catIcons = { video: 'fa-film', design: 'fa-pen-nib', web: 'fa-code' };
+
+    grid.innerHTML = filtered.map(s => {
+      const statusBadge = s.is_coming_soon
+        ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400"><i class="fa-solid fa-clock mr-0.5"></i>Soon</span>'
+        : s.is_active
+          ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400"><i class="fa-solid fa-circle-check mr-0.5"></i>Actif</span>'
+          : '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400"><i class="fa-solid fa-circle-xmark mr-0.5"></i>Inactif</span>';
+
+      return `
+      <div class="bg-surface border border-surface-border rounded-xl overflow-hidden ${s.is_coming_soon ? 'border-yellow-500/20' : ''}">
+        ${s.image_url ? `<img src="${esc(s.image_url)}" class="w-full h-32 object-cover" alt="${esc(s.title)}" />` : '<div class="w-full h-32 bg-surface-card flex items-center justify-center text-gray-600"><i class="fa-solid fa-image text-2xl"></i></div>'}
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-card border border-surface-border text-gray-400">
+              <i class="fa-solid ${catIcons[s.category] || 'fa-tag'} mr-0.5 text-brand"></i>${s.category}
+            </span>
+            ${statusBadge}
+            ${s.delivery_time ? `<span class="text-[10px] text-gray-500"><i class="fa-solid fa-clock mr-0.5"></i>${esc(s.delivery_time)}</span>` : ''}
+          </div>
+          <p class="font-semibold text-sm truncate">${esc(s.title)}</p>
+          <p class="text-brand font-bold text-sm mt-1">${Number(s.price).toLocaleString('fr-FR')} MAD</p>
+          ${s.revisions ? `<p class="text-[10px] text-gray-500 mt-1"><i class="fa-solid fa-rotate mr-1"></i>${s.revisions} révisions</p>` : ''}
+          <div class="flex gap-2 mt-3">
+            <button class="edit-svc-btn flex-1 text-xs text-gray-400 hover:text-white border border-surface-border hover:border-brand/40 rounded-lg py-1.5 transition" data-id="${s.id}">
+              <i class="fa-solid fa-pen mr-1"></i>Modifier
+            </button>
+            <button class="del-svc-btn text-xs text-red-500/70 hover:text-red-400 border border-surface-border hover:border-red-500/40 rounded-lg px-3 py-1.5 transition" data-id="${s.id}">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
         </div>
-        <div class="flex gap-2">
-          <button class="edit-svc-btn flex-1 text-xs text-gray-400 hover:text-white border border-surface-border hover:border-brand/40 rounded-lg py-1.5 transition" data-id="${s.id}">
-            <i class="fa-solid fa-pen mr-1"></i>Modifier
-          </button>
-          <button class="del-svc-btn text-xs text-red-500/70 hover:text-red-400 border border-surface-border hover:border-red-500/40 rounded-lg px-3 py-1.5 transition" data-id="${s.id}">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div>
-      </div>`).join('');
+      </div>`}).join('');
   }
 
   // Service modal helpers
@@ -740,11 +944,56 @@
   function openServiceModal(svc = null) {
     editServiceId = svc ? svc.id : null;
     document.getElementById('svc-modal-title').textContent = svc ? 'Modifier le Service' : 'Ajouter un Service';
+    document.getElementById('svc-submit-text').textContent = svc ? 'Mettre à jour' : 'Enregistrer';
+
+    // Parse JSONB fields
+    const titles = (typeof svc?.titles === 'string') ? JSON.parse(svc.titles || '{}') : (svc?.titles || {});
+    const descriptions = (typeof svc?.descriptions === 'string') ? JSON.parse(svc.descriptions || '{}') : (svc?.descriptions || {});
+    const featuresI18n = (typeof svc?.features_i18n === 'string') ? JSON.parse(svc.features_i18n || '{}') : (svc?.features_i18n || {});
+    const features = Array.isArray(svc?.features) ? svc.features : (typeof svc?.features === 'string' ? JSON.parse(svc.features || '[]') : []);
+
+    // Info tab
     document.getElementById('svc-title').value = svc?.title || '';
+    document.getElementById('svc-description').value = descriptions.fr || '';
     document.getElementById('svc-category').value = svc?.category || 'video';
     document.getElementById('svc-price').value = svc?.price || '';
     document.getElementById('svc-image').value = svc?.image_url || '';
-    document.getElementById('svc-features').value = Array.isArray(svc?.features) ? svc.features.join('\n') : '';
+    document.getElementById('svc-features').value = (featuresI18n.fr || features || []).join('\n');
+
+    // Image preview
+    const preview = document.getElementById('svc-image-preview');
+    const previewImg = document.getElementById('svc-image-preview-img');
+    if (svc?.image_url) { previewImg.src = svc.image_url; preview.classList.remove('hidden'); }
+    else { preview.classList.add('hidden'); }
+
+    // I18n tab
+    document.getElementById('svc-title-en').value = titles.en || '';
+    document.getElementById('svc-desc-en').value = descriptions.en || '';
+    document.getElementById('svc-features-en').value = (featuresI18n.en || []).join('\n');
+    document.getElementById('svc-title-ar').value = titles.ar || '';
+    document.getElementById('svc-desc-ar').value = descriptions.ar || '';
+    document.getElementById('svc-features-ar').value = (featuresI18n.ar || []).join('\n');
+
+    // Options tab
+    document.getElementById('svc-delivery').value = svc?.delivery_time || '';
+    document.getElementById('svc-revisions').value = svc?.revisions ?? 2;
+    document.getElementById('svc-sort').value = svc?.sort_order ?? 0;
+    document.getElementById('svc-active').checked = svc ? (svc.is_active !== false) : true;
+    document.getElementById('svc-coming-soon').checked = svc?.is_coming_soon || false;
+
+    // Reset to Info tab
+    document.querySelectorAll('.svc-form-tab').forEach(t => {
+      t.classList.remove('active', 'bg-brand/10', 'border-brand/30', 'text-white');
+      t.classList.add('bg-surface', 'border-surface-border', 'text-gray-400');
+    });
+    document.querySelector('.svc-form-tab[data-tab="info"]').classList.add('active', 'bg-brand/10', 'border-brand/30', 'text-white');
+    document.querySelector('.svc-form-tab[data-tab="info"]').classList.remove('bg-surface', 'border-surface-border', 'text-gray-400');
+    document.querySelectorAll('.svc-tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById('svc-tab-info').classList.remove('hidden');
+
+    // Clear alert
+    document.getElementById('svc-alert').classList.add('hidden');
+
     document.getElementById('svc-modal-overlay').classList.remove('hidden');
   }
 
@@ -771,13 +1020,41 @@
 
   document.getElementById('svc-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const alertEl = document.getElementById('svc-alert');
+
+    const titleFr = document.getElementById('svc-title').value.trim();
+    const featuresFr = document.getElementById('svc-features').value.split('\n').map(f => f.trim()).filter(Boolean);
+    const featuresEn = document.getElementById('svc-features-en').value.split('\n').map(f => f.trim()).filter(Boolean);
+    const featuresAr = document.getElementById('svc-features-ar').value.split('\n').map(f => f.trim()).filter(Boolean);
+
     const payload = {
-      title:     document.getElementById('svc-title').value.trim(),
-      category:  document.getElementById('svc-category').value,
-      price:     parseFloat(document.getElementById('svc-price').value),
-      image_url: document.getElementById('svc-image').value.trim() || null,
-      features:  document.getElementById('svc-features').value.split('\n').map(f => f.trim()).filter(Boolean),
+      title:         titleFr,
+      category:      document.getElementById('svc-category').value,
+      price:         parseFloat(document.getElementById('svc-price').value),
+      image_url:     document.getElementById('svc-image').value.trim() || null,
+      features:      featuresFr,
+      titles:        {
+        fr: titleFr,
+        en: document.getElementById('svc-title-en').value.trim() || titleFr,
+        ar: document.getElementById('svc-title-ar').value.trim() || titleFr,
+      },
+      descriptions:  {
+        fr: document.getElementById('svc-description').value.trim(),
+        en: document.getElementById('svc-desc-en').value.trim(),
+        ar: document.getElementById('svc-desc-ar').value.trim(),
+      },
+      features_i18n: {
+        fr: featuresFr,
+        en: featuresEn.length ? featuresEn : featuresFr,
+        ar: featuresAr.length ? featuresAr : featuresFr,
+      },
+      delivery_time: document.getElementById('svc-delivery').value.trim() || null,
+      revisions:     parseInt(document.getElementById('svc-revisions').value) || 0,
+      sort_order:    parseInt(document.getElementById('svc-sort').value) || 0,
+      is_active:     document.getElementById('svc-active').checked,
+      is_coming_soon:document.getElementById('svc-coming-soon').checked,
     };
+
     try {
       const sb = getSupabaseClient();
       if (editServiceId) {
@@ -787,11 +1064,15 @@
         const { error } = await sb.from('services').insert(payload);
         if (error) throw error;
       }
-      closeServiceModal();
-      const { data: services } = await sb.from('services').select('*');
-      renderAdminServices(services || CONFIG.SERVICES);
+      alertEl.textContent = editServiceId ? 'Service mis à jour ✓' : 'Service ajouté ✓';
+      alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
+      alertEl.classList.remove('hidden');
+      setTimeout(() => closeServiceModal(), 800);
+      await reloadAdminServices();
     } catch (err) {
-      alert('Error: ' + err.message);
+      alertEl.textContent = '✗ ' + err.message;
+      alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
+      alertEl.classList.remove('hidden');
     }
   });
 
@@ -801,11 +1082,33 @@
       const sb = getSupabaseClient();
       const { error } = await sb.from('services').delete().eq('id', id);
       if (error) throw error;
-      const { data: services } = await sb.from('services').select('*');
-      renderAdminServices(services || CONFIG.SERVICES);
+      await reloadAdminServices();
     } catch (err) {
       alert('Error: ' + err.message);
     }
+  }
+
+  async function reloadAdminServices() {
+    try {
+      const sb = getSupabaseClient();
+      const { data, error } = await sb.from('services').select('*').order('sort_order', { ascending: true });
+      if (error) throw error;
+      renderAdminServices((data || []).map(parseSvcJsonFields));
+    } catch (_) {
+      renderAdminServices(CONFIG.SERVICES);
+    }
+  }
+
+  function parseSvcJsonFields(s) {
+    let features = s.features;
+    if (!Array.isArray(features)) { try { features = JSON.parse(features || '[]'); } catch (_) { features = []; } }
+    let features_i18n = s.features_i18n;
+    if (typeof features_i18n === 'string') { try { features_i18n = JSON.parse(features_i18n); } catch (_) { features_i18n = {}; } }
+    let titles = s.titles;
+    if (typeof titles === 'string') { try { titles = JSON.parse(titles); } catch (_) { titles = {}; } }
+    let descriptions = s.descriptions;
+    if (typeof descriptions === 'string') { try { descriptions = JSON.parse(descriptions); } catch (_) { descriptions = {}; } }
+    return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {}, descriptions: descriptions || {} };
   }
 
   // Blog form — full CRUD
@@ -981,8 +1284,9 @@
 
     try {
       const sb = getSupabaseClient();
-      const { data: services } = await sb.from('services').select('*');
-      renderAdminServices(services || CONFIG.SERVICES);
+      const { data: services, error: svcErr } = await sb.from('services').select('*').order('sort_order', { ascending: true });
+      if (svcErr) throw svcErr;
+      renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);
     }
