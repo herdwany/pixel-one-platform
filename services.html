@@ -219,19 +219,17 @@
   let maxPrice = 10000;
   let searchQuery = '';
   let sortMode = 'default';
-  let allServices = CONFIG.SERVICES; // fallback, replaced by DB data
+  let allServices = CONFIG.SERVICES;
+  let comingSoonServices = CONFIG.COMING_SOON_SERVICES || [];
 
-  // Translate <select> option text
   function translateSortOptions() {
     document.querySelectorAll('#sort-select option[data-i18n-opt]').forEach(opt => {
       opt.textContent = t(opt.dataset.i18nOpt);
     });
   }
 
-  // Build category chips
   function buildCategoryChips() {
     const catContainer = document.getElementById('category-filters');
-    // Remove old dynamic chips (keep first "All" button)
     catContainer.querySelectorAll('[data-cat]:not([data-cat=""])').forEach(el => el.remove());
 
     CONFIG.CATEGORIES.forEach(cat => {
@@ -244,7 +242,6 @@
     });
   }
 
-  // Filter state helpers
   function getFiltered() {
     const lang = getLang();
     let list = [...allServices];
