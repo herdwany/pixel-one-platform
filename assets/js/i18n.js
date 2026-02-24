@@ -18,8 +18,8 @@ const TRANSLATIONS = {
 
     // ── Hero ──────────────────────────────────────────────────
     'hero.badge':    'Agence Créative — Maroc 🇲🇦',
-    'hero.title':    'Votre vision,',
-    'hero.title.accent': 'amplifiée.',
+    'hero.title':    'Votre vision',
+    'hero.title.accent': 'amplifiée',
     'hero.desc':     'Design, vidéo et développement web premium pour les marques ambitieuses. Commandez en ligne, suivez votre projet en temps réel.',
     'hero.cta.primary':   'Voir les services',
     'hero.cta.secondary': 'Créer un compte',
@@ -334,8 +334,8 @@ const TRANSLATIONS = {
     'nav.myspace':   'My space',
 
     'hero.badge':    'Creative Agency — Morocco 🇲🇦',
-    'hero.title':    'Your vision,',
-    'hero.title.accent': 'amplified.',
+    'hero.title':    'Your vision',
+    'hero.title.accent': 'amplified',
     'hero.desc':     'Premium design, video, and web development for ambitious brands. Order online, track your project in real time.',
     'hero.cta.primary':   'View services',
     'hero.cta.secondary': 'Create an account',

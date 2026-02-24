@@ -893,9 +893,9 @@
     // Apply filter
     let filtered = services;
     if (adminSvcFilter === 'active') {
-      filtered = services.filter(s => s.is_active && !s.is_coming_soon);
+      filtered = services.filter(s => s.is_active !== false && s.is_coming_soon !== true);
     } else if (adminSvcFilter === 'coming_soon') {
-      filtered = services.filter(s => s.is_coming_soon);
+      filtered = services.filter(s => s.is_coming_soon === true);
     }
 
     if (!filtered.length) {
@@ -1108,7 +1108,10 @@
     if (typeof titles === 'string') { try { titles = JSON.parse(titles); } catch (_) { titles = {}; } }
     let descriptions = s.descriptions;
     if (typeof descriptions === 'string') { try { descriptions = JSON.parse(descriptions); } catch (_) { descriptions = {}; } }
-    return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {}, descriptions: descriptions || {} };
+    // Normalize booleans (may come as null, undefined, or string from DB)
+    const is_active = s.is_active === true || s.is_active === 'true' || s.is_active == null;
+    const is_coming_soon = s.is_coming_soon === true || s.is_coming_soon === 'true';
+    return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {}, descriptions: descriptions || {}, is_active, is_coming_soon };
   }
 
   // Blog form — full CRUD

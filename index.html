@@ -176,12 +176,36 @@
           <i id="theme-toggle-icon" class="fa-solid fa-sun"></i>
         </button>
         <!-- Language Switcher -->
-        <select id="lang-switcher"
-                class="bg-transparent border border-surface-border text-gray-400 hover:text-white text-sm rounded-lg px-2 py-1.5 cursor-pointer focus:outline-none focus:border-brand/50 transition">
-          <option value="fr">🇫🇷 FR</option>
-          <option value="en">🇺🇸 EN</option>
-          <option value="ar">🇲🇦 AR</option>
-        </select>
+        <div class="relative" id="lang-dropdown-wrapper">
+          <button id="lang-btn"
+                  class="flex items-center gap-2 border border-surface-border hover:border-brand/50 text-gray-300 hover:text-white text-sm rounded-lg px-3 py-2 transition focus:outline-none cursor-pointer"
+                  aria-haspopup="listbox">
+            <span id="lang-flag" class="leading-none text-base">🇫🇷</span>
+            <span id="lang-code" class="font-semibold tracking-wide text-xs">FR</span>
+            <i class="fa-solid fa-chevron-down text-[9px] opacity-50 ms-0.5"></i>
+          </button>
+          <div id="lang-dropdown"
+               class="hidden absolute end-0 top-full mt-2 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50"
+               style="min-width:160px" role="listbox">
+            <button onclick="setLanguage('fr');renderFeatured();renderComingSoon()" data-lang="fr" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇫🇷</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">Français</p><p class="text-[10px] text-gray-500">French</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('en');renderFeatured();renderComingSoon()" data-lang="en" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇺🇸</span>
+              <div class="text-start"><p class="font-semibold text-xs leading-tight">English</p><p class="text-[10px] text-gray-500">English</p></div>
+            </button>
+            <div class="h-px bg-[#282828]"></div>
+            <button onclick="setLanguage('ar');renderFeatured();renderComingSoon()" data-lang="ar" role="option"
+                    class="lang-opt w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+              <span class="text-base leading-none">🇲🇦</span>
+              <div class="text-start" style="font-family:'IBM Plex Sans Arabic',sans-serif"><p class="font-semibold text-xs leading-tight">العربية</p><p class="text-[10px] text-gray-500">Arabic</p></div>
+            </button>
+          </div>
+        </div>
         <a href="auth.html" class="text-sm text-gray-400 hover:text-white transition" data-i18n="nav.login">Connexion</a>
         <a href="services.html" class="bg-brand hover:bg-brand-dark text-white text-sm font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition" data-i18n="nav.cta">
           Nos services
@@ -203,8 +227,8 @@
         Agence Créative — Maroc 🇲🇦
       </span>
       <h1 id="hero-title" class="text-5xl md:text-8xl font-extrabold tracking-tighter leading-tight mb-6 glow-text" style="text-wrap:balance">
-        <span data-i18n="hero.title">Votre vision,</span><br/>
-        <span class="text-brand" data-i18n="hero.title.accent">amplifiée.</span>
+        <span data-i18n="hero.title">Votre vision</span><br/>
+        <span class="text-brand" data-i18n="hero.title.accent">amplifiée</span>
       </h1>
       <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light" data-i18n="hero.desc">
         Design graphique et montage vidéo professionnel pour les marques ambitieuses.
