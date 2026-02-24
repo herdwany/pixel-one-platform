@@ -131,6 +131,16 @@ const TRANSLATIONS = {
     'svc.card.order':             'Commander',
     'svc.footer':                 'Agence Créative Maroc',
 
+    // ── Coming Soon ───────────────────────────────────────────
+    'coming.badge':        'Bientôt disponible',
+    'coming.title':        'De nouveaux',
+    'coming.title.accent': 'services',
+    'coming.title.suffix': ' arrivent',
+    'coming.desc':         'Nous préparons de nouveaux services web pour vous. Soyez les premiers informés !',
+    'coming.from':         'À partir de',
+    'coming.notify.title': 'Restez informé',
+    'coming.notify.desc':  'Recevez une notification dès le lancement de nos nouveaux services.',
+
     // ── Service Details page ──────────────────────────────────
     'detail.page.title':          'Détails du Service — Pixel One',
     'detail.nav.services':        'Services',
@@ -427,6 +437,16 @@ const TRANSLATIONS = {
     'svc.card.order':          'Order',
     'svc.footer':              'Creative Agency Morocco',
 
+    // ── Coming Soon ───────────────────────────────────────────
+    'coming.badge':        'Coming Soon',
+    'coming.title':        'New',
+    'coming.title.accent': 'services',
+    'coming.title.suffix': ' are coming',
+    'coming.desc':         'We\'re preparing new web services for you. Be the first to know!',
+    'coming.from':         'Starting at',
+    'coming.notify.title': 'Stay informed',
+    'coming.notify.desc':  'Get notified when our new services launch.',
+
     'detail.page.title':       'Service Details — Pixel One',
     'detail.nav.services':     'Services',
     'detail.nav.myspace':      'My space',
@@ -715,6 +735,16 @@ const TRANSLATIONS = {
     'svc.loading':             'جارٍ التحميل…',
     'svc.card.order':          'اطلب الآن',
     'svc.footer':              'وكالة إبداعية — المغرب',
+
+    // ── Coming Soon ───────────────────────────────────────────
+    'coming.badge':        'قريباً',
+    'coming.title':        'خدمات',
+    'coming.title.accent': 'جديدة',
+    'coming.title.suffix': ' قادمة',
+    'coming.desc':         'نحن نُعدّ خدمات ويب جديدة لكم. كونوا أول من يعلم!',
+    'coming.from':         'ابتداءً من',
+    'coming.notify.title': 'ابقَ على اطلاع',
+    'coming.notify.desc':  'احصل على إشعار فور إطلاق خدماتنا الجديدة.',
 
     'detail.page.title':       'تفاصيل الخدمة — بيكسل ون',
     'detail.nav.services':     'الخدمات',
