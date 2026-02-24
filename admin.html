@@ -1142,9 +1142,17 @@
   async function reloadAdminServices() {
     try {
       const sb = getSupabaseClient();
-      const { data, error } = await sb.from('services').select('*').order('sort_order', { ascending: true });
-      if (error) throw error;
-      renderAdminServices((data || []).map(parseSvcJsonFields));
+      let services = null;
+      try {
+        const { data, error } = await sb.from('services').select('*').order('sort_order', { ascending: true });
+        if (error) throw error;
+        services = data;
+      } catch (_sortErr) {
+        const { data, error } = await sb.from('services').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        services = data;
+      }
+      renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);
     }
@@ -1338,8 +1346,16 @@
 
     try {
       const sb = getSupabaseClient();
-      const { data: services, error: svcErr } = await sb.from('services').select('*').order('sort_order', { ascending: true });
-      if (svcErr) throw svcErr;
+      let services = null;
+      try {
+        const { data, error } = await sb.from('services').select('*').order('sort_order', { ascending: true });
+        if (error) throw error;
+        services = data;
+      } catch (_sortErr) {
+        const { data, error } = await sb.from('services').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        services = data;
+      }
       renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);
