@@ -364,8 +364,10 @@
 </div><!-- /content -->
 
 <!-- ── Scripts ─────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/i18n.js"></script>
+<script src="assets/js/supabase-client.js"></script>
 <script>
   // ── First-visit language modal handling ────────────────────
   function selectFirstLang(lang) {
@@ -429,7 +431,37 @@
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  // ── Load services from Supabase, sync to CONFIG.SERVICES ──
+  async function loadServicesFromDB() {
+    try {
+      const sb = getSupabaseClient();
+      const { data, error } = await sb
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      if (!error && data && data.length) {
+        CONFIG.SERVICES = data.map(s => {
+          let features = s.features;
+          if (!Array.isArray(features)) {
+            try { features = JSON.parse(features || '[]'); } catch (_) { features = []; }
+          }
+          let features_i18n = s.features_i18n;
+          if (typeof features_i18n === 'string') {
+            try { features_i18n = JSON.parse(features_i18n); } catch (_) { features_i18n = {}; }
+          }
+          let titles = s.titles;
+          if (typeof titles === 'string') {
+            try { titles = JSON.parse(titles); } catch (_) { titles = {}; }
+          }
+          return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {} };
+        });
+      }
+    } catch (_) { /* Supabase unavailable — use CONFIG fallback */ }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadServicesFromDB();
     renderFeatured();
     triggerReveal();
     const waBtn = document.getElementById('whatsapp-cta');

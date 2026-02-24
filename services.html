@@ -197,13 +197,16 @@
 </div>
 
 <!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/i18n.js"></script>
+<script src="assets/js/supabase-client.js"></script>
 <script>
   let activeCategory = '';
   let maxPrice = 10000;
   let searchQuery = '';
   let sortMode = 'default';
+  let allServices = CONFIG.SERVICES; // fallback, replaced by DB data
 
   // Translate <select> option text
   function translateSortOptions() {
@@ -231,7 +234,7 @@
   // Filter state helpers
   function getFiltered() {
     const lang = getLang();
-    let list = [...CONFIG.SERVICES];
+    let list = [...allServices];
     if (activeCategory) list = list.filter(s => s.category === activeCategory);
     if (searchQuery) {
       list = list.filter(s => {
@@ -336,8 +339,38 @@
     renderGrid();
   });
 
+  // Load services from Supabase, fallback to CONFIG.SERVICES
+  async function loadServices() {
+    try {
+      const sb = getSupabaseClient();
+      const { data, error } = await sb
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      if (!error && data && data.length) {
+        allServices = data.map(s => {
+          let features = s.features;
+          if (!Array.isArray(features)) {
+            try { features = JSON.parse(features || '[]'); } catch (_) { features = []; }
+          }
+          let features_i18n = s.features_i18n;
+          if (typeof features_i18n === 'string') {
+            try { features_i18n = JSON.parse(features_i18n); } catch (_) { features_i18n = {}; }
+          }
+          let titles = s.titles;
+          if (typeof titles === 'string') {
+            try { titles = JSON.parse(titles); } catch (_) { titles = {}; }
+          }
+          return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {} };
+        });
+      }
+    } catch (_) { /* Supabase unavailable — use CONFIG fallback */ }
+  }
+
   // Init
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadServices();
     buildCategoryChips();
     translateSortOptions();
     renderGrid();
