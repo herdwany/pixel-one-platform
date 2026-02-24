@@ -686,13 +686,19 @@
     }
 
     const sb = getSupabaseClient();
-    const SIGNED_URL_EXPIRY_SECONDS = 60;
+    const SIGNED_URL_EXPIRY_SECONDS = 300;
     const signedUrls = await Promise.all(list.map(async order => {
       if (order.payment_proof_path) {
         try {
-          const { data } = await sb.storage.from('payment-proofs').createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
+          const { data, error } = await sb.storage.from('payment-proofs').createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
+          if (error) {
+            if (!error.message?.includes('not found')) {
+              console.warn(`[PixelOne] Signed URL failed for "${order.payment_proof_path}":`, error.message);
+            }
+            return order.payment_proof_url || null;
+          }
           return data?.signedUrl || null;
-        } catch (_) { return null; }
+        } catch (_) { return order.payment_proof_url || null; }
       }
       return order.payment_proof_url || null;
     }));
@@ -736,6 +742,14 @@
 
   // ── Inline status update via <select> ─────────────────────
   async function updateOrderStatus(orderId, newStatus) {
+    // Validate status before sending to DB
+    const validStatuses = CONFIG.ORDER_STATUSES || ['pending', 'in_progress', 'review', 'done'];
+    if (!validStatuses.includes(newStatus)) {
+      console.error(`[PixelOne] Invalid status: "${newStatus}". Allowed: ${validStatuses.join(', ')}`);
+      alert(`Erreur: Statut "${newStatus}" invalide.`);
+      await renderOrders(allOrders);
+      return;
+    }
     try {
       const sb = getSupabaseClient();
       const { error } = await sb.from('orders').update({ status: newStatus }).eq('id', orderId);
@@ -745,6 +759,7 @@
       await renderOrders(allOrders);
       updateStats(allOrders);
     } catch (err) {
+      console.error('[PixelOne] Status update failed:', { orderId, newStatus, error: err });
       alert('Erreur: ' + err.message);
       await renderOrders(allOrders); // revert dropdown
     }
@@ -858,6 +873,11 @@
 
   document.getElementById('modal-save').addEventListener('click', async () => {
     const newStatus = document.getElementById('modal-status').value;
+    const validStatuses = CONFIG.ORDER_STATUSES || ['pending', 'in_progress', 'review', 'done'];
+    if (!validStatuses.includes(newStatus)) {
+      alert(`Erreur: Statut "${newStatus}" invalide.`);
+      return;
+    }
     try {
       const sb = getSupabaseClient();
       const { error } = await sb.from('orders').update({ status: newStatus }).eq('id', currentOrderId);
@@ -1340,7 +1360,7 @@
     const container = document.getElementById('content-sections');
     try {
       const sb = getSupabaseClient();
-      const { data, error } = await sb.from('site_content').select('*').order('page').order('section').order('content_key');
+      const { data, error } = await sb.from('site_content').select('*').order('page').order('section');
       if (error) throw error;
       siteContentData = data || [];
     } catch (err) {
@@ -1377,7 +1397,7 @@
         <div class="space-y-4">
           ${items.map(item => `
             <div class="border-b border-surface-border pb-4 last:border-0 last:pb-0">
-              <p class="text-xs text-gray-500 font-mono mb-2">${esc(item.content_key)}</p>
+              <p class="text-xs text-gray-500 font-mono mb-2">${esc(item.content_key || '')}</p>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 ${['fr', 'en', 'ar'].map(lang => `
                   <div>
