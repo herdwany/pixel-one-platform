@@ -187,7 +187,10 @@
           </p>
           <h2 class="text-xl font-bold mb-2 leading-tight">${post.title}</h2>
           <p class="text-gray-400 text-sm line-clamp-3 mb-4">${(post.content || '').substring(0, 120)}…</p>
-          <span class="text-xs text-brand font-bold uppercase tracking-widest">${t('blog.readmore')}</span>
+          <button onclick='openArticle("${post.title.replace(/'/g, "&#39;")}", ${JSON.stringify(post.content)}, "${post.image_url || ''}")'
+                  class="text-xs text-brand font-bold uppercase tracking-widest hover:underline cursor-pointer">
+            ${t('blog.readmore')}
+          </button>
         </div>
       </article>
     `).join('');
@@ -211,6 +214,29 @@
   })();
 
   document.addEventListener('langchange', renderBlog);
+</script>
+
+<!-- ── BLOG ARTICLE MODAL ──────────────────────────────────── -->
+<div id="blog-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+    <button onclick="document.getElementById('blog-modal').classList.add('hidden')" class="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-brand transition">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img id="modal-img" src="" class="w-full h-64 object-cover">
+    <div class="p-8">
+      <h2 id="modal-title" class="text-3xl font-bold mb-4"></h2>
+      <div id="modal-content" class="text-gray-300 leading-relaxed whitespace-pre-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openArticle(title, content, img) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-content').innerText = content;
+    document.getElementById('modal-img').src = img;
+    document.getElementById('blog-modal').classList.remove('hidden');
+  }
 </script>
 </body>
 </html>
