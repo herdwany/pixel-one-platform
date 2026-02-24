@@ -767,7 +767,95 @@
     }
   }
 
-  // Blog form
+  // Blog form — full CRUD
+  let allBlogPosts = [];
+  let editBlogId = null;
+
+  function openBlogModal(post = null) {
+    editBlogId = post ? post.id : null;
+    document.getElementById('blog-modal-title').textContent = post ? 'Modifier l\'article' : 'Nouvel article';
+    document.getElementById('blog-submit-text').textContent = post ? 'Enregistrer' : 'Publier l\'article';
+    document.getElementById('blog-title').value = post?.title || '';
+    document.getElementById('blog-slug').value = post?.slug || '';
+    document.getElementById('blog-image').value = post?.image_url || '';
+    document.getElementById('blog-content').value = post?.content || '';
+    document.getElementById('blog-published').checked = post ? post.is_published : true;
+    document.getElementById('blog-alert').classList.add('hidden');
+    document.getElementById('blog-modal-overlay').classList.remove('hidden');
+  }
+
+  function closeBlogModal() {
+    document.getElementById('blog-modal-overlay').classList.add('hidden');
+    editBlogId = null;
+  }
+
+  function renderBlogPosts(posts) {
+    allBlogPosts = posts;
+    const grid = document.getElementById('blog-posts-grid');
+    if (!posts.length) {
+      grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Aucun article</p>';
+      return;
+    }
+    grid.innerHTML = posts.map(p => `
+      <div class="bg-surface border border-surface-border rounded-xl overflow-hidden">
+        ${p.image_url ? `<img src="${esc(p.image_url)}" class="w-full h-32 object-cover" alt="${esc(p.title)}" />` : '<div class="w-full h-32 bg-surface-card flex items-center justify-center text-gray-600"><i class="fa-solid fa-image text-2xl"></i></div>'}
+        <div class="p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="status-badge ${p.is_published ? 'status-done' : 'status-pending'}">${p.is_published ? 'Publié' : 'Brouillon'}</span>
+            <span class="text-xs text-gray-500">${new Date(p.created_at).toLocaleDateString('fr-FR')}</span>
+          </div>
+          <p class="font-semibold text-sm truncate mb-1">${esc(p.title)}</p>
+          <p class="text-xs text-gray-500 truncate mb-3">${esc(p.slug)}</p>
+          <div class="flex gap-2">
+            <button class="edit-blog-btn flex-1 text-xs text-gray-400 hover:text-white border border-surface-border hover:border-brand/40 rounded-lg py-1.5 transition" data-id="${p.id}">
+              <i class="fa-solid fa-pen mr-1"></i>Modifier
+            </button>
+            <button class="del-blog-btn text-xs text-red-500/70 hover:text-red-400 border border-surface-border hover:border-red-500/40 rounded-lg px-3 py-1.5 transition" data-id="${p.id}">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  async function loadBlogPosts() {
+    try {
+      const sb = getSupabaseClient();
+      const { data } = await sb.from('blog_posts').select('*').order('created_at', { ascending: false });
+      renderBlogPosts(data || []);
+    } catch (_) {
+      renderBlogPosts([]);
+    }
+  }
+
+  document.getElementById('add-blog-btn').addEventListener('click', () => openBlogModal());
+  document.getElementById('blog-modal-close').addEventListener('click', closeBlogModal);
+  document.getElementById('blog-modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'blog-modal-overlay') closeBlogModal();
+  });
+
+  document.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.edit-blog-btn');
+    if (editBtn) {
+      const post = allBlogPosts.find(p => String(p.id) === editBtn.dataset.id);
+      if (post) openBlogModal(post);
+    }
+    const delBtn = e.target.closest('.del-blog-btn');
+    if (delBtn) deleteBlogPost(delBtn.dataset.id);
+  });
+
+  async function deleteBlogPost(id) {
+    if (!confirm('Supprimer cet article ?')) return;
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('blog_posts').delete().eq('id', id);
+      if (error) throw error;
+      await loadBlogPosts();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  }
+
   document.getElementById('blog-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const alertEl = document.getElementById('blog-alert');
@@ -776,16 +864,22 @@
       slug:         document.getElementById('blog-slug').value.trim(),
       image_url:    document.getElementById('blog-image').value.trim() || null,
       content:      document.getElementById('blog-content').value.trim(),
-      is_published: true,
+      is_published: document.getElementById('blog-published').checked,
     };
     try {
       const sb = getSupabaseClient();
-      const { error } = await sb.from('blog_posts').insert(payload);
-      if (error) throw error;
-      alertEl.textContent = t('admin.blog.success');
+      if (editBlogId) {
+        const { error } = await sb.from('blog_posts').update(payload).eq('id', editBlogId);
+        if (error) throw error;
+      } else {
+        const { error } = await sb.from('blog_posts').insert(payload);
+        if (error) throw error;
+      }
+      alertEl.textContent = editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success');
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
-      e.target.reset();
+      setTimeout(() => closeBlogModal(), 800);
+      await loadBlogPosts();
     } catch (err) {
       alertEl.textContent = '✗ ' + err.message;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
