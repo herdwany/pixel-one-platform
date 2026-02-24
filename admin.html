@@ -714,7 +714,9 @@
           </td>
           <td class="px-5 py-3.5 text-sm text-gray-300">${esc(order.services?.title || '—')}</td>
           <td class="px-5 py-3.5">
-            <span class="status-badge status-${esc(order.status)}">${t('status.' + order.status) || esc(order.status)}</span>
+            <select class="order-status-select bg-surface border border-surface-border text-xs rounded-lg px-2 py-1.5 text-white focus:outline-none focus:border-brand/50 cursor-pointer" data-id="${esc(String(order.id))}">
+              ${CONFIG.ORDER_STATUSES.map(s => `<option value="${s}" ${s === order.status ? 'selected' : ''} class="bg-surface">${t('status.' + s) || s}</option>`).join('')}
+            </select>
           </td>
           <td class="px-5 py-3.5 text-xs text-gray-500">${esc(date)}</td>
           <td class="px-5 py-3.5">
@@ -732,6 +734,45 @@
     }).join('');
   }
 
+  // ── Inline status update via <select> ─────────────────────
+  async function updateOrderStatus(orderId, newStatus) {
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('orders').update({ status: newStatus }).eq('id', orderId);
+      if (error) throw error;
+      const order = allOrders.find(o => o.id === orderId);
+      if (order) order.status = newStatus;
+      await renderOrders(allOrders);
+      updateStats(allOrders);
+    } catch (err) {
+      alert('Erreur: ' + err.message);
+      await renderOrders(allOrders); // revert dropdown
+    }
+  }
+
+  async function deleteOrder(orderId, orderRef) {
+    if (!confirm(`Supprimer la commande ${orderRef} ?`)) return;
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('orders').delete().eq('id', orderId);
+      if (error) throw error;
+      allOrders = allOrders.filter(o => o.id !== orderId);
+      await renderOrders(allOrders);
+      updateStats(allOrders);
+    } catch (err) {
+      alert('Erreur: ' + err.message);
+    }
+  }
+
+  // Event delegation for inline status select
+  document.getElementById('orders-tbody').addEventListener('change', e => {
+    const select = e.target.closest('.order-status-select');
+    if (!select) return;
+    const orderId = Number(select.dataset.id);
+    const newStatus = select.value;
+    updateOrderStatus(orderId, newStatus);
+  });
+
   // Status filter
   document.querySelectorAll('.status-filter-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -746,22 +787,12 @@
 
   // Edit order modal (populate + proof signed url)
   document.addEventListener('click', async e => {
-    // Delete order handler
+    // Delete order handler (now delegates to deleteOrder)
     const delBtn = e.target.closest('.del-order-btn');
     if (delBtn) {
       const orderId = Number(delBtn.dataset.id);
       const orderRef = delBtn.dataset.ref;
-      if (!confirm(`Supprimer la commande ${orderRef} ?`)) return;
-      try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('orders').delete().eq('id', orderId);
-        if (error) throw error;
-        allOrders = allOrders.filter(o => o.id !== orderId);
-        await renderOrders(allOrders);
-        updateStats(allOrders);
-      } catch (err) {
-        alert('Erreur: ' + err.message);
-      }
+      deleteOrder(orderId, orderRef);
       return;
     }
 

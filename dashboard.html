@@ -192,12 +192,18 @@
 
   function buildProgressBar(currentStatus) {
     const currentIdx = STEPS.indexOf(currentStatus);
+    const allDone = currentStatus === 'done';
     let html = '<div class="flex items-start gap-0 mt-5">';
 
     STEPS.forEach((step, idx) => {
       let state = 'pending';
-      if (idx < currentIdx) state = 'done';
-      else if (idx === currentIdx) state = 'active';
+      if (allDone) {
+        state = 'done';
+      } else if (idx < currentIdx) {
+        state = 'done';
+      } else if (idx === currentIdx) {
+        state = 'active';
+      }
 
       const icon = state === 'done' ? '<i class="fa-solid fa-check"></i>' : (idx + 1);
 
@@ -208,7 +214,14 @@
         </div>`;
 
       if (idx < STEPS.length - 1) {
-        const lineState = idx < currentIdx ? 'done' : (idx === currentIdx ? 'active' : '');
+        let lineState = '';
+        if (allDone) {
+          lineState = 'done';
+        } else if (idx < currentIdx) {
+          lineState = 'done';
+        } else if (idx === currentIdx) {
+          lineState = 'active';
+        }
         html += `<div class="progress-line ${lineState} self-center mx-1 flex-1"></div>`;
       }
     });
