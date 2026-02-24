@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article — Pixel One</title>
+  <meta name="description" content="Pixel One Blog" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/icon/black/favicon-96x96.png" />
+  <link rel="icon" type="image/svg+xml" href="/icon/black/favicon.svg" />
+  <link rel="shortcut icon" href="/icon/black/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icon/black/apple-touch-icon.png" />
+  <link rel="manifest" href="/icon/black/site.webmanifest" />
+
+  <!-- Theme Manager -->
+  <script src="assets/js/theme-manager.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#ff0000', dark: '#cc0000', light: '#ff3333' },
+            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+          },
+          fontFamily: {
+            sans:   ['Inter', 'sans-serif'],
+            arabic: ['"IBM Plex Sans Arabic"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- DOMPurify for safe HTML -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body {
+      background-color: #050505;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+    body.lang-fr { font-family: 'Inter', sans-serif; }
+    body.lang-en { font-family: 'Inter', sans-serif; }
+    body.lang-ar { font-family: 'IBM Plex Sans Arabic', sans-serif; font-weight: 400; line-height: 1.85; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+    .content { position: relative; z-index: 1; }
+    .site-logo { direction: ltr; unicode-bidi: isolate; }
+
+    /* Markdown content styling */
+    .prose h1 { font-size: 2em; font-weight: 800; margin: 1.2em 0 0.6em; color: #fff; }
+    .prose h2 { font-size: 1.5em; font-weight: 700; margin: 1em 0 0.5em; color: #fff; }
+    .prose h3 { font-size: 1.25em; font-weight: 600; margin: 0.8em 0 0.4em; color: #fff; }
+    .prose p  { margin: 0.8em 0; color: #d1d5db; line-height: 1.8; }
+    .prose ul, .prose ol { margin: 0.8em 0; padding-left: 1.5em; color: #d1d5db; }
+    .prose ul { list-style-type: disc; }
+    .prose ol { list-style-type: decimal; }
+    .prose li { margin: 0.3em 0; }
+    .prose a  { color: #ff3333; text-decoration: underline; }
+    .prose a:hover { color: #ff0000; }
+    .prose blockquote { border-left: 3px solid #ff0000; padding-left: 1em; margin: 1em 0; color: #9ca3af; font-style: italic; }
+    .prose code { background: #1f1f1f; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: #f87171; }
+    .prose pre { background: #111; border: 1px solid #1f1f1f; border-radius: 8px; padding: 1em; overflow-x: auto; margin: 1em 0; }
+    .prose pre code { background: none; padding: 0; color: #d1d5db; }
+    .prose img { border-radius: 8px; max-width: 100%; margin: 1em 0; }
+    .prose hr { border-color: #1f1f1f; margin: 2em 0; }
+
+    /* Star rating */
+    .star-rating { display: inline-flex; gap: 2px; cursor: pointer; }
+    .star-rating i { font-size: 20px; color: #374151; transition: color 0.15s; }
+    .star-rating i.active { color: #eab308; }
+    .star-rating i:hover,
+    .star-rating i:hover ~ i { color: #eab308; }
+
+    /* Responsive YouTube embed */
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 1.5em 0; }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+  </style>
+</head>
+
+<body class="text-white lang-fr">
+<div class="content">
+
+  <!-- ── NAVBAR ──────────────────────────────────────────────── -->
+  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/[0.06] transition-shadow duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" dir="ltr" class="site-logo flex items-center gap-1.5 font-bold text-xl tracking-tight shrink-0">
+          <span class="text-brand">Pixel</span><span>One</span>
+        </a>
+        <div class="hidden lg:flex items-center gap-7 text-sm text-gray-400">
+          <a href="index.html#services" class="hover:text-white transition-colors duration-200" data-i18n="nav.services">Services</a>
+          <a href="index.html#why" class="hover:text-white transition-colors duration-200" data-i18n="nav.why">Why Us</a>
+          <a href="index.html#contact" class="hover:text-white transition-colors duration-200" data-i18n="nav.contact">Contact</a>
+          <a href="blog.html" class="text-white transition-colors duration-200" data-i18n="footer.blog">Blog</a>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button id="theme-toggle" onclick="toggleTheme()" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-200" aria-label="Toggle theme">
+            <i id="theme-toggle-icon" class="theme-toggle-icon fa-solid fa-sun text-sm"></i>
+          </button>
+          <div class="relative" id="lang-dropdown-wrapper">
+            <button id="lang-btn" class="flex items-center gap-1.5 h-9 px-2.5 rounded-lg border border-white/[0.08] hover:border-brand/30 text-gray-400 hover:text-white text-sm transition-all duration-200 cursor-pointer" aria-haspopup="listbox">
+              <span id="lang-flag" class="text-base leading-none">🇫🇷</span>
+              <span id="lang-code" class="font-medium text-xs tracking-wide hidden sm:inline">FR</span>
+              <i class="fa-solid fa-chevron-down text-[8px] opacity-40"></i>
+            </button>
+            <div id="lang-dropdown" class="hidden absolute end-0 top-full mt-2 w-44 bg-[#161616] border border-[#282828] rounded-xl shadow-2xl overflow-hidden z-50" role="listbox">
+              <button onclick="setLanguage('fr')" data-lang="fr" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+                <span class="text-base leading-none">🇫🇷</span>
+                <div class="text-start flex-1"><p class="font-semibold text-xs">Français</p><p class="text-[10px] text-gray-500" data-i18n="lang.fr.desc">Français</p></div>
+              </button>
+              <div class="h-px bg-[#282828]"></div>
+              <button onclick="setLanguage('en')" data-lang="en" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+                <span class="text-base leading-none">🇺🇸</span>
+                <div class="text-start flex-1"><p class="font-semibold text-xs">English</p><p class="text-[10px] text-gray-500" data-i18n="lang.en.desc">Anglais</p></div>
+              </button>
+              <div class="h-px bg-[#282828]"></div>
+              <button onclick="setLanguage('ar')" data-lang="ar" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
+                <span class="text-base leading-none">🇲🇦</span>
+                <div class="text-start flex-1" style="font-family:'IBM Plex Sans Arabic',sans-serif"><p class="font-semibold text-xs">العربية</p><p class="text-[10px] text-gray-500" data-i18n="lang.ar.desc">Arabe</p></div>
+              </button>
+            </div>
+          </div>
+          <a href="auth.html" class="hidden sm:flex items-center text-sm text-gray-400 hover:text-white transition-colors duration-200 px-2 py-1.5" data-i18n="nav.login">Connexion</a>
+          <a href="services.html" class="hidden sm:flex items-center bg-brand hover:bg-brand-dark text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition-colors duration-200" data-i18n="nav.cta">Nos services</a>
+          <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-200" aria-label="Menu">
+            <i class="fa-solid fa-bars text-sm"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-white/[0.06] bg-black/95 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-4 py-3 space-y-1">
+        <a href="index.html#services" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.services">Services</a>
+        <a href="index.html#why" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.why">Pourquoi nous</a>
+        <a href="index.html#contact" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.contact">Contact</a>
+        <a href="blog.html" class="block px-4 py-3 rounded-lg text-white bg-white/[0.05] text-sm font-medium" data-i18n="footer.blog">Blog</a>
+        <div class="h-px bg-white/[0.06] my-2"></div>
+        <a href="auth.html" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.login">Connexion</a>
+        <a href="services.html" class="block px-4 py-3 rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-white transition text-sm font-semibold text-center" data-i18n="nav.cta">Nos services</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── ARTICLE CONTENT ─────────────────────────────────────── -->
+  <main class="pt-24 pb-20 px-6">
+    <div class="max-w-4xl mx-auto">
+
+      <!-- Back link -->
+      <a href="blog.html" class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition mb-8 group">
+        <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+        <span data-i18n="blog.back">← Retour au Blog</span>
+      </a>
+
+      <!-- Loading state -->
+      <div id="article-loading" class="text-center py-20 text-gray-500">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+        <p data-i18n="blog.loading">Chargement…</p>
+      </div>
+
+      <!-- Not found state -->
+      <div id="article-notfound" class="hidden text-center py-20">
+        <i class="fa-solid fa-ghost text-4xl text-gray-600 mb-4"></i>
+        <p class="text-gray-400 text-lg" data-i18n="blog.notfound">Article introuvable.</p>
+        <a href="blog.html" class="inline-block mt-4 text-brand hover:underline text-sm" data-i18n="blog.back.all">Voir tous les articles</a>
+      </div>
+
+      <!-- Article wrapper (hidden until loaded) -->
+      <article id="article-wrapper" class="hidden">
+
+        <!-- Hero -->
+        <header class="mb-10">
+          <h1 id="article-title" class="text-3xl md:text-5xl font-extrabold tracking-tighter leading-tight mb-4"></h1>
+          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+            <span id="article-date"><i class="fa-regular fa-calendar mr-1"></i></span>
+            <span id="article-views"><i class="fa-solid fa-eye mr-1"></i> <span id="view-count">0</span> <span data-i18n="blog.views">vues</span></span>
+          </div>
+        </header>
+
+        <!-- Featured Image -->
+        <div id="article-image-wrap" class="mb-8 rounded-2xl overflow-hidden border border-surface-border">
+          <img id="article-image" src="" alt="" class="w-full max-h-[500px] object-cover" />
+        </div>
+
+        <!-- YouTube Video -->
+        <div id="article-video-wrap" class="hidden mb-8">
+          <div class="video-container">
+            <iframe id="article-video" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <!-- Article Body (Markdown rendered) -->
+        <div id="article-body" class="prose max-w-none mb-12"></div>
+
+        <!-- Share Buttons -->
+        <div class="border-t border-surface-border pt-6 mb-12">
+          <p class="text-sm text-gray-500 mb-3 font-semibold uppercase tracking-wider" data-i18n="blog.share">Partager</p>
+          <div class="flex gap-3">
+            <button id="share-whatsapp" class="flex items-center gap-2 bg-green-600/10 border border-green-600/30 text-green-400 hover:bg-green-600 hover:text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+              <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </button>
+            <button id="share-linkedin" class="flex items-center gap-2 bg-blue-600/10 border border-blue-600/30 text-blue-400 hover:bg-blue-600 hover:text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+              <i class="fa-brands fa-linkedin"></i> LinkedIn
+            </button>
+            <button id="share-copy" class="flex items-center gap-2 bg-surface-card border border-surface-border text-gray-400 hover:text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+              <i class="fa-solid fa-link"></i> <span data-i18n="blog.copylink">Copier le lien</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <section id="comments-section" class="border-t border-surface-border pt-8 mb-12">
+          <h2 class="text-xl font-bold mb-6"><i class="fa-solid fa-comments mr-2 text-brand"></i><span data-i18n="blog.comments">Commentaires</span></h2>
+
+          <!-- Comments List -->
+          <div id="comments-list" class="space-y-4 mb-8">
+            <p class="text-gray-500 text-sm" data-i18n="blog.comments.loading">Chargement des commentaires…</p>
+          </div>
+
+          <!-- Comment Form -->
+          <div class="bg-surface-card border border-surface-border rounded-2xl p-6">
+            <h3 class="font-semibold text-sm mb-4" data-i18n="blog.comment.add">Laisser un commentaire</h3>
+            <form id="comment-form" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-gray-500 mb-1 block" data-i18n="blog.comment.name">Nom</label>
+                  <input id="comment-name" type="text" required maxlength="100"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                         placeholder="Votre nom" />
+                </div>
+                <div>
+                  <label class="text-xs text-gray-500 mb-1 block" data-i18n="blog.comment.email">Email</label>
+                  <input id="comment-email" type="email" required maxlength="200"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                         placeholder="votre@email.com" />
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 mb-1 block" data-i18n="blog.comment.rating">Note</label>
+                <div id="star-rating" class="star-rating mb-1">
+                  <i class="fa-solid fa-star" data-value="1"></i>
+                  <i class="fa-solid fa-star" data-value="2"></i>
+                  <i class="fa-solid fa-star" data-value="3"></i>
+                  <i class="fa-solid fa-star" data-value="4"></i>
+                  <i class="fa-solid fa-star" data-value="5"></i>
+                </div>
+                <input type="hidden" id="comment-rating" value="5" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 mb-1 block" data-i18n="blog.comment.message">Commentaire</label>
+                <textarea id="comment-text" rows="4" required maxlength="2000"
+                          class="w-full bg-surface border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                          placeholder="Votre commentaire…"></textarea>
+              </div>
+              <button type="submit" id="comment-submit"
+                      class="bg-brand hover:bg-brand-dark text-white text-sm font-bold px-6 py-2.5 rounded-xl transition">
+                <i class="fa-solid fa-paper-plane mr-2"></i><span data-i18n="blog.comment.submit">Envoyer</span>
+              </button>
+            </form>
+            <div id="comment-alert" class="hidden mt-4 px-4 py-3 rounded-lg text-sm"></div>
+          </div>
+        </section>
+
+        <!-- Related Posts -->
+        <section class="border-t border-surface-border pt-8">
+          <h2 class="text-xl font-bold mb-6"><i class="fa-solid fa-fire mr-2 text-brand"></i><span data-i18n="blog.related">Vous aimerez aussi</span></h2>
+          <div id="related-posts" class="grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="border-t border-white/[0.06] py-10 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-gray-500 text-sm">
+      <p class="font-bold text-white site-logo" dir="ltr"><span class="text-brand">Pixel</span>One © 2026</p>
+      <div class="flex flex-wrap justify-center gap-4 sm:gap-6">
+        <a href="services.html" class="hover:text-white transition" data-i18n="footer.services">Services</a>
+        <a href="privacy.html" class="hover:text-white transition" data-i18n="footer.privacy">Confidentialité</a>
+        <a href="terms.html" class="hover:text-white transition" data-i18n="footer.terms">Conditions</a>
+      </div>
+      <p><i class="fa-solid fa-heart text-brand"></i> <span data-i18n="footer.made">Made in Morocco</span></p>
+    </div>
+  </footer>
+
+</div><!-- /content -->
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script>
+  /* ================================================================
+     Blog Details Page – Fetch by slug, render Markdown, comments, etc.
+     ================================================================ */
+
+  let currentPost = null;
+  let currentPostId = null;
+
+  // ── Helper: escape HTML ──────────────────────────────────
+  function esc(str) {
+    const el = document.createElement('span');
+    el.textContent = String(str ?? '');
+    return el.innerHTML;
+  }
+
+  // ── Helper: extract YouTube embed URL ────────────────────
+  function getYouTubeEmbedUrl(url) {
+    if (!url) return null;
+    let videoId = null;
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes('youtube.com')) {
+        videoId = u.searchParams.get('v');
+      } else if (u.hostname === 'youtu.be') {
+        videoId = u.pathname.slice(1);
+      }
+    } catch (_) { return null; }
+    return videoId ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}` : null;
+  }
+
+  // ── Helper: format date by locale ────────────────────────
+  function formatDate(dateStr) {
+    const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+    return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  // ── Render star display (read-only) ──────────────────────
+  function renderStars(rating) {
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      html += `<i class="fa-solid fa-star text-xs ${i <= rating ? 'text-yellow-400' : 'text-gray-700'}"></i>`;
+    }
+    return html;
+  }
+
+  // ── Star rating interaction ──────────────────────────────
+  const starRating = document.getElementById('star-rating');
+  if (starRating) {
+    starRating.querySelectorAll('i').forEach(star => {
+      star.addEventListener('click', () => {
+        const val = parseInt(star.dataset.value);
+        document.getElementById('comment-rating').value = val;
+        starRating.querySelectorAll('i').forEach((s, idx) => {
+          s.classList.toggle('active', idx < val);
+        });
+      });
+      star.addEventListener('mouseenter', () => {
+        const val = parseInt(star.dataset.value);
+        starRating.querySelectorAll('i').forEach((s, idx) => {
+          s.classList.toggle('active', idx < val);
+        });
+      });
+    });
+    starRating.addEventListener('mouseleave', () => {
+      const val = parseInt(document.getElementById('comment-rating').value);
+      starRating.querySelectorAll('i').forEach((s, idx) => {
+        s.classList.toggle('active', idx < val);
+      });
+    });
+    // Default 5 stars active
+    starRating.querySelectorAll('i').forEach(s => s.classList.add('active'));
+  }
+
+  // ── Load article by slug ─────────────────────────────────
+  async function loadArticle() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+
+    if (!slug) {
+      document.getElementById('article-loading').classList.add('hidden');
+      document.getElementById('article-notfound').classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const sb = getSupabaseClient();
+      const { data, error } = await sb
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_published', true)
+        .single();
+
+      if (error || !data) {
+        document.getElementById('article-loading').classList.add('hidden');
+        document.getElementById('article-notfound').classList.remove('hidden');
+        return;
+      }
+
+      currentPost = data;
+      currentPostId = data.id;
+
+      // Update page title & meta
+      document.title = `${data.title} — Pixel One`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', (data.content || '').substring(0, 160).replace(/[#*_\n]/g, ''));
+      }
+
+      // Populate hero
+      document.getElementById('article-title').textContent = data.title;
+      document.getElementById('article-date').innerHTML = `<i class="fa-regular fa-calendar mr-1"></i>${formatDate(data.created_at)}`;
+      document.getElementById('view-count').textContent = data.view_count || 0;
+
+      // Featured image
+      if (data.image_url) {
+        document.getElementById('article-image').src = data.image_url;
+        document.getElementById('article-image').alt = data.title;
+      } else {
+        document.getElementById('article-image-wrap').classList.add('hidden');
+      }
+
+      // YouTube video
+      const embedUrl = getYouTubeEmbedUrl(data.video_url);
+      if (embedUrl) {
+        document.getElementById('article-video').src = embedUrl;
+        document.getElementById('article-video-wrap').classList.remove('hidden');
+      }
+
+      // Render Markdown content
+      if (typeof marked !== 'undefined') {
+        marked.setOptions({ breaks: true, gfm: true });
+        const rawHtml = marked.parse(data.content || '');
+        const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(rawHtml) : rawHtml;
+        document.getElementById('article-body').innerHTML = cleanHtml;
+      } else {
+        document.getElementById('article-body').innerHTML = `<div class="whitespace-pre-wrap text-gray-300">${esc(data.content || '')}</div>`;
+      }
+
+      // Show article
+      document.getElementById('article-loading').classList.add('hidden');
+      document.getElementById('article-wrapper').classList.remove('hidden');
+
+      // Increment view count (fire and forget)
+      incrementViewCount(data.id, data.view_count || 0);
+
+      // Setup share buttons
+      setupShareButtons(data.title);
+
+      // Load comments
+      loadComments(data.id);
+
+      // Load related posts
+      loadRelatedPosts(data.id);
+
+    } catch (err) {
+      console.error('[PixelOne] Article load error:', err);
+      document.getElementById('article-loading').classList.add('hidden');
+      document.getElementById('article-notfound').classList.remove('hidden');
+    }
+  }
+
+  // ── Increment view count ─────────────────────────────────
+  async function incrementViewCount(postId, currentCount) {
+    try {
+      const sb = getSupabaseClient();
+      await sb.from('blog_posts').update({ view_count: (currentCount || 0) + 1 }).eq('id', postId);
+    } catch (_) { /* silent fail */ }
+  }
+
+  // ── Share buttons ────────────────────────────────────────
+  function setupShareButtons(title) {
+    const url = window.location.href;
+    const encodedUrl = encodeURIComponent(url);
+    const encodedTitle = encodeURIComponent(title);
+
+    document.getElementById('share-whatsapp').addEventListener('click', () => {
+      window.open(`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`, '_blank', 'noopener');
+    });
+
+    document.getElementById('share-linkedin').addEventListener('click', () => {
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, '_blank', 'noopener');
+    });
+
+    document.getElementById('share-copy').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        const btn = document.getElementById('share-copy');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copié !';
+        btn.classList.add('text-green-400', 'border-green-500/40');
+        setTimeout(() => {
+          btn.innerHTML = orig;
+          btn.classList.remove('text-green-400', 'border-green-500/40');
+        }, 2000);
+      } catch (_) {}
+    });
+  }
+
+  // ── Load & render comments ───────────────────────────────
+  async function loadComments(postId) {
+    const container = document.getElementById('comments-list');
+    try {
+      const sb = getSupabaseClient();
+      const { data: comments, error } = await sb
+        .from('blog_comments')
+        .select('*')
+        .eq('post_id', postId)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!comments || !comments.length) {
+        container.innerHTML = `<p class="text-gray-500 text-sm">${t('blog.comments.empty')}</p>`;
+        return;
+      }
+
+      container.innerHTML = comments.map(c => `
+        <div class="bg-surface border border-surface-border rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-brand/10 rounded-full flex items-center justify-center text-brand text-sm font-bold">
+                ${esc((c.author_name || '?')[0].toUpperCase())}
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-white">${esc(c.author_name)}</p>
+                <p class="text-[10px] text-gray-500">${formatDate(c.created_at)}</p>
+              </div>
+            </div>
+            <div>${renderStars(c.rating || 0)}</div>
+          </div>
+          <p class="text-sm text-gray-300 leading-relaxed">${esc(c.content)}</p>
+          ${c.admin_reply ? `
+            <div class="mt-3 ms-4 ps-4 border-s-2 border-brand/40 bg-brand/5 rounded-lg p-3">
+              <p class="text-[10px] text-brand font-bold uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-shield-halved mr-1"></i>${t('blog.comment.admin_reply')}
+              </p>
+              <p class="text-sm text-gray-300">${esc(c.admin_reply)}</p>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+
+    } catch (err) {
+      console.warn('[PixelOne] Comments load error:', err.message);
+      container.innerHTML = `<p class="text-gray-500 text-sm">${t('blog.comments.empty')}</p>`;
+    }
+  }
+
+  // ── Submit comment ───────────────────────────────────────
+  document.getElementById('comment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById('comment-alert');
+    const submitBtn = document.getElementById('comment-submit');
+    submitBtn.disabled = true;
+
+    const name = document.getElementById('comment-name').value.trim();
+    const email = document.getElementById('comment-email').value.trim();
+    const rating = parseInt(document.getElementById('comment-rating').value) || 5;
+    const content = document.getElementById('comment-text').value.trim();
+
+    if (!name || !email || !content || !currentPostId) {
+      submitBtn.disabled = false;
+      return;
+    }
+
+    // Clamp rating to valid range
+    const safeRating = Math.max(1, Math.min(5, rating));
+
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('blog_comments').insert({
+        post_id: currentPostId,
+        author_name: name.substring(0, 100),
+        author_email: email.substring(0, 200),
+        rating: safeRating,
+        content: content.substring(0, 2000),
+        is_approved: false,
+      });
+
+      if (error) throw error;
+
+      alertEl.textContent = t('blog.comment.success');
+      alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
+      alertEl.classList.remove('hidden');
+      document.getElementById('comment-form').reset();
+      // Reset stars to 5
+      document.getElementById('comment-rating').value = 5;
+      starRating.querySelectorAll('i').forEach(s => s.classList.add('active'));
+
+    } catch (err) {
+      alertEl.textContent = '✗ ' + err.message;
+      alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
+      alertEl.classList.remove('hidden');
+    }
+
+    submitBtn.disabled = false;
+  });
+
+  // ── Load related posts ───────────────────────────────────
+  async function loadRelatedPosts(currentId) {
+    const container = document.getElementById('related-posts');
+    try {
+      const sb = getSupabaseClient();
+      const { data, error } = await sb
+        .from('blog_posts')
+        .select('id, title, slug, image_url, created_at, content')
+        .eq('is_published', true)
+        .neq('id', currentId)
+        .limit(10);
+
+      if (error) throw error;
+
+      // Pick 2 random from available
+      const shuffled = (data || []).sort(() => 0.5 - Math.random()).slice(0, 2);
+
+      if (!shuffled.length) {
+        container.innerHTML = `<p class="text-gray-500 text-sm col-span-2">${t('blog.related.empty')}</p>`;
+        return;
+      }
+
+      const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+
+      container.innerHTML = shuffled.map(post => `
+        <a href="blog-details.html?slug=${encodeURIComponent(post.slug)}"
+           class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition group block">
+          <div class="h-40 overflow-hidden">
+            <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                 alt="${esc(post.title)}" loading="lazy">
+          </div>
+          <div class="p-4">
+            <p class="text-[10px] text-gray-500 mb-1">
+              <i class="fa-regular fa-calendar mr-1"></i>
+              ${new Date(post.created_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
+            </p>
+            <h3 class="text-sm font-bold leading-tight line-clamp-2">${esc(post.title)}</h3>
+          </div>
+        </a>
+      `).join('');
+
+    } catch (err) {
+      container.innerHTML = '';
+    }
+  }
+
+  // ── Mobile menu toggle ───────────────────────────────────
+  function toggleMobileMenu() {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+  }
+
+  // ── Language dropdown toggle ─────────────────────────────
+  document.getElementById('lang-btn')?.addEventListener('click', () => {
+    document.getElementById('lang-dropdown').classList.toggle('hidden');
+  });
+  document.addEventListener('click', (e) => {
+    const wrapper = document.getElementById('lang-dropdown-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      document.getElementById('lang-dropdown').classList.add('hidden');
+    }
+  });
+
+  // ── Init ─────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', loadArticle);
+  document.addEventListener('langchange', () => {
+    if (currentPost) {
+      document.getElementById('article-date').innerHTML = `<i class="fa-regular fa-calendar mr-1"></i>${formatDate(currentPost.created_at)}`;
+      if (currentPostId) {
+        loadComments(currentPostId);
+        loadRelatedPosts(currentPostId);
+      }
+    }
+  });
+</script>
+</body>
+</html>

@@ -179,27 +179,32 @@
       container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">${t('blog.empty')}</div>`;
       return;
     }
-    container.innerHTML = _blogPosts.map(post => `
-      <article class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition group">
-        <div class="h-48 overflow-hidden relative">
-          <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
-               class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-               alt="${post.title}" loading="lazy">
-        </div>
-        <div class="p-6">
-          <p class="text-xs text-gray-500 mb-2">
-            <i class="fa-regular fa-calendar mr-1"></i>
-            ${new Date(post.created_at).toLocaleDateString(getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR'), { day:'2-digit', month:'short', year:'numeric' })}
-          </p>
-          <h2 class="text-xl font-bold mb-2 leading-tight">${post.title}</h2>
-          <p class="text-gray-400 text-sm line-clamp-3 mb-4">${(post.content || '').substring(0, 120)}…</p>
-          <button onclick='openArticle("${post.title.replace(/'/g, "&#39;")}", ${JSON.stringify(post.content)}, "${post.image_url || ''}")'
-                  class="text-xs text-brand font-bold uppercase tracking-widest hover:underline cursor-pointer">
-            ${t('blog.readmore')}
-          </button>
-        </div>
-      </article>
-    `).join('');
+    const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+    container.innerHTML = _blogPosts.map(post => {
+      const excerpt = (post.content || '').replace(/[#*_\n>`\-]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 140);
+      return `
+      <a href="blog-details.html?slug=${encodeURIComponent(post.slug)}" class="block group">
+        <article class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition h-full">
+          <div class="h-48 overflow-hidden relative">
+            <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                 alt="${post.title}" loading="lazy">
+          </div>
+          <div class="p-6">
+            <p class="text-xs text-gray-500 mb-2">
+              <i class="fa-regular fa-calendar mr-1"></i>
+              ${new Date(post.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' })}
+              ${post.view_count ? `<span class="ms-3"><i class="fa-solid fa-eye mr-1"></i>${post.view_count}</span>` : ''}
+            </p>
+            <h2 class="text-xl font-bold mb-2 leading-tight line-clamp-2">${post.title}</h2>
+            <p class="text-gray-400 text-sm line-clamp-2 mb-4">${excerpt}</p>
+            <span class="text-xs text-brand font-bold uppercase tracking-widest group-hover:underline">
+              ${t('blog.readmore')} <i class="fa-solid fa-arrow-right ms-1 text-[10px]"></i>
+            </span>
+          </div>
+        </article>
+      </a>`;
+    }).join('');
   }
 
   (async () => {
@@ -222,27 +227,7 @@
   document.addEventListener('langchange', renderBlog);
 </script>
 
-<!-- ── BLOG ARTICLE MODAL ──────────────────────────────────── -->
-<div id="blog-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-  <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
-    <button onclick="document.getElementById('blog-modal').classList.add('hidden')" class="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-brand transition">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-    <img id="modal-img" src="" class="w-full h-64 object-cover">
-    <div class="p-8">
-      <h2 id="modal-title" class="text-3xl font-bold mb-4"></h2>
-      <div id="modal-content" class="text-gray-300 leading-relaxed whitespace-pre-wrap"></div>
-    </div>
-  </div>
-</div>
+<!-- Old modal removed – articles now open in blog-details.html -->
 
-<script>
-  function openArticle(title, content, img) {
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-content').innerText = content;
-    document.getElementById('modal-img').src = img;
-    document.getElementById('blog-modal').classList.remove('hidden');
-  }
-</script>
 </body>
 </html>
