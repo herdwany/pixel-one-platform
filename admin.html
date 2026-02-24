@@ -474,7 +474,7 @@
   });
 
   // Section navigation (unchanged)
-  const sections = { orders: null, services: null, blog: null, stats: null };
+  const sections = { orders: null, services: null, blog: null, stats: null, content: null };
   document.querySelectorAll('.nav-item[data-section]').forEach(item => {
     item.addEventListener('click', () => {
       document.querySelectorAll('.nav-item[data-section]').forEach(n => n.classList.remove('active'));
