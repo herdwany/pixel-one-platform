@@ -156,26 +156,102 @@
         </a>
       </div>
 
-      <!-- Loading -->
-      <div id="loading-state" class="text-center py-16 text-gray-500">
-        <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
-        <p data-i18n="dash.loading">Chargement de vos commandes…</p>
+      <!-- Tab navigation -->
+      <div class="flex gap-2 mb-8 flex-wrap">
+        <button class="dash-tab active text-xs font-semibold px-4 py-2 rounded-lg border border-brand/40 bg-brand/10 text-white transition" data-tab="orders">
+          <i class="fa-solid fa-list-check mr-1"></i>Mes Commandes
+        </button>
+        <button class="dash-tab text-xs font-semibold px-4 py-2 rounded-lg border border-surface-border bg-surface-card text-gray-400 hover:border-brand/40 transition" data-tab="profile">
+          <i class="fa-solid fa-user mr-1"></i>Mon Profil
+        </button>
+        <button class="dash-tab text-xs font-semibold px-4 py-2 rounded-lg border border-surface-border bg-surface-card text-gray-400 hover:border-brand/40 transition relative" data-tab="notifications">
+          <i class="fa-solid fa-bell mr-1"></i>Notifications
+          <span id="notif-badge" class="hidden absolute -top-1.5 -right-1.5 bg-brand text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </button>
       </div>
 
-      <!-- Empty state -->
-      <div id="empty-state" class="hidden text-center py-16">
-        <div class="w-16 h-16 bg-surface-card border border-surface-border rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="fa-solid fa-inbox text-gray-600 text-2xl"></i>
+      <!-- ── TAB: ORDERS ──────────────────────────────────── -->
+      <div id="tab-orders" class="dash-tab-content">
+        <!-- Loading -->
+        <div id="loading-state" class="text-center py-16 text-gray-500">
+          <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+          <p data-i18n="dash.loading">Chargement de vos commandes…</p>
         </div>
-        <h3 class="font-bold text-lg mb-2" data-i18n="dash.empty.title">Aucune commande</h3>
-        <p class="text-gray-500 text-sm mb-6" data-i18n="dash.empty.desc">Vous n'avez pas encore passé de commande.</p>
-        <a href="services.html" class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition" data-i18n="dash.empty.cta">
-          Découvrir nos services
-        </a>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden text-center py-16">
+          <div class="w-16 h-16 bg-surface-card border border-surface-border rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-inbox text-gray-600 text-2xl"></i>
+          </div>
+          <h3 class="font-bold text-lg mb-2" data-i18n="dash.empty.title">Aucune commande</h3>
+          <p class="text-gray-500 text-sm mb-6" data-i18n="dash.empty.desc">Vous n'avez pas encore passé de commande.</p>
+          <a href="services.html" class="bg-brand hover:bg-brand-dark text-white font-bold px-6 py-3 rounded-xl transition" data-i18n="dash.empty.cta">
+            Découvrir nos services
+          </a>
+        </div>
+
+        <!-- Orders list -->
+        <div id="orders-container" class="hidden space-y-6"></div>
       </div>
 
-      <!-- Orders list -->
-      <div id="orders-container" class="hidden space-y-6"></div>
+      <!-- ── TAB: PROFILE ─────────────────────────────────── -->
+      <div id="tab-profile" class="dash-tab-content hidden">
+        <div class="bg-surface-card border border-surface-border rounded-2xl p-6 max-w-lg">
+          <h2 class="font-bold text-lg mb-6"><i class="fa-solid fa-user-pen mr-2 text-brand"></i>Mon Profil</h2>
+
+          <!-- Avatar -->
+          <div class="flex items-center gap-5 mb-6">
+            <div class="relative group">
+              <div id="profile-avatar" class="w-20 h-20 rounded-full bg-brand/10 border-2 border-surface-border flex items-center justify-center text-brand text-2xl font-bold overflow-hidden">
+                <span id="avatar-letter">?</span>
+              </div>
+              <label for="avatar-upload" class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition">
+                <i class="fa-solid fa-camera text-white"></i>
+              </label>
+              <input type="file" id="avatar-upload" accept="image/png,image/jpeg,image/webp" class="hidden" />
+            </div>
+            <div>
+              <p id="profile-display-name" class="font-semibold text-white">—</p>
+              <p id="profile-display-email" class="text-sm text-gray-500">—</p>
+              <p id="avatar-status" class="hidden text-xs text-green-400 mt-1"></p>
+            </div>
+          </div>
+
+          <form id="profile-form" class="space-y-4">
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">Nom complet</label>
+              <input id="profile-name" type="text" maxlength="100"
+                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                     placeholder="Votre nom" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">Téléphone</label>
+              <input id="profile-phone" type="tel" maxlength="20"
+                     class="w-full bg-surface border border-surface-border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
+                     placeholder="0600000000" />
+            </div>
+            <button type="submit" class="bg-brand hover:bg-brand-dark text-white text-sm font-bold px-6 py-2.5 rounded-xl transition">
+              <i class="fa-solid fa-save mr-2"></i>Enregistrer
+            </button>
+          </form>
+          <div id="profile-alert" class="hidden mt-4 px-4 py-3 rounded-lg text-sm"></div>
+        </div>
+      </div>
+
+      <!-- ── TAB: NOTIFICATIONS ───────────────────────────── -->
+      <div id="tab-notifications" class="dash-tab-content hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-bold text-lg"><i class="fa-solid fa-bell mr-2 text-brand"></i>Notifications</h2>
+          <button id="mark-all-read-btn" class="hidden text-xs text-gray-400 hover:text-white border border-surface-border hover:border-brand/40 px-3 py-1.5 rounded-lg transition">
+            <i class="fa-solid fa-check-double mr-1"></i>Tout marquer comme lu
+          </button>
+        </div>
+        <div id="notifications-list" class="space-y-3">
+          <div class="text-center py-10 text-gray-500">
+            <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
