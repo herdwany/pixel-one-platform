@@ -297,6 +297,9 @@
     updateFavicons(isDark);
     updateToggleIcon(isDark);
     initNavScroll();
+    document.querySelectorAll('img').forEach(function (img) {
+      if (!img.getAttribute('loading')) img.setAttribute('loading', 'lazy');
+    });
     document.addEventListener('langchange', function () {
       var menu = document.getElementById('mobile-menu');
       if (menu && menu.classList.contains('open')) window.toggleMobileMenu();

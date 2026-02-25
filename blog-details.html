@@ -848,15 +848,8 @@
   async function loadRelatedPosts(currentId) {
     const container = document.getElementById('related-posts');
     try {
-      const sb = getSupabaseClient();
-      const { data, error } = await sb
-        .from('blog_posts')
-        .select('id, title, title_en, title_ar, slug, image_url, created_at, content, content_en, content_ar')
-        .eq('is_published', true)
-        .neq('id', currentId)
-        .limit(10);
-
-      if (error) throw error;
+      const { rows } = await BlogAPI.listPublished({ page: 1, limit: 30, search: '' });
+      const data = (rows || []).filter(post => post.id !== currentId);
 
       // Pick 2 random from available
       const shuffled = (data || []).sort(() => 0.5 - Math.random()).slice(0, 2);

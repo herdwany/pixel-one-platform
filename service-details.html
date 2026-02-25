@@ -4,6 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Détails du Service — Pixel One</title>
+  <meta name="description" content="Service Pixel One" />
+  <meta property="og:type" content="product" />
+  <meta property="og:title" content="Service Pixel One" />
+  <meta property="og:description" content="Service Pixel One" />
+  <meta property="og:image" content="https://www.pixelonevisuals.tech/icon/black/favicon-96x96.png" />
+  <meta property="og:url" content="https://www.pixelonevisuals.tech/services.html" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Service Pixel One" />
+  <meta name="twitter:description" content="Service Pixel One" />
+  <meta name="twitter:image" content="https://www.pixelonevisuals.tech/icon/black/favicon-96x96.png" />
+  <script type="application/ld+json" id="service-json-ld">{}</script>
   <link rel="icon" type="image/png" sizes="96x96" href="/icon/black/favicon-96x96.png" />
   <link rel="icon" type="image/svg+xml" href="/icon/black/favicon.svg" />
   <link rel="shortcut icon" href="/icon/black/favicon.ico" />
@@ -337,9 +348,20 @@
   function renderService(s) {
     const lang = getLang();
     const title    = (s.titles && s.titles[lang]) || s.title;
+    const description = (s.descriptions && s.descriptions[lang]) || (s.descriptions && s.descriptions.fr) || s.description || title;
     const features = (s.features_i18n && s.features_i18n[lang]) || s.features;
 
     document.title = `${title} — Pixel One`;
+    setMetaTag('name', 'description', description);
+    setMetaTag('property', 'og:title', `${title} — Pixel One`);
+    setMetaTag('property', 'og:description', description);
+    setMetaTag('property', 'og:image', s.image_url || 'https://www.pixelonevisuals.tech/icon/black/favicon-96x96.png');
+    setMetaTag('property', 'og:url', window.location.href);
+    setMetaTag('name', 'twitter:title', `${title} — Pixel One`);
+    setMetaTag('name', 'twitter:description', description);
+    setMetaTag('name', 'twitter:image', s.image_url || 'https://www.pixelonevisuals.tech/icon/black/favicon-96x96.png');
+    updateServiceJsonLd(s, title, description);
+
     document.getElementById('service-image').src = s.image_url;
     document.getElementById('service-image').alt = title;
     document.getElementById('service-title').textContent = title;
@@ -369,6 +391,37 @@
     // Show content
     document.getElementById('loading-state').classList.add('hidden');
     document.getElementById('main-content').classList.remove('hidden');
+  }
+
+  function setMetaTag(attr, key, value) {
+    const node = document.querySelector(`meta[${attr}="${key}"]`);
+    if (node) node.setAttribute('content', value || '');
+  }
+
+  function updateServiceJsonLd(service, title, description) {
+    const script = document.getElementById('service-json-ld');
+    if (!script) return;
+    const payload = {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: title,
+      description,
+      provider: {
+        '@type': 'Organization',
+        name: 'Pixel One',
+        url: 'https://www.pixelonevisuals.tech',
+      },
+      areaServed: 'MA',
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'MAD',
+        price: Number(service.price || 0),
+        availability: 'https://schema.org/InStock',
+      },
+      image: service.image_url || 'https://www.pixelonevisuals.tech/icon/black/favicon-96x96.png',
+      url: window.location.href,
+    };
+    script.textContent = JSON.stringify(payload);
   }
 
   // ── Smart form builder (i18n-aware) ──────────────────────
