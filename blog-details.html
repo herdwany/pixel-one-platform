@@ -828,6 +828,9 @@
       document.getElementById('comment-rating').value = 5;
       starRating.querySelectorAll('i').forEach(s => s.classList.add('active'));
 
+      // Reload comments immediately (auto-published)
+      await loadComments(currentPostId);
+
     } catch (err) {
       alertEl.textContent = '✗ ' + err.message;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
