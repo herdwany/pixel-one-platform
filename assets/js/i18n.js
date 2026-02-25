@@ -110,6 +110,8 @@ const TRANSLATIONS = {
     'auth.msg.forgot_email':     'Entrez votre email pour réinitialiser le mot de passe.',
     'auth.msg.forgot_sent':      'Email de réinitialisation envoyé !',
     'auth.msg.forgot_error':     'Erreur lors de la réinitialisation.',
+    'auth.consent_label':        'J\'accepte les <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">Conditions d\'utilisation</a>, la <a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Politique de confidentialité</a> et la <a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Politique de remboursement</a>.',
+    'auth.consent_required':     'Vous devez accepter les conditions avant de continuer.',
 
     // ── Services page ─────────────────────────────────────────
     'svc.page.title':             'Services — Pixel One',
@@ -441,6 +443,8 @@ const TRANSLATIONS = {
     'auth.msg.forgot_email':     'Enter your email to reset your password.',
     'auth.msg.forgot_sent':      'Reset email sent!',
     'auth.msg.forgot_error':     'Error during password reset.',
+    'auth.consent_label':        'I agree to the <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">Terms of Service</a>, <a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Privacy Policy</a>, and <a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Refund Policy</a>.',
+    'auth.consent_required':     'You must accept the terms before continuing.',
 
     'svc.page.title':          'Services — Pixel One',
     'svc.header.title1':       'Service',
@@ -764,6 +768,8 @@ const TRANSLATIONS = {
     'auth.msg.forgot_email':     'أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور.',
     'auth.msg.forgot_sent':      'تم إرسال رسالة إعادة التعيين!',
     'auth.msg.forgot_error':     'خطأ أثناء إعادة التعيين.',
+    'auth.consent_label':        'أوافق على <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">شروط الاستخدام</a> و<a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">سياسة الخصوصية</a> و<a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">سياسة الاسترداد</a>.',
+    'auth.consent_required':     'يجب عليك الموافقة على الشروط قبل المتابعة.',
 
     'svc.page.title':          'الخدمات — بيكسل ون',
     'svc.header.title1':       'كتالوج',
@@ -1095,6 +1101,12 @@ function setLanguage(lang) {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (dict[key] !== undefined) el.textContent = dict[key];
+  });
+
+  // Translate HTML content (data-i18n-html) — for labels with links
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
   });
 
   // Translate button / element text via data-i18n-key
