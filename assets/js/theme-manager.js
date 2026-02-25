@@ -102,6 +102,21 @@
     /* ── bg-card alias (blog page) ── */
     html:not(.dark) .bg-card { background-color: #ffffff !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 
+    /* ── Blog prose content (light mode) ── */
+    html:not(.dark) .prose h1,
+    html:not(.dark) .prose h2,
+    html:not(.dark) .prose h3 { color: #1f2937 !important; }
+    html:not(.dark) .prose p,
+    html:not(.dark) .prose li,
+    html:not(.dark) .prose ul,
+    html:not(.dark) .prose ol { color: #374151 !important; }
+    html:not(.dark) .prose blockquote { color: #6b7280 !important; border-left-color: #ff0000 !important; }
+    html:not(.dark) .prose code { background: #f3f4f6 !important; color: #dc2626 !important; }
+    html:not(.dark) .prose pre { background: #f9fafb !important; border-color: #e5e7eb !important; }
+    html:not(.dark) .prose pre code { background: none !important; color: #374151 !important; }
+    html:not(.dark) .prose hr { border-color: #e5e7eb !important; }
+    html:not(.dark) .prose img { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
     /* ── Select / Input elements ── */
     html:not(.dark) select,
     html:not(.dark) input:not([type="submit"]):not([type="button"]),

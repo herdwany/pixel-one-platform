@@ -1749,29 +1749,43 @@
     });
 
     const LABELS = { fr: '🇫🇷 FR', en: '🇺🇸 EN', ar: '🇲🇦 AR' };
+    const PLACEHOLDERS = { fr: 'Texte en français…', en: 'English text…', ar: 'النص بالعربية…' };
+    const LONG_KEYS = ['description', 'content', 'excerpt', 'bio', 'about_text'];
 
     container.innerHTML = Object.entries(grouped).map(([group, items]) => `
       <div class="bg-surface-card border border-surface-border rounded-2xl p-5">
         <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
           <i class="fa-solid fa-file-lines mr-2 text-brand"></i>${esc(group)}
         </h3>
-        <div class="space-y-4">
-          ${items.map(item => `
+        <div class="space-y-5">
+          ${items.map(item => {
+            const isLong = LONG_KEYS.some(k => (item.content_key || '').toLowerCase().includes(k));
+            return `
             <div class="border-b border-surface-border pb-4 last:border-0 last:pb-0">
-              <p class="text-xs text-gray-500 font-mono mb-2">${esc(item.content_key || '')}</p>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <p class="text-sm font-semibold text-white mb-3">
+                <i class="fa-solid fa-key mr-1.5 text-brand text-xs"></i>${esc(item.content_key || 'sans clé')}
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 ${['fr', 'en', 'ar'].map(lang => `
                   <div>
-                    <label class="text-xs text-gray-500 mb-1 block">${LABELS[lang]}</label>
+                    <label class="text-xs font-medium text-gray-400 mb-1.5 block">${LABELS[lang]}</label>
+                    ${isLong ? `
+                    <textarea data-content-id="${item.id}" data-lang="${lang}" rows="3"
+                              placeholder="${PLACEHOLDERS[lang]}"
+                              class="content-input w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"
+                              ${lang === 'ar' ? 'dir="rtl" style="font-family:Tajawal,sans-serif"' : ''}>${esc(item['value_' + lang] || '')}</textarea>
+                    ` : `
                     <input type="text" data-content-id="${item.id}" data-lang="${lang}"
                            value="${esc(item['value_' + lang] || '')}"
+                           placeholder="${PLACEHOLDERS[lang]}"
                            class="content-input w-full bg-surface border border-surface-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition"
                            ${lang === 'ar' ? 'dir="rtl" style="font-family:Tajawal,sans-serif"' : ''} />
+                    `}
                   </div>
                 `).join('')}
               </div>
-            </div>
-          `).join('')}
+            </div>`;
+          }).join('')}
         </div>
       </div>
     `).join('');
