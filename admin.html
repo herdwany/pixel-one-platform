@@ -269,11 +269,58 @@
               </button>
             </div>
             <form id="blog-form" class="space-y-4">
-              <div>
-                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article</label>
-                <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
-                       class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+              <!-- Language tabs for blog content -->
+              <div class="flex gap-1 bg-surface rounded-lg p-1 border border-surface-border">
+                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition bg-brand/10 text-white border border-brand/40" data-blog-lang="fr">🇫🇷 Français</button>
+                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition text-gray-500 border border-transparent hover:text-white" data-blog-lang="en">🇺🇸 English</button>
+                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition text-gray-500 border border-transparent hover:text-white" data-blog-lang="ar">🇲🇦 العربية</button>
               </div>
+
+              <!-- FR fields (default, always visible initially) -->
+              <div id="blog-fields-fr" class="blog-lang-fields space-y-4">
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article <span class="text-brand">*</span></label>
+                  <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (Markdown supporté) <span class="text-brand">*</span></label>
+                  <textarea id="blog-content" rows="8" required placeholder="Rédigez votre article…"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+                </div>
+              </div>
+
+              <!-- EN fields -->
+              <div id="blog-fields-en" class="blog-lang-fields space-y-4 hidden">
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Title (English)</label>
+                  <input id="blog-title-en" type="text" placeholder="Top 5 design trends 2025"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Content (Markdown) — English</label>
+                  <textarea id="blog-content-en" rows="8" placeholder="Write your article in English…"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+                </div>
+              </div>
+
+              <!-- AR fields -->
+              <div id="blog-fields-ar" class="blog-lang-fields space-y-4 hidden">
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" style="font-family:'IBM Plex Sans Arabic',sans-serif" dir="rtl">عنوان المقال (العربية)</label>
+                  <input id="blog-title-ar" type="text" placeholder="أفضل 5 اتجاهات في التصميم 2025" dir="rtl"
+                         style="font-family:'IBM Plex Sans Arabic',sans-serif"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" style="font-family:'IBM Plex Sans Arabic',sans-serif" dir="rtl">المحتوى (Markdown) — العربية</label>
+                  <textarea id="blog-content-ar" rows="8" placeholder="اكتب مقالك بالعربية…" dir="rtl"
+                            style="font-family:'IBM Plex Sans Arabic',sans-serif"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+                </div>
+              </div>
+
+              <!-- Shared fields (always visible) -->
               <div>
                 <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.slug.label">Slug (URL)</label>
                 <input id="blog-slug" type="text" required placeholder="top-5-tendances-design-2025"
@@ -290,11 +337,6 @@
                 <input id="blog-video-url" type="url" placeholder="https://www.youtube.com/watch?v=..."
                        class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
                 <p class="text-xs text-gray-500 mt-1"><i class="fa-brands fa-youtube mr-1 text-red-500"></i>Optionnel — sera affiché en embed dans l'article.</p>
-              </div>
-              <div>
-                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (Markdown supporté)</label>
-                <textarea id="blog-content" rows="8" required placeholder="Rédigez votre article…"
-                          class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
               </div>
               <div class="flex items-center gap-3">
                 <label class="text-sm text-gray-400">Publié</label>
@@ -1214,8 +1256,14 @@
     document.getElementById('blog-image').value = post?.image_url || '';
     document.getElementById('blog-video-url').value = post?.video_url || '';
     document.getElementById('blog-content').value = post?.content || '';
+    document.getElementById('blog-title-en').value = post?.title_en || '';
+    document.getElementById('blog-content-en').value = post?.content_en || '';
+    document.getElementById('blog-title-ar').value = post?.title_ar || '';
+    document.getElementById('blog-content-ar').value = post?.content_ar || '';
     document.getElementById('blog-published').checked = post ? post.is_published : true;
     document.getElementById('blog-alert').classList.add('hidden');
+    // Reset to FR tab
+    switchBlogLangTab('fr');
     document.getElementById('blog-modal-overlay').classList.remove('hidden');
   }
 
@@ -1312,6 +1360,25 @@
     e.target.value = toSlug(e.target.value);
   });
 
+  // ── Blog language tab switching ────────────────────────
+  function switchBlogLangTab(lang) {
+    document.querySelectorAll('.blog-lang-tab').forEach(tab => {
+      const isActive = tab.dataset.blogLang === lang;
+      tab.classList.toggle('bg-brand/10', isActive);
+      tab.classList.toggle('text-white', isActive);
+      tab.classList.toggle('border-brand/40', isActive);
+      tab.classList.toggle('text-gray-500', !isActive);
+      tab.classList.toggle('border-transparent', !isActive);
+    });
+    document.querySelectorAll('.blog-lang-fields').forEach(f => f.classList.add('hidden'));
+    const target = document.getElementById('blog-fields-' + lang);
+    if (target) target.classList.remove('hidden');
+  }
+
+  document.querySelectorAll('.blog-lang-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchBlogLangTab(tab.dataset.blogLang));
+  });
+
   document.getElementById('blog-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const alertEl = document.getElementById('blog-alert');
@@ -1321,6 +1388,10 @@
       image_url:    document.getElementById('blog-image').value.trim() || null,
       video_url:    document.getElementById('blog-video-url').value.trim() || null,
       content:      document.getElementById('blog-content').value.trim(),
+      title_en:     document.getElementById('blog-title-en').value.trim() || null,
+      content_en:   document.getElementById('blog-content-en').value.trim() || null,
+      title_ar:     document.getElementById('blog-title-ar').value.trim() || null,
+      content_ar:   document.getElementById('blog-content-ar').value.trim() || null,
       is_published: document.getElementById('blog-published').checked,
     };
     try {

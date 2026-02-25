@@ -407,22 +407,12 @@
       currentPost = data;
       currentPostId = data.id;
 
-      // Update page title & meta
-      document.title = `${data.title} — Pixel One`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', (data.content || '').substring(0, 160).replace(/[#*_\n]/g, ''));
-      }
-
-      // Populate hero
-      document.getElementById('article-title').textContent = data.title;
-      document.getElementById('article-date').innerHTML = `<i class="fa-regular fa-calendar mr-1"></i>${formatDate(data.created_at)}`;
-      document.getElementById('view-count').textContent = data.view_count || 0;
+      renderArticleContent();
 
       // Featured image
       if (data.image_url) {
         document.getElementById('article-image').src = data.image_url;
-        document.getElementById('article-image').alt = data.title;
+        document.getElementById('article-image').alt = getPostField(data, 'title');
       } else {
         document.getElementById('article-image-wrap').classList.add('hidden');
       }
@@ -432,16 +422,6 @@
       if (embedUrl) {
         document.getElementById('article-video').src = embedUrl;
         document.getElementById('article-video-wrap').classList.remove('hidden');
-      }
-
-      // Render Markdown content
-      if (typeof marked !== 'undefined') {
-        marked.setOptions({ breaks: true, gfm: true });
-        const rawHtml = marked.parse(data.content || '');
-        const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(rawHtml) : rawHtml;
-        document.getElementById('article-body').innerHTML = cleanHtml;
-      } else {
-        document.getElementById('article-body').innerHTML = `<div class="whitespace-pre-wrap text-gray-300">${esc(data.content || '')}</div>`;
       }
 
       // Show article
@@ -464,6 +444,32 @@
       console.error('[PixelOne] Article load error:', err);
       document.getElementById('article-loading').classList.add('hidden');
       document.getElementById('article-notfound').classList.remove('hidden');
+    }
+  }
+
+  // ── Render article title + body in current language ──────
+  function renderArticleContent() {
+    if (!currentPost) return;
+    const postTitle   = getPostField(currentPost, 'title');
+    const postContent = getPostField(currentPost, 'content');
+
+    document.title = `${postTitle} — Pixel One`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', (postContent).substring(0, 160).replace(/[#*_\n]/g, ''));
+    }
+
+    document.getElementById('article-title').textContent = postTitle;
+    document.getElementById('article-date').innerHTML = `<i class="fa-regular fa-calendar mr-1"></i>${formatDate(currentPost.created_at)}`;
+    document.getElementById('view-count').textContent = currentPost.view_count || 0;
+
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({ breaks: true, gfm: true });
+      const rawHtml = marked.parse(postContent);
+      const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(rawHtml) : rawHtml;
+      document.getElementById('article-body').innerHTML = cleanHtml;
+    } else {
+      document.getElementById('article-body').innerHTML = `<div class="whitespace-pre-wrap text-gray-300">${esc(postContent)}</div>`;
     }
   }
 
@@ -612,7 +618,7 @@
       const sb = getSupabaseClient();
       const { data, error } = await sb
         .from('blog_posts')
-        .select('id, title, slug, image_url, created_at, content')
+        .select('id, title, title_en, title_ar, slug, image_url, created_at, content, content_en, content_ar')
         .eq('is_published', true)
         .neq('id', currentId)
         .limit(10);
@@ -635,14 +641,14 @@
           <div class="h-40 overflow-hidden">
             <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                 alt="${esc(post.title)}" loading="lazy">
+                 alt="${esc(getPostField(post, 'title'))}" loading="lazy">
           </div>
           <div class="p-4">
             <p class="text-[10px] text-gray-500 mb-1">
               <i class="fa-regular fa-calendar mr-1"></i>
               ${new Date(post.created_at).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
             </p>
-            <h3 class="text-sm font-bold leading-tight line-clamp-2">${esc(post.title)}</h3>
+            <h3 class="text-sm font-bold leading-tight line-clamp-2">${esc(getPostField(post, 'title'))}</h3>
           </div>
         </a>
       `).join('');
@@ -672,7 +678,7 @@
   document.addEventListener('DOMContentLoaded', loadArticle);
   document.addEventListener('langchange', () => {
     if (currentPost) {
-      document.getElementById('article-date').innerHTML = `<i class="fa-regular fa-calendar mr-1"></i>${formatDate(currentPost.created_at)}`;
+      renderArticleContent();
       if (currentPostId) {
         loadComments(currentPostId);
         loadRelatedPosts(currentPostId);

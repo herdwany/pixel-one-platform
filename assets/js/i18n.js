@@ -1033,6 +1033,21 @@ function getLang() {
 }
 
 /**
+ * Returns the translated value of a blog post field based on the current language.
+ * Falls back to the default (French) field if no translation exists.
+ *
+ * @param {object} post – A blog_posts row from Supabase
+ * @param {string} field – 'title' or 'content'
+ * @returns {string}
+ */
+function getPostField(post, field) {
+  const lang = getLang();
+  if (lang === 'fr') return post[field] || '';
+  const translated = post[`${field}_${lang}`];
+  return translated || post[field] || '';
+}
+
+/**
  * Applies the chosen language to the page.
  * - Updates <html> lang + dir attributes
  * - Persists the choice to localStorage

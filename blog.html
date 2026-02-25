@@ -179,16 +179,19 @@
       container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500">${t('blog.empty')}</div>`;
       return;
     }
-    const locale = getLang() === 'ar' ? 'ar-MA' : (getLang() === 'en' ? 'en-GB' : 'fr-FR');
+    const lang = getLang();
+    const locale = lang === 'ar' ? 'ar-MA' : (lang === 'en' ? 'en-GB' : 'fr-FR');
     container.innerHTML = _blogPosts.map(post => {
-      const excerpt = (post.content || '').replace(/[#*_\n>`\-]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 140);
+      const postTitle   = getPostField(post, 'title');
+      const postContent = getPostField(post, 'content');
+      const excerpt = (postContent).replace(/[#*_\n>`\-]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 140);
       return `
       <a href="blog-details.html?slug=${encodeURIComponent(post.slug)}" class="block group">
         <article class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition h-full">
           <div class="h-48 overflow-hidden relative">
             <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                 alt="${post.title}" loading="lazy">
+                 alt="${postTitle}" loading="lazy">
           </div>
           <div class="p-6">
             <p class="text-xs text-gray-500 mb-2">
@@ -196,7 +199,7 @@
               ${new Date(post.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' })}
               ${post.view_count ? `<span class="ms-3"><i class="fa-solid fa-eye mr-1"></i>${post.view_count}</span>` : ''}
             </p>
-            <h2 class="text-xl font-bold mb-2 leading-tight line-clamp-2">${post.title}</h2>
+            <h2 class="text-xl font-bold mb-2 leading-tight line-clamp-2">${postTitle}</h2>
             <p class="text-gray-400 text-sm line-clamp-2 mb-4">${excerpt}</p>
             <span class="text-xs text-brand font-bold uppercase tracking-widest group-hover:underline">
               ${t('blog.readmore')} <i class="fa-solid fa-arrow-right ms-1 text-[10px]"></i>
