@@ -389,17 +389,18 @@
       <!-- USERS section -->
       <section id="section-users" class="hidden space-y-4">
         <h2 class="font-bold text-lg">Gestion des Utilisateurs</h2>
-        <p class="text-sm text-gray-500">Liste de tous les utilisateurs inscrits et leur statut de consentement légal.</p>
+        <p class="text-sm text-gray-500">Liste de tous les utilisateurs inscrits, avec actions de modération.</p>
         <div id="users-loading" class="text-center py-10 text-gray-500"><i class="fa-solid fa-spinner fa-spin text-2xl"></i></div>
-        <div id="users-table-wrap" class="hidden overflow-x-auto">
+        <div id="users-table-wrap" class="hidden overflow-x-auto bg-surface-card border border-surface-border rounded-2xl">
           <table class="w-full text-sm">
             <thead class="text-xs text-gray-500 uppercase tracking-wider border-b border-surface-border">
               <tr>
+                <th class="text-left px-5 py-3">Avatar</th>
                 <th class="text-left px-5 py-3">Nom</th>
                 <th class="text-left px-5 py-3">Email</th>
-                <th class="text-left px-5 py-3">Rôle</th>
-                <th class="text-left px-5 py-3">Consentement</th>
+                <th class="text-left px-5 py-3">Téléphone</th>
                 <th class="text-left px-5 py-3">Inscription</th>
+                <th class="text-left px-5 py-3">Actions</th>
               </tr>
             </thead>
             <tbody id="users-tbody"></tbody>
