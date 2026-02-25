@@ -694,6 +694,12 @@
 <script src="assets/js/api/services.api.js"></script>
 <script src="assets/js/api/blog.api.js"></script>
 <script src="assets/js/api/users.api.js"></script>
+<script src="assets/js/admin/admin-orders.js"></script>
+<script src="assets/js/admin/admin-users.js"></script>
+<script src="assets/js/admin/admin-blog.js"></script>
+<script src="assets/js/admin/admin-comments.js"></script>
+<script src="assets/js/admin/admin-services.js"></script>
+<script src="assets/js/admin/admin-site-content.js"></script>
 <script>
   /* ========== admin page JS (renderOrders + modal handlers) ==========
      This is the same logic used earlier (no conflicts). Keep ensure:
@@ -801,7 +807,7 @@
   async function loadOrdersPage(page = 1) {
     adminOrdersPage = page;
     try {
-      const { rows, count } = await OrdersAPI.listAdminOrders({ page, limit: ADMIN_PAGE_LIMIT });
+      const { rows, count } = await AdminOrdersModule.list(page, ADMIN_PAGE_LIMIT);
       allOrders = rows || [];
       adminOrdersTotal = count || 0;
     } catch (err) {
@@ -902,7 +908,7 @@
       return;
     }
     try {
-      await OrdersAPI.updateOrderStatus(orderId, newStatus);
+      await AdminOrdersModule.updateStatus(orderId, newStatus);
       const order = allOrders.find(o => o.id === orderId);
       if (order) order.status = newStatus;
       await renderOrders(allOrders);
@@ -917,7 +923,7 @@
   async function deleteOrder(orderId, orderRef) {
     if (!confirm(`Supprimer la commande ${orderRef} ?`)) return;
     try {
-      await OrdersAPI.deleteOrder(orderId);
+      await AdminOrdersModule.remove(orderId);
       await loadOrdersPage(adminOrdersPage);
     } catch (err) {
       const safe = await PixelOneErrorHandler.handleError(err, 'admin:delete-order');
@@ -1034,7 +1040,7 @@
       return;
     }
     try {
-      await OrdersAPI.updateOrderStatus(currentOrderId, newStatus);
+      await AdminOrdersModule.updateStatus(currentOrderId, newStatus);
       const order = allOrders.find(o => o.id === currentOrderId);
       if (order) order.status = newStatus;
       await renderOrders(allOrders);
@@ -1260,7 +1266,7 @@
     };
 
     try {
-      await ServicesAPI.upsertService(payload, editServiceId);
+      await AdminServicesModule.save(payload, editServiceId);
       alertEl.textContent = editServiceId ? 'Service mis à jour ✓' : 'Service ajouté ✓';
       alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
@@ -1277,7 +1283,7 @@
   async function deleteService(id) {
     if (!confirm('Supprimer ce service ?')) return;
     try {
-      await ServicesAPI.deleteService(id);
+      await AdminServicesModule.remove(id);
       await reloadAdminServices();
     } catch (err) {
       alert('Error: ' + (await PixelOneErrorHandler.handleError(err, 'admin:delete-service')));
@@ -1286,7 +1292,7 @@
 
   async function reloadAdminServices() {
     try {
-      const services = await ServicesAPI.listAdminAll();
+      const services = await AdminServicesModule.listAll();
       renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);
@@ -1370,10 +1376,10 @@
 
   async function loadBlogPosts() {
     try {
-      const sb = getSupabaseClient();
-      const { data } = await sb.from('blog_posts').select('*').order('created_at', { ascending: false });
+      const data = await AdminBlogModule.list();
       renderBlogPosts(data || []);
-    } catch (_) {
+    } catch (err) {
+      await PixelOneErrorHandler.handleError(err, 'admin:blog-list');
       renderBlogPosts([]);
     }
   }
@@ -1397,12 +1403,10 @@
   async function deleteBlogPost(id) {
     if (!confirm('Supprimer cet article ?')) return;
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('blog_posts').delete().eq('id', id);
-      if (error) throw error;
+      await AdminBlogModule.remove(id);
       await loadBlogPosts();
     } catch (err) {
-      alert('Error: ' + err.message);
+      alert('Error: ' + (await PixelOneErrorHandler.handleError(err, 'admin:blog-delete')));
     }
   }
 
@@ -1460,21 +1464,15 @@
       is_published: document.getElementById('blog-published').checked,
     };
     try {
-      const sb = getSupabaseClient();
-      if (editBlogId) {
-        const { error } = await sb.from('blog_posts').update(payload).eq('id', editBlogId);
-        if (error) throw error;
-      } else {
-        const { error } = await sb.from('blog_posts').insert(payload);
-        if (error) throw error;
-      }
+      await AdminBlogModule.save(payload, editBlogId);
       alertEl.textContent = editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success');
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
       setTimeout(() => closeBlogModal(), 800);
       await loadBlogPosts();
     } catch (err) {
-      alertEl.textContent = '✗ ' + err.message;
+      const safe = await PixelOneErrorHandler.handleError(err, 'admin:blog-save');
+      alertEl.textContent = '✗ ' + safe;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
     }
@@ -1501,7 +1499,7 @@
     await loadOrdersPage(1);
 
     try {
-      const services = await ServicesAPI.listAdminAll();
+      const services = await AdminServicesModule.listAll();
       renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);
@@ -1528,7 +1526,7 @@
   async function loadUsers(page = 1) {
     adminUsersPage = page;
     try {
-      const { rows, count } = await UsersAPI.listUsers({ page, limit: ADMIN_PAGE_LIMIT });
+      const { rows, count } = await AdminUsersModule.list(page, ADMIN_PAGE_LIMIT);
       allUsers = rows || [];
       adminUsersTotal = count || 0;
       renderUsers(allUsers);
@@ -1609,7 +1607,7 @@
     if (banBtn) {
       if (!confirm('Bannir cet utilisateur ?')) return;
       try {
-        await UsersAPI.updateUser(banBtn.dataset.id, { is_banned: true });
+        await AdminUsersModule.ban(banBtn.dataset.id);
         await loadUsers(adminUsersPage);
       } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:ban-user'))); }
       return;
@@ -1618,7 +1616,7 @@
     const unbanBtn = e.target.closest('.unban-user-btn');
     if (unbanBtn) {
       try {
-        await UsersAPI.updateUser(unbanBtn.dataset.id, { is_banned: false });
+        await AdminUsersModule.unban(unbanBtn.dataset.id);
         await loadUsers(adminUsersPage);
       } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:unban-user'))); }
       return;
@@ -1628,7 +1626,7 @@
     if (promoteBtn) {
       if (!confirm('Promouvoir cet utilisateur en Admin ?')) return;
       try {
-        await UsersAPI.updateUser(promoteBtn.dataset.id, { role: 'admin' });
+        await AdminUsersModule.promoteToAdmin(promoteBtn.dataset.id);
         await loadUsers(adminUsersPage);
       } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:promote-user'))); }
     }
@@ -1665,19 +1663,12 @@
   async function loadAdminComments(page = 1) {
     adminCommentsPage = page;
     try {
-      const sb = getSupabaseClient();
-      let query = sb
-        .from('blog_comments')
-        .select('*, blog_posts(title, slug)', { count: 'exact' })
-        .order('created_at', { ascending: false })
-        .range((page - 1) * ADMIN_PAGE_LIMIT, (page - 1) * ADMIN_PAGE_LIMIT + ADMIN_PAGE_LIMIT - 1);
-
-      if (adminCommentFilter === 'pending') query = query.eq('is_approved', false);
-      if (adminCommentFilter === 'approved') query = query.eq('is_approved', true);
-
-      const { data, error, count } = await query;
-      if (error) throw error;
-      allAdminComments = data || [];
+      const { rows, count } = await AdminCommentsModule.list({
+        page,
+        limit: ADMIN_PAGE_LIMIT,
+        filter: adminCommentFilter,
+      });
+      allAdminComments = rows || [];
       adminCommentsTotal = count || 0;
     } catch (err) {
       await PixelOneErrorHandler.handleError(err, 'admin:comments-load');
@@ -1754,9 +1745,7 @@
     const pendingIds = allAdminComments.filter(c => !c.is_approved).map(c => c.id);
     if (!pendingIds.length) return;
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('blog_comments').update({ is_approved: true }).in('id', pendingIds);
-      if (error) throw error;
+      await AdminCommentsModule.approve(pendingIds);
       await loadAdminComments(adminCommentsPage);
     } catch (err) {
       alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:bulk-approve-comments')));
@@ -1768,9 +1757,7 @@
     if (!pendingIds.length) return;
     if (!confirm('Supprimer tous les commentaires en attente sur cette page ?')) return;
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('blog_comments').delete().in('id', pendingIds);
-      if (error) throw error;
+      await AdminCommentsModule.remove(pendingIds);
       await loadAdminComments(adminCommentsPage);
     } catch (err) {
       alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:bulk-delete-comments')));
@@ -1782,9 +1769,7 @@
     const approveBtn = e.target.closest('.approve-comment-btn');
     if (approveBtn) {
       try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('blog_comments').update({ is_approved: true }).eq('id', approveBtn.dataset.id);
-        if (error) throw error;
+        await AdminCommentsModule.approve(Number(approveBtn.dataset.id));
         await loadAdminComments(adminCommentsPage);
       } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:approve-comment'))); }
       return;
@@ -1796,9 +1781,7 @@
       const reply = prompt('Réponse admin :', existing);
       if (reply === null) return;
       try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('blog_comments').update({ admin_reply: reply.trim() || null }).eq('id', replyBtn.dataset.id);
-        if (error) throw error;
+        await AdminCommentsModule.reply(Number(replyBtn.dataset.id), reply.trim() || null);
         await loadAdminComments(adminCommentsPage);
       } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:reply-comment'))); }
       return;
@@ -1808,9 +1791,7 @@
     if (delBtn) {
       if (!confirm('Supprimer ce commentaire ?')) return;
       try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('blog_comments').delete().eq('id', delBtn.dataset.id);
-        if (error) throw error;
+        await AdminCommentsModule.remove(Number(delBtn.dataset.id));
         await loadAdminComments(adminCommentsPage);
       } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:delete-comment'))); }
     }
@@ -1823,7 +1804,7 @@
     const loading = document.getElementById('content-loading');
     const container = document.getElementById('content-sections');
     try {
-      siteContentData = await ServicesAPI.getSiteContent();
+      siteContentData = await AdminSiteContentModule.list();
     } catch (err) {
       await PixelOneErrorHandler.handleError(err, 'admin:site-content-load');
       siteContentData = [];
@@ -1904,18 +1885,11 @@
     });
 
     try {
-      const sb = getSupabaseClient();
-      const promises = Object.entries(updates).map(([id, payload]) =>
-        sb.from('site_content').update(payload).eq('id', Number(id))
-      );
-      const results = await Promise.all(promises);
-      const failed = results.filter(r => r.error);
-      if (failed.length) throw new Error(failed[0].error.message);
+      await AdminSiteContentModule.saveBulk(updates);
 
       alertEl.textContent = 'Contenu enregistré ✓';
       alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
-      ServicesAPI.invalidateCaches();
       setTimeout(() => alertEl.classList.add('hidden'), 3000);
     } catch (err) {
       const safe = await PixelOneErrorHandler.handleError(err, 'admin:site-content-save');
