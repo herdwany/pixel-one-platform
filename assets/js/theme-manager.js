@@ -199,7 +199,6 @@
       ['link[rel="icon"][type="image/svg+xml"]',  'favicon.svg'],
       ['link[rel="shortcut icon"]',               'favicon.ico'],
       ['link[rel="apple-touch-icon"]',            'apple-touch-icon.png'],
-      ['link[rel="manifest"]',                    'site.webmanifest'],
     ];
     targets.forEach(([selector, file]) => {
       const el = document.querySelector(selector);
@@ -228,7 +227,8 @@
 
 
   /* ── 6. Public toggle function ─────────────────────────────── */
-  window.toggleTheme = function () {
+  window.toggleTheme = function (e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     const nowDark = !document.documentElement.classList.contains('dark');
     localStorage.setItem(STORAGE_KEY, nowDark ? 'dark' : 'light');
     applyTheme(nowDark, true);
