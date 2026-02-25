@@ -26,10 +26,13 @@ interface ServiceRow {
 }
 
 // ── Helpers ─────────────────────────────────────────────────
+const ALLOWED_ORIGIN = "https://www.pixelonevisuals.tech";
+
 const CORS_HEADERS: Record<string, string> = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
+  "Vary": "Origin",
 };
 
 function escapeXml(str: string): string {
@@ -115,7 +118,16 @@ function buildItemXml(svc: ServiceRow): string {
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
+    const origin = req.headers.get("origin");
+    if (origin && origin !== ALLOWED_ORIGIN) {
+      return new Response("Forbidden", { status: 403 });
+    }
     return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
+  const origin = req.headers.get("origin");
+  if (origin && origin !== ALLOWED_ORIGIN) {
+    return new Response("Forbidden", { status: 403, headers: CORS_HEADERS });
   }
 
   try {

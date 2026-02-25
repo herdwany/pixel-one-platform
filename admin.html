@@ -1262,21 +1262,15 @@
     };
 
     try {
-      const sb = getSupabaseClient();
-      if (editServiceId) {
-        const { error } = await sb.from('services').update(payload).eq('id', editServiceId);
-        if (error) throw error;
-      } else {
-        const { error } = await sb.from('services').insert(payload);
-        if (error) throw error;
-      }
+      await ServicesAPI.upsertService(payload, editServiceId);
       alertEl.textContent = editServiceId ? 'Service mis à jour ✓' : 'Service ajouté ✓';
       alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
       setTimeout(() => closeServiceModal(), 800);
       await reloadAdminServices();
     } catch (err) {
-      alertEl.textContent = '✗ ' + err.message;
+      const safe = await PixelOneErrorHandler.handleError(err, 'admin:save-service');
+      alertEl.textContent = '✗ ' + safe;
       alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
     }
@@ -1285,28 +1279,16 @@
   async function deleteService(id) {
     if (!confirm('Supprimer ce service ?')) return;
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('services').delete().eq('id', id);
-      if (error) throw error;
+      await ServicesAPI.deleteService(id);
       await reloadAdminServices();
     } catch (err) {
-      alert('Error: ' + err.message);
+      alert('Error: ' + (await PixelOneErrorHandler.handleError(err, 'admin:delete-service')));
     }
   }
 
   async function reloadAdminServices() {
     try {
-      const sb = getSupabaseClient();
-      let services = null;
-      try {
-        const { data, error } = await sb.from('services').select('*').order('sort_order', { ascending: true });
-        if (error) throw error;
-        services = data;
-      } catch (_sortErr) {
-        const { data, error } = await sb.from('services').select('*').order('created_at', { ascending: true });
-        if (error) throw error;
-        services = data;
-      }
+      const services = await ServicesAPI.listAdminAll();
       renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);
@@ -1521,17 +1503,7 @@
     await loadOrdersPage(1);
 
     try {
-      const sb = getSupabaseClient();
-      let services = null;
-      try {
-        const { data, error } = await sb.from('services').select('*').order('sort_order', { ascending: true });
-        if (error) throw error;
-        services = data;
-      } catch (_sortErr) {
-        const { data, error } = await sb.from('services').select('*').order('created_at', { ascending: true });
-        if (error) throw error;
-        services = data;
-      }
+      const services = await ServicesAPI.listAdminAll();
       renderAdminServices((services || []).map(parseSvcJsonFields));
     } catch (_) {
       renderAdminServices(CONFIG.SERVICES);

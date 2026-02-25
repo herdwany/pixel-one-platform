@@ -1,5 +1,12 @@
 {
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/tailwind.input.css -o ./assets/css/tailwind.output.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/tailwind.input.css -o ./assets/css/tailwind.output.css --watch"
+  },
   "devDependencies": {
-    "supabase": "^2.76.14"
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "supabase": "^2.76.14",
+    "tailwindcss": "^3.4.17"
   }
 }
