@@ -89,15 +89,6 @@ async function requireAuth(adminOnly = false) {
 }
 
 /**
- * Generates a unique order reference like "PX-A3F2".
- */
-function generateOrderRef() {
-  const ts  = Date.now().toString(36).toUpperCase().slice(-3);
-  const rnd = Math.random().toString(36).toUpperCase().slice(2, 5);
-  return `PX-${ts}${rnd}`;
-}
-
-/**
  * Builds a pre-filled WhatsApp link to notify the admin.
  */
 function buildWhatsAppLink(order) {
