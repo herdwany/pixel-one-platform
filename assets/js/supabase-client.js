@@ -74,6 +74,11 @@ async function requireAuth(adminOnly = false) {
     return null;
   }
   const profile = await getProfile(user.id);
+  if (profile?.is_banned) {
+    await getSupabaseClient().auth.signOut();
+    window.location.href = "auth.html";
+    return null;
+  }
   if (adminOnly) {
     if (profile?.role !== "admin") {
       window.location.href = "dashboard.html";
