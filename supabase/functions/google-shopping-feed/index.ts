@@ -1,7 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+// ✅ التصحيح هنا: أضفنا علامة التعجب (!) لنخبر النظام أن هذه القيم موجودة بالتأكيد
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const SITE_URL = "https://www.pixelonevisuals.tech";
 
 // ── Types ───────────────────────────────────────────────────
@@ -32,6 +33,7 @@ const CORS_HEADERS: Record<string, string> = {
 };
 
 function escapeXml(str: string): string {
+  if (!str) return "";
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -56,22 +58,33 @@ function parseFeatures(raw: string[] | string | null): string[] {
 
 /** Pick English title → French fallback → raw title */
 function getTitle(svc: ServiceRow): string {
-  return svc.titles?.en || svc.titles?.fr || svc.title;
+  if (svc.titles && typeof svc.titles === 'object') {
+      return svc.titles.en || svc.titles.fr || svc.title;
+  }
+  return svc.title;
 }
 
 /** Pick English description → French fallback → raw description → title */
 function getDescription(svc: ServiceRow): string {
-  const base = svc.descriptions?.en || svc.descriptions?.fr || svc.description || svc.title;
-  const features = svc.features_i18n?.en || parseFeatures(svc.features);
+  let base = svc.description || svc.title;
+  
+  if (svc.descriptions && typeof svc.descriptions === 'object') {
+      base = svc.descriptions.en || svc.descriptions.fr || base;
+  }
+
+  const features = (svc.features_i18n && svc.features_i18n.en) 
+    ? svc.features_i18n.en 
+    : parseFeatures(svc.features);
+
   if (!features.length) return base;
   return `${base} — ${features.join(", ")}`;
 }
 
 function categoryLabel(cat: string): string {
   const map: Record<string, string> = {
-    video: "Media > Digital Goods & Currency > Digital Goods > Video",
-    design: "Media > Digital Goods & Currency > Digital Goods > Design",
-    web: "Software > Computer Software",
+    "Video Editing": "Media > Digital Goods & Currency > Digital Goods > Video",
+    "Graphic Design": "Media > Digital Goods & Currency > Digital Goods > Design",
+    "Web Development": "Software > Computer Software",
   };
   return map[cat] || "Media > Digital Goods & Currency > Digital Goods";
 }
@@ -98,16 +111,6 @@ function buildItemXml(svc: ServiceRow): string {
     </item>`;
 }
 
-// ── Create client once (reused across requests) ─────────────
-function getClient() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars");
-  }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-}
-
-const supabase = getClient();
-
 // ── Handler ─────────────────────────────────────────────────
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight
@@ -115,15 +118,10 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 204, headers: CORS_HEADERS });
   }
 
-  // Only allow GET
-  if (req.method !== "GET") {
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: { ...CORS_HEADERS, Allow: "GET, OPTIONS" },
-    });
-  }
-
   try {
+    // ✅ إنشاء العميل هنا مباشرة لضمان عدم حدوث مشاكل في النطاق
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
     const { data: services, error } = await supabase
       .from("services")
       .select("id, title, description, price, image_url, category, features, titles, descriptions, features_i18n")

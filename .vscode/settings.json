@@ -1,4 +1,9 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "python-envs.pythonProjects": [],
+
+  "deno.enable": false,
+  "deno.enablePaths": ["supabase/functions"],
+  "deno.unstable": [],
+  "deno.importMap": "supabase/functions/import_map.json" 
 }
