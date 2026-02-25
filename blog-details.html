@@ -680,7 +680,7 @@
       return;
     }
 
-    const commentId = likeBtn.dataset.id;
+    const commentId = parseInt(likeBtn.dataset.id);
     try {
       const sb = getSupabaseClient();
       // Check if already liked
@@ -728,7 +728,7 @@
     const replyBtn = e.target.closest('.reply-to-btn');
     if (!replyBtn) return;
 
-    _replyToCommentId = replyBtn.dataset.id;
+    _replyToCommentId = parseInt(replyBtn.dataset.id);
     _replyToUserId = replyBtn.dataset.userId || null;
     document.getElementById('reply-to-name').textContent = replyBtn.dataset.name;
     document.getElementById('reply-text').value = '';
