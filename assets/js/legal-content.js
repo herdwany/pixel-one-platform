@@ -454,12 +454,250 @@ const LEGAL_CONTENT = {
         }
       ]
     }
+  },
+
+  // ── Refund Policy ─────────────────────────────────────────
+  refund: {
+    fr: {
+      title: 'Politique de Remboursement',
+      badge: 'Juridique',
+      updated: 'Dernière mise à jour : 25 février 2026',
+      back: 'Retour à l\'accueil',
+      sections: [
+        {
+          icon: 'fa-rotate-left',
+          title: '1. Nature des Services Numériques',
+          html: `<p><strong>Pixel One</strong> fournit des services numériques sur mesure, y compris le design graphique, le montage vidéo, le développement web et le motion design. En raison de la nature personnalisée et immatérielle de ces livrables :</p>
+          <div class="bg-[#0d0d0d] border border-brand/20 rounded-xl p-4 mt-4">
+            <p class="font-semibold text-brand"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Aucun retour ni échange n'est possible sur les travaux terminés et livrés.</p>
+          </div>
+          <p class="text-gray-500 text-sm mt-4">Les services numériques ne sont pas des produits physiques et ne peuvent être « retournés ». Une fois le livrable final approuvé et remis, la vente est considérée comme définitive.</p>`
+        },
+        {
+          icon: 'fa-ban',
+          title: '2. Politique d\'Annulation',
+          html: `<p class="mb-3">Les conditions d'annulation dépendent du stade d'avancement du projet :</p>
+          <div class="space-y-3 mt-4">
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-check-circle text-green-500 mr-2"></i>Avant le début du travail</p>
+              <p class="text-gray-400 text-sm">Annulation gratuite avec remboursement intégral. Contactez-nous dès que possible.</p>
+            </div>
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-clock text-yellow-500 mr-2"></i>Travail en cours</p>
+              <p class="text-gray-400 text-sm">Un remboursement partiel peut être envisagé, proportionnel au travail non encore réalisé. Les heures de travail déjà investies ne sont pas remboursables.</p>
+            </div>
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-xmark-circle text-red-500 mr-2"></i>Après livraison finale</p>
+              <p class="text-gray-400 text-sm">Aucun remboursement n'est accordé une fois le projet terminé et les fichiers livrés au client.</p>
+            </div>
+          </div>`
+        },
+        {
+          icon: 'fa-arrows-rotate',
+          title: '3. Révisions & Modifications',
+          html: `<p class="mb-3">Chaque service inclut un nombre défini de révisions, précisé dans la description du service :</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>Les révisions couvertes par le forfait sont <strong>gratuites</strong> et doivent être demandées dans les <strong>7 jours</strong> suivant la livraison.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>Les demandes de révision supplémentaires au-delà du quota inclus seront facturées séparément après accord mutuel.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>Les changements majeurs de direction créative (rebrief complet) constituent un nouveau projet et non une révision.</span></li>
+          </ul>
+          <p class="text-gray-500 text-sm mt-4">Les révisions ne sont pas un substitut au remboursement. Elles servent à affiner le travail selon le brief original.</p>`
+        },
+        {
+          icon: 'fa-shield-halved',
+          title: '4. Cas Exceptionnels',
+          html: `<p class="mb-3">Un remboursement total ou partiel peut être accordé dans les situations suivantes :</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>Le service n'a jamais été livré et le projet n'a pas démarré.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>Une erreur technique grave de notre part rend le livrable inutilisable.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>Un paiement en double a été effectué par erreur.</span></li>
+          </ul>
+          <p class="mt-4">Chaque demande est traitée au cas par cas. Contactez-nous dans un délai de <strong>7 jours</strong> après la livraison.</p>`
+        },
+        {
+          icon: 'fa-gavel',
+          title: '5. Processus de Réclamation',
+          html: `<p class="mb-3">Pour soumettre une demande de remboursement ou de réclamation :</p>
+          <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-5 mt-3 space-y-3">
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span><span>Envoyez un email à <strong>contact@pixelonevisuals.tech</strong> avec votre référence de commande.</span></div>
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span><span>Décrivez le motif de votre réclamation de manière détaillée.</span></div>
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span><span>Notre équipe examinera votre demande sous <strong>48 à 72 heures ouvrées</strong>.</span></div>
+          </div>`
+        },
+        {
+          icon: 'fa-envelope',
+          title: '6. Nous Contacter',
+          highlight: true,
+          html: `<p class="mb-4">Pour toute question relative à cette politique de remboursement, contactez-nous :</p>
+          <a href="mailto:contact@pixelonevisuals.tech" class="inline-flex items-center gap-3 bg-brand/10 border border-brand/30 hover:border-brand/60 px-5 py-3 rounded-xl transition group">
+            <i class="fa-solid fa-paper-plane text-brand group-hover:translate-x-0.5 transition-transform"></i>
+            <span class="font-medium">contact@pixelonevisuals.tech</span>
+          </a>`
+        }
+      ]
+    },
+    en: {
+      title: 'Refund Policy',
+      badge: 'Legal',
+      updated: 'Last updated: February 25, 2026',
+      back: 'Back to Home',
+      sections: [
+        {
+          icon: 'fa-rotate-left',
+          title: '1. Nature of Digital Services',
+          html: `<p><strong>Pixel One</strong> provides custom digital services including graphic design, video editing, web development, and motion design. Due to the personalized and intangible nature of these deliverables:</p>
+          <div class="bg-[#0d0d0d] border border-brand/20 rounded-xl p-4 mt-4">
+            <p class="font-semibold text-brand"><i class="fa-solid fa-triangle-exclamation mr-2"></i>No returns or exchanges are possible on completed and delivered work.</p>
+          </div>
+          <p class="text-gray-500 text-sm mt-4">Digital services are not physical products and cannot be "returned." Once the final deliverable is approved and handed over, the sale is considered final.</p>`
+        },
+        {
+          icon: 'fa-ban',
+          title: '2. Cancellation Policy',
+          html: `<p class="mb-3">Cancellation terms depend on the project stage:</p>
+          <div class="space-y-3 mt-4">
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-check-circle text-green-500 mr-2"></i>Before Work Begins</p>
+              <p class="text-gray-400 text-sm">Free cancellation with a full refund. Contact us as soon as possible.</p>
+            </div>
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-clock text-yellow-500 mr-2"></i>Work in Progress</p>
+              <p class="text-gray-400 text-sm">A partial refund may be considered, proportional to the work not yet completed. Hours already invested are non-refundable.</p>
+            </div>
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-xmark-circle text-red-500 mr-2"></i>After Final Delivery</p>
+              <p class="text-gray-400 text-sm">No refund is granted once the project is completed and files are delivered to the client.</p>
+            </div>
+          </div>`
+        },
+        {
+          icon: 'fa-arrows-rotate',
+          title: '3. Revisions & Modifications',
+          html: `<p class="mb-3">Each service includes a defined number of revisions, specified in the service description:</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>Included revisions are <strong>free of charge</strong> and must be requested within <strong>7 days</strong> of delivery.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>Additional revision requests beyond the included quota will be billed separately after mutual agreement.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>Major creative direction changes (complete re-brief) constitute a new project, not a revision.</span></li>
+          </ul>
+          <p class="text-gray-500 text-sm mt-4">Revisions are not a substitute for refunds. They serve to refine the work according to the original brief.</p>`
+        },
+        {
+          icon: 'fa-shield-halved',
+          title: '4. Exceptional Cases',
+          html: `<p class="mb-3">A full or partial refund may be granted in the following situations:</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>The service was never delivered and the project has not started.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>A serious technical error on our part renders the deliverable unusable.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>A duplicate payment was made by mistake.</span></li>
+          </ul>
+          <p class="mt-4">Each request is handled on a case-by-case basis. Contact us within <strong>7 days</strong> of delivery.</p>`
+        },
+        {
+          icon: 'fa-gavel',
+          title: '5. Claim Process',
+          html: `<p class="mb-3">To submit a refund request or claim:</p>
+          <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-5 mt-3 space-y-3">
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span><span>Email <strong>contact@pixelonevisuals.tech</strong> with your order reference.</span></div>
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span><span>Describe the reason for your claim in detail.</span></div>
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span><span>Our team will review your request within <strong>48 to 72 business hours</strong>.</span></div>
+          </div>`
+        },
+        {
+          icon: 'fa-envelope',
+          title: '6. Contact Us',
+          highlight: true,
+          html: `<p class="mb-4">For any questions about this refund policy, please reach out to us:</p>
+          <a href="mailto:contact@pixelonevisuals.tech" class="inline-flex items-center gap-3 bg-brand/10 border border-brand/30 hover:border-brand/60 px-5 py-3 rounded-xl transition group">
+            <i class="fa-solid fa-paper-plane text-brand group-hover:translate-x-0.5 transition-transform"></i>
+            <span class="font-medium">contact@pixelonevisuals.tech</span>
+          </a>`
+        }
+      ]
+    },
+    ar: {
+      title: 'سياسة الاسترجاع',
+      badge: 'قانوني',
+      updated: 'آخر تحديث: 25 فبراير 2026',
+      back: 'العودة إلى الرئيسية',
+      sections: [
+        {
+          icon: 'fa-rotate-left',
+          title: '1. طبيعة الخدمات الرقمية',
+          html: `<p>تقدم <strong>بيكسل ون</strong> خدمات رقمية مخصصة تشمل التصميم الجرافيكي، مونتاج الفيديو، تطوير الويب، والموشن ديزاين. نظراً للطبيعة المُخصصة وغير الملموسة لهذه المخرجات:</p>
+          <div class="bg-[#0d0d0d] border border-brand/20 rounded-xl p-4 mt-4">
+            <p class="font-semibold text-brand"><i class="fa-solid fa-triangle-exclamation mr-2"></i>لا يمكن إرجاع أو استبدال الأعمال المنجزة والمسلمة.</p>
+          </div>
+          <p class="text-gray-500 text-sm mt-4">الخدمات الرقمية ليست منتجات مادية ولا يمكن "إرجاعها". بمجرد الموافقة على المخرج النهائي وتسليمه، تُعتبر عملية البيع نهائية.</p>`
+        },
+        {
+          icon: 'fa-ban',
+          title: '2. سياسة الإلغاء',
+          html: `<p class="mb-3">تعتمد شروط الإلغاء على مرحلة تقدم المشروع:</p>
+          <div class="space-y-3 mt-4">
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-check-circle text-green-500 mr-2"></i>قبل بدء العمل</p>
+              <p class="text-gray-400 text-sm">إلغاء مجاني مع استرجاع كامل. تواصل معنا في أقرب وقت ممكن.</p>
+            </div>
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-clock text-yellow-500 mr-2"></i>أثناء العمل</p>
+              <p class="text-gray-400 text-sm">يمكن النظر في استرجاع جزئي يتناسب مع العمل الذي لم يُنجز بعد. ساعات العمل المستثمرة غير قابلة للاسترجاع.</p>
+            </div>
+            <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-4">
+              <p class="font-semibold mb-1"><i class="fa-solid fa-xmark-circle text-red-500 mr-2"></i>بعد التسليم النهائي</p>
+              <p class="text-gray-400 text-sm">لا يتم منح أي استرجاع بمجرد اكتمال المشروع وتسليم الملفات للعميل.</p>
+            </div>
+          </div>`
+        },
+        {
+          icon: 'fa-arrows-rotate',
+          title: '3. التعديلات والمراجعات',
+          html: `<p class="mb-3">تتضمن كل خدمة عدداً محدداً من التعديلات، موضحاً في وصف الخدمة:</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>التعديلات المشمولة <strong>مجانية</strong> ويجب طلبها خلال <strong>7 أيام</strong> من التسليم.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>طلبات التعديل الإضافية التي تتجاوز الحصة المشمولة ستُحسب بشكل منفصل بعد الاتفاق المتبادل.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-chevron-right text-brand text-xs mt-1.5"></i><span>التغييرات الجذرية في الاتجاه الإبداعي تشكل مشروعاً جديداً وليست تعديلاً.</span></li>
+          </ul>
+          <p class="text-gray-500 text-sm mt-4">التعديلات ليست بديلاً عن الاسترجاع. إنها تهدف لتحسين العمل وفقاً للموجز الأصلي.</p>`
+        },
+        {
+          icon: 'fa-shield-halved',
+          title: '4. الحالات الاستثنائية',
+          html: `<p class="mb-3">يمكن منح استرجاع كلي أو جزئي في الحالات التالية:</p>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>لم يتم تقديم الخدمة ولم يبدأ المشروع.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>خطأ تقني جسيم من طرفنا يجعل المخرج غير قابل للاستخدام.</span></li>
+            <li class="flex items-start gap-3"><i class="fa-solid fa-check text-brand text-xs mt-1.5"></i><span>تم إجراء دفع مزدوج عن طريق الخطأ.</span></li>
+          </ul>
+          <p class="mt-4">كل طلب يُعالج حسب كل حالة. تواصل معنا خلال <strong>7 أيام</strong> من التسليم.</p>`
+        },
+        {
+          icon: 'fa-gavel',
+          title: '5. إجراءات المطالبة',
+          html: `<p class="mb-3">لتقديم طلب استرجاع أو مطالبة:</p>
+          <div class="bg-[#0d0d0d] border border-surface-border rounded-xl p-5 mt-3 space-y-3">
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span><span>أرسل بريداً إلكترونياً إلى <strong>contact@pixelonevisuals.tech</strong> مع مرجع طلبك.</span></div>
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span><span>صف سبب مطالبتك بالتفصيل.</span></div>
+            <div class="flex items-start gap-3"><span class="bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span><span>سيقوم فريقنا بمراجعة طلبك خلال <strong>48 إلى 72 ساعة عمل</strong>.</span></div>
+          </div>`
+        },
+        {
+          icon: 'fa-envelope',
+          title: '6. اتصل بنا',
+          highlight: true,
+          html: `<p class="mb-4">لأي أسئلة حول سياسة الاسترجاع هذه، تواصل معنا:</p>
+          <a href="mailto:contact@pixelonevisuals.tech" class="inline-flex items-center gap-3 bg-brand/10 border border-brand/30 hover:border-brand/60 px-5 py-3 rounded-xl transition group">
+            <i class="fa-solid fa-paper-plane text-brand group-hover:translate-x-0.5 transition-transform"></i>
+            <span class="font-medium">contact@pixelonevisuals.tech</span>
+          </a>`
+        }
+      ]
+    }
   }
 };
 
 /**
- * Renders a legal page (privacy or terms) with the current language.
- * @param {'privacy'|'terms'} pageType
+ * Renders a legal page (privacy, terms, or refund) with the current language.
+ * @param {'privacy'|'terms'|'refund'} pageType
  */
 function renderLegalPage(pageType) {
   const lang = getLang();
