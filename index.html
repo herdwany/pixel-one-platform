@@ -473,6 +473,8 @@
 <script src="assets/js/config.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/utils/cache.js"></script>
+<script src="assets/js/api/services.api.js"></script>
 <script>
   // ── First-visit language modal handling ────────────────────
   function selectFirstLang(lang) {
@@ -509,24 +511,10 @@
     const container = document.getElementById('featured-services');
     if (!container) return;
 
-    const sb = getSupabaseClient();
     let services = [];
 
     try {
-      const query = sb.from('services').select('*').eq('is_active', true).eq('is_coming_soon', false).order('sort_order', { ascending: true });
-      const { data, error } = await query;
-      if (error) throw error;
-      services = data.map(s => {
-        let features = s.features;
-        if (!Array.isArray(features)) { try { features = JSON.parse(features || '[]'); } catch (_) { features = []; } }
-        let features_i18n = s.features_i18n;
-        if (typeof features_i18n === 'string') { try { features_i18n = JSON.parse(features_i18n); } catch (_) { features_i18n = {}; } }
-        let titles = s.titles;
-        if (typeof titles === 'string') { try { titles = JSON.parse(titles); } catch (_) { titles = {}; } }
-        let descriptions = s.descriptions;
-        if (typeof descriptions === 'string') { try { descriptions = JSON.parse(descriptions); } catch (_) { descriptions = {}; } }
-        return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {}, descriptions: descriptions || {} };
-      });
+      services = await ServicesAPI.listActiveAll();
     } catch (err) {
       console.warn('Using fallback services:', err.message);
       services = CONFIG.SERVICES;
@@ -588,16 +576,7 @@
 
     let comingSoon = [];
     try {
-      const sb = getSupabaseClient();
-      const { data, error } = await sb.from('services').select('*').eq('is_coming_soon', true).order('sort_order', { ascending: true });
-      if (error) throw error;
-      comingSoon = data.map(s => {
-        let titles = s.titles; if (typeof titles === 'string') { try { titles = JSON.parse(titles); } catch (_) { titles = {}; } }
-        let descriptions = s.descriptions; if (typeof descriptions === 'string') { try { descriptions = JSON.parse(descriptions); } catch (_) { descriptions = {}; } }
-        let features_i18n = s.features_i18n; if (typeof features_i18n === 'string') { try { features_i18n = JSON.parse(features_i18n); } catch (_) { features_i18n = {}; } }
-        let features = s.features; if (!Array.isArray(features)) { try { features = JSON.parse(features || '[]'); } catch (_) { features = []; } }
-        return { ...s, titles: titles || {}, descriptions: descriptions || {}, features_i18n: features_i18n || {}, features };
-      });
+      comingSoon = await ServicesAPI.listComingSoon();
     } catch (_) {
       comingSoon = CONFIG.COMING_SOON_SERVICES || [];
     }
@@ -651,29 +630,8 @@
   // ── Load services from Supabase, sync to CONFIG.SERVICES ──
   async function loadServicesFromDB() {
     try {
-      const sb = getSupabaseClient();
-      const { data, error } = await sb
-        .from('services')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-      if (!error && data && data.length) {
-        CONFIG.SERVICES = data.map(s => {
-          let features = s.features;
-          if (!Array.isArray(features)) {
-            try { features = JSON.parse(features || '[]'); } catch (_) { features = []; }
-          }
-          let features_i18n = s.features_i18n;
-          if (typeof features_i18n === 'string') {
-            try { features_i18n = JSON.parse(features_i18n); } catch (_) { features_i18n = {}; }
-          }
-          let titles = s.titles;
-          if (typeof titles === 'string') {
-            try { titles = JSON.parse(titles); } catch (_) { titles = {}; }
-          }
-          return { ...s, features, features_i18n: features_i18n || {}, titles: titles || {} };
-        });
-      }
+      const data = await ServicesAPI.listActiveAll();
+      if (data?.length) CONFIG.SERVICES = data;
     } catch (_) { /* Supabase unavailable — use CONFIG fallback */ }
   }
 

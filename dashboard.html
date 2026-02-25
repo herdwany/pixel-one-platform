@@ -261,6 +261,11 @@
 <script src="assets/js/config.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/utils/error-handler.js"></script>
+<script src="assets/js/api/orders.api.js"></script>
+<script src="assets/js/api/users.api.js"></script>
+<script src="assets/js/api/notifications.api.js"></script>
+<script src="assets/js/api/storage.api.js"></script>
 <script>
   // ── Tab switching ─────────────────────────────────────────
   document.querySelectorAll('.dash-tab').forEach(tab => {
@@ -497,22 +502,13 @@
 
     // ── Load orders ─────────────────────────────────────
     try {
-      const sb = getSupabaseClient();
-      const { data: orders, error } = await sb
-        .from('orders')
-        .select('*, services(title, price, category)')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const { rows: orders } = await OrdersAPI.listMyOrders({ page: 1, limit: 50 });
 
       const SIGNED_URL_EXPIRY_SECONDS = 60;
       const ordersWithUrls = await Promise.all((orders || []).map(async order => {
         let proofUrl = null;
         if (order.payment_proof_path) {
-          const { data } = await sb.storage
-            .from('payment-proofs')
-            .createSignedUrl(order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
-          proofUrl = data?.signedUrl || null;
+          proofUrl = await StorageAPI.createSignedUrl('payment-proofs', order.payment_proof_path, SIGNED_URL_EXPIRY_SECONDS);
         } else {
           proofUrl = order.payment_proof_url || null;
         }
@@ -544,12 +540,10 @@
     if (!_currentUser) return;
 
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('profiles').update({
+      await UsersAPI.updateMyProfile(_currentUser.id, {
         full_name: name.substring(0, 100),
         phone: phone.substring(0, 20),
-      }).eq('id', _currentUser.id);
-      if (error) throw error;
+      });
 
       document.getElementById('user-name').textContent = name || _currentUser.email;
       document.getElementById('profile-display-name').textContent = name || _currentUser.email;
@@ -581,7 +575,6 @@
     statusEl.classList.remove('hidden');
 
     try {
-      const sb = getSupabaseClient();
       const ext = file.name.split('.').pop().toLowerCase();
       const allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
       if (!allowedExts.includes(ext)) {
@@ -590,21 +583,11 @@
 
       const path = `${_currentUser.id}/avatar.${ext}`;
 
-      const { error: uploadErr } = await sb.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true, contentType: file.type });
-      if (uploadErr) throw uploadErr;
+      await StorageAPI.upload('avatars', path, file, { upsert: true, contentType: file.type });
 
-      const { data: urlData } = sb.storage
-        .from('avatars')
-        .getPublicUrl(path);
+      const avatarUrl = (StorageAPI.getPublicUrl('avatars', path) || '') + '?t=' + Date.now();
 
-      const avatarUrl = urlData.publicUrl + '?t=' + Date.now();
-
-      const { error: updateErr } = await sb.from('profiles')
-        .update({ avatar_url: avatarUrl })
-        .eq('id', _currentUser.id);
-      if (updateErr) throw updateErr;
+      await UsersAPI.updateMyProfile(_currentUser.id, { avatar_url: avatarUrl });
 
       document.getElementById('profile-avatar').innerHTML =
         `<img src="${avatarUrl}" class="w-full h-full object-cover" alt="Avatar" />`;
@@ -623,16 +606,7 @@
     if (!_currentUser) return;
     const container = document.getElementById('notifications-list');
     try {
-      const sb = getSupabaseClient();
-      const { data, error } = await sb
-        .from('notifications')
-        .select('*')
-        .eq('user_id', _currentUser.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
-      if (error) throw error;
-
-      const notifs = data || [];
+      const notifs = await NotificationsAPI.listMy({ userId: _currentUser.id, limit: 50 });
       const unreadCount = notifs.filter(n => !n.is_read).length;
 
       // Update badge
@@ -688,8 +662,7 @@
     const btn = e.target.closest('.mark-read-btn');
     if (!btn || !_currentUser) return;
     try {
-      const sb = getSupabaseClient();
-      await sb.from('notifications').update({ is_read: true }).eq('id', btn.dataset.id);
+      await NotificationsAPI.markRead(btn.dataset.id);
       await loadNotifications();
     } catch (_) {}
   });
@@ -698,10 +671,7 @@
   document.getElementById('mark-all-read-btn').addEventListener('click', async () => {
     if (!_currentUser) return;
     try {
-      const sb = getSupabaseClient();
-      await sb.from('notifications').update({ is_read: true })
-        .eq('user_id', _currentUser.id)
-        .eq('is_read', false);
+      await NotificationsAPI.markAllRead(_currentUser.id);
       await loadNotifications();
     } catch (_) {}
   });

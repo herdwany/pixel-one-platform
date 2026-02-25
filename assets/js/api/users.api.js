@@ -18,8 +18,20 @@
     if (error) throw error;
   }
 
+  async function updateMyProfile(userId, payload) {
+    return updateUser(userId, payload);
+  }
+
+  async function upsertProfile(payload) {
+    const sb = getSupabaseClient();
+    const { error } = await sb.from('profiles').upsert(payload, { onConflict: 'id' });
+    if (error) throw error;
+  }
+
   window.UsersAPI = {
     listUsers,
     updateUser,
+    updateMyProfile,
+    upsertProfile,
   };
 })();

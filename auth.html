@@ -221,6 +221,8 @@
 <script src="assets/js/config.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/api/auth.api.js"></script>
+<script src="assets/js/api/users.api.js"></script>
 <script>
   const loginForm   = document.getElementById('login-form');
   const signupForm  = document.getElementById('signup-form');
@@ -289,9 +291,7 @@
     const password = loginForm.password.value;
 
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await AuthAPI.signInWithPassword({ email, password });
 
       const profile = await getProfile((await getCurrentUser()).id);
       window.location.href = profile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
@@ -326,19 +326,18 @@
     }
 
     try {
-      const sb = getSupabaseClient();
-      const { error, data } = await sb.auth.signUp({
-        email, password,
-        options: { data: { full_name, phone, has_agreed_to_terms: true, agreed_at: new Date().toISOString() } },
+      const data = await AuthAPI.signUp({
+        email,
+        password,
+        metadata: { full_name, phone, has_agreed_to_terms: true, agreed_at: new Date().toISOString() },
       });
-      if (error) throw error;
 
       // Persist consent in profiles table
       if (data?.user?.id) {
-        await sb.from('profiles').update({
+        await UsersAPI.updateMyProfile(data.user.id, {
           has_agreed_to_terms: true,
           agreed_at: new Date().toISOString(),
-        }).eq('id', data.user.id);
+        });
       }
 
       showAlert(t('auth.msg.signup_success'), 'success');
@@ -356,15 +355,7 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span class="sr-only">Connexion en cours…</span>';
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/auth-callback.html',
-          queryParams: { access_type: 'offline', prompt: 'consent' },
-        },
-      });
-      if (error) throw error;
+      await AuthAPI.signInWithGoogleOAuth(window.location.origin + '/auth-callback.html');
     } catch (err) {
       showAlert(err.message || t('auth.msg.google_error'));
       btn.disabled = false;
@@ -377,11 +368,7 @@
     const email = loginForm.email.value.trim();
     if (!email) { showAlert(t('auth.msg.forgot_email')); return; }
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/auth.html',
-      });
-      if (error) throw error;
+      await AuthAPI.resetPasswordForEmail(email, window.location.origin + '/auth.html');
       showAlert(t('auth.msg.forgot_sent'), 'success');
     } catch (err) {
       showAlert(err.message || t('auth.msg.forgot_error'));
