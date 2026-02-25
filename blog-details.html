@@ -802,14 +802,21 @@
 
     try {
       const sb = getSupabaseClient();
-      const { error } = await sb.from('blog_comments').insert({
+      const insertPayload = {
         post_id: currentPostId,
         author_name: name.substring(0, 100),
         author_email: email.substring(0, 200),
         rating: safeRating,
         content: content.substring(0, 2000),
-        is_approved: false,
-      });
+        is_approved: true,
+      };
+
+      // Link to authenticated user if logged in
+      if (_currentUser) {
+        insertPayload.user_id = _currentUser.id;
+      }
+
+      const { error } = await sb.from('blog_comments').insert(insertPayload);
 
       if (error) throw error;
 
