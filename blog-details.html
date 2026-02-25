@@ -527,56 +527,258 @@
     });
   }
 
-  // ── Load & render comments ───────────────────────────────
+  // ── Load & render comments (with replies & likes) ─────────
+  let _currentUser = null;
+  let _allComments = [];
+
   async function loadComments(postId) {
+    // Get current user for like/reply features
+    try {
+      _currentUser = await getCurrentUser();
+    } catch (_) { _currentUser = null; }
+
     const container = document.getElementById('comments-list');
     try {
       const sb = getSupabaseClient();
+
+      // Fetch all approved comments for this post
       const { data: comments, error } = await sb
         .from('blog_comments')
         .select('*')
         .eq('post_id', postId)
         .eq('is_approved', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
+      _allComments = comments || [];
 
-      if (!comments || !comments.length) {
+      if (!_allComments.length) {
         container.innerHTML = `<p class="text-gray-500 text-sm">${t('blog.comments.empty')}</p>`;
         return;
       }
 
-      container.innerHTML = comments.map(c => `
-        <div class="bg-surface border border-surface-border rounded-xl p-4">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-brand/10 rounded-full flex items-center justify-center text-brand text-sm font-bold">
-                ${esc((c.author_name || '?')[0].toUpperCase())}
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-white">${esc(c.author_name)}</p>
-                <p class="text-[10px] text-gray-500">${formatDate(c.created_at)}</p>
-              </div>
-            </div>
-            <div>${renderStars(c.rating || 0)}</div>
-          </div>
-          <p class="text-sm text-gray-300 leading-relaxed">${esc(c.content)}</p>
-          ${c.admin_reply ? `
-            <div class="mt-3 ms-4 ps-4 border-s-2 border-brand/40 bg-brand/5 rounded-lg p-3">
-              <p class="text-[10px] text-brand font-bold uppercase tracking-wider mb-1">
-                <i class="fa-solid fa-shield-halved mr-1"></i>${t('blog.comment.admin_reply')}
-              </p>
-              <p class="text-sm text-gray-300">${esc(c.admin_reply)}</p>
-            </div>
-          ` : ''}
-        </div>
-      `).join('');
+      // Fetch like counts and user's likes
+      let userLikes = new Set();
+      let likeCounts = {};
+      try {
+        const commentIds = _allComments.map(c => c.id);
+        const { data: allLikes } = await sb
+          .from('comment_likes')
+          .select('comment_id, user_id')
+          .in('comment_id', commentIds);
+
+        (allLikes || []).forEach(l => {
+          likeCounts[l.comment_id] = (likeCounts[l.comment_id] || 0) + 1;
+          if (_currentUser && l.user_id === _currentUser.id) {
+            userLikes.add(l.comment_id);
+          }
+        });
+      } catch (_) {}
+
+      // Build tree: separate top-level vs replies
+      const topLevel = _allComments.filter(c => !c.parent_id);
+      const replies = _allComments.filter(c => c.parent_id);
+      const replyMap = {};
+      replies.forEach(r => {
+        if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
+        replyMap[r.parent_id].push(r);
+      });
+
+      container.innerHTML = topLevel.map(c => renderCommentCard(c, replyMap, likeCounts, userLikes)).join('');
 
     } catch (err) {
       console.warn('[PixelOne] Comments load error:', err.message);
       container.innerHTML = `<p class="text-gray-500 text-sm">${t('blog.comments.empty')}</p>`;
     }
   }
+
+  function renderCommentCard(c, replyMap, likeCounts, userLikes) {
+    const likeCount = likeCounts[c.id] || 0;
+    const liked = userLikes.has(c.id);
+    const childReplies = replyMap[c.id] || [];
+
+    return `
+      <div class="bg-surface border border-surface-border rounded-xl p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-brand/10 rounded-full flex items-center justify-center text-brand text-sm font-bold">
+              ${esc((c.author_name || '?')[0].toUpperCase())}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-white">${esc(c.author_name)}</p>
+              <p class="text-[10px] text-gray-500">${formatDate(c.created_at)}</p>
+            </div>
+          </div>
+          <div>${renderStars(c.rating || 0)}</div>
+        </div>
+        <p class="text-sm text-gray-300 leading-relaxed">${esc(c.content)}</p>
+        ${c.admin_reply ? `
+          <div class="mt-3 ms-4 ps-4 border-s-2 border-brand/40 bg-brand/5 rounded-lg p-3">
+            <p class="text-[10px] text-brand font-bold uppercase tracking-wider mb-1">
+              <i class="fa-solid fa-shield-halved mr-1"></i>${t('blog.comment.admin_reply')}
+            </p>
+            <p class="text-sm text-gray-300">${esc(c.admin_reply)}</p>
+          </div>
+        ` : ''}
+        <div class="flex items-center gap-3 mt-3">
+          <button class="like-comment-btn text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition
+            ${liked ? 'text-pink-400 border-pink-500/30 bg-pink-500/10' : 'text-gray-500 border-surface-border hover:text-pink-400 hover:border-pink-500/30'}"
+            data-id="${c.id}">
+            <i class="fa-${liked ? 'solid' : 'regular'} fa-heart text-xs"></i>
+            <span>${likeCount || ''}</span>
+          </button>
+          ${_currentUser ? `
+            <button class="reply-to-btn text-xs text-gray-500 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg border border-surface-border hover:border-brand/30 transition"
+              data-id="${c.id}" data-name="${esc(c.author_name)}" data-user-id="${c.user_id || ''}">
+              <i class="fa-solid fa-reply text-xs"></i>Répondre
+            </button>
+          ` : ''}
+        </div>
+        ${childReplies.length ? `
+          <div class="ms-6 mt-3 space-y-3 border-s-2 border-surface-border ps-4">
+            ${childReplies.map(r => `
+              <div class="bg-surface-card rounded-lg p-3">
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-6 h-6 bg-brand/10 rounded-full flex items-center justify-center text-brand text-[10px] font-bold">
+                    ${esc((r.author_name || '?')[0].toUpperCase())}
+                  </div>
+                  <p class="text-xs font-semibold text-white">${esc(r.author_name)}</p>
+                  <p class="text-[10px] text-gray-500">${formatDate(r.created_at)}</p>
+                </div>
+                <p class="text-xs text-gray-300">${esc(r.content)}</p>
+                <div class="flex items-center gap-3 mt-2">
+                  <button class="like-comment-btn text-[10px] flex items-center gap-1 px-2 py-0.5 rounded border transition
+                    ${userLikes.has(r.id) ? 'text-pink-400 border-pink-500/30 bg-pink-500/10' : 'text-gray-500 border-surface-border hover:text-pink-400'}"
+                    data-id="${r.id}">
+                    <i class="fa-${userLikes.has(r.id) ? 'solid' : 'regular'} fa-heart"></i>
+                    <span>${likeCounts[r.id] || ''}</span>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>`;
+  }
+
+  // ── Like toggle ──────────────────────────────────────────
+  document.addEventListener('click', async (e) => {
+    const likeBtn = e.target.closest('.like-comment-btn');
+    if (!likeBtn) return;
+    if (!_currentUser) {
+      window.location.href = 'auth.html';
+      return;
+    }
+
+    const commentId = likeBtn.dataset.id;
+    try {
+      const sb = getSupabaseClient();
+      // Check if already liked
+      const { data: existing } = await sb
+        .from('comment_likes')
+        .select('user_id')
+        .eq('user_id', _currentUser.id)
+        .eq('comment_id', commentId)
+        .maybeSingle();
+
+      if (existing) {
+        await sb.from('comment_likes').delete()
+          .eq('user_id', _currentUser.id)
+          .eq('comment_id', commentId);
+      } else {
+        await sb.from('comment_likes').insert({
+          user_id: _currentUser.id,
+          comment_id: commentId,
+        });
+
+        // Notify the comment author (if they are a registered user)
+        const comment = _allComments.find(c => c.id === commentId);
+        if (comment?.user_id && comment.user_id !== _currentUser.id) {
+          const profile = await getProfile(_currentUser.id);
+          const myName = profile?.full_name || _currentUser.email;
+          await sb.from('notifications').insert({
+            user_id: comment.user_id,
+            type: 'like',
+            message: `${myName} a aimé votre commentaire.`,
+          }).then(() => {});
+        }
+      }
+      // Reload comments to reflect change
+      await loadComments(currentPostId);
+    } catch (err) {
+      console.warn('[PixelOne] Like error:', err.message);
+    }
+  });
+
+  // ── Reply flow ───────────────────────────────────────────
+  let _replyToCommentId = null;
+  let _replyToUserId = null;
+
+  document.addEventListener('click', (e) => {
+    const replyBtn = e.target.closest('.reply-to-btn');
+    if (!replyBtn) return;
+
+    _replyToCommentId = replyBtn.dataset.id;
+    _replyToUserId = replyBtn.dataset.userId || null;
+    document.getElementById('reply-to-name').textContent = replyBtn.dataset.name;
+    document.getElementById('reply-text').value = '';
+
+    const formContainer = document.getElementById('reply-form-container');
+    formContainer.classList.remove('hidden');
+    // Move the reply form right after the clicked comment
+    const commentCard = replyBtn.closest('.bg-surface');
+    if (commentCard) commentCard.after(formContainer);
+    document.getElementById('reply-text').focus();
+  });
+
+  document.getElementById('cancel-reply-btn').addEventListener('click', () => {
+    document.getElementById('reply-form-container').classList.add('hidden');
+    _replyToCommentId = null;
+    _replyToUserId = null;
+  });
+
+  document.getElementById('submit-reply-btn').addEventListener('click', async () => {
+    const content = document.getElementById('reply-text').value.trim();
+    if (!content || !_currentUser || !currentPostId || !_replyToCommentId) return;
+
+    const btn = document.getElementById('submit-reply-btn');
+    btn.disabled = true;
+
+    try {
+      const sb = getSupabaseClient();
+      const profile = await getProfile(_currentUser.id);
+      const myName = profile?.full_name || _currentUser.email;
+
+      const { error } = await sb.from('blog_comments').insert({
+        post_id: currentPostId,
+        author_name: myName.substring(0, 100),
+        author_email: _currentUser.email.substring(0, 200),
+        user_id: _currentUser.id,
+        parent_id: _replyToCommentId,
+        rating: 5,
+        content: content.substring(0, 2000),
+        is_approved: true,
+      });
+      if (error) throw error;
+
+      // Notify the parent comment author
+      if (_replyToUserId && _replyToUserId !== _currentUser.id) {
+        await sb.from('notifications').insert({
+          user_id: _replyToUserId,
+          type: 'reply',
+          message: `${myName} a répondu à votre commentaire.`,
+        }).then(() => {});
+      }
+
+      document.getElementById('reply-form-container').classList.add('hidden');
+      _replyToCommentId = null;
+      _replyToUserId = null;
+      await loadComments(currentPostId);
+    } catch (err) {
+      alert('Erreur: ' + err.message);
+    }
+    btn.disabled = false;
+  });
 
   // ── Submit comment ───────────────────────────────────────
   document.getElementById('comment-form').addEventListener('submit', async (e) => {
