@@ -178,12 +178,10 @@
       <!-- ── Legal Consent ──────────────────────────────── -->
       <div class="flex items-start gap-3">
         <input type="checkbox" id="agree-terms" name="agree_terms"
-               class="mt-1 accent-brand w-4 h-4 cursor-pointer" />
-        <label for="agree-terms" class="text-sm text-gray-400 leading-relaxed cursor-pointer">
-          I agree to the
-          <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">Terms of Service</a>,
-          <a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Privacy Policy</a>, and
-          <a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Refund Policy</a>.
+               class="mt-1 accent-brand w-4 h-4 cursor-pointer" required />
+        <label for="agree-terms" class="text-sm text-gray-400 leading-relaxed cursor-pointer"
+               data-i18n-html="auth.consent_label">
+          J'accepte les <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">Conditions d'utilisation</a>, la <a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Politique de confidentialité</a> et la <a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Politique de remboursement</a>.
         </label>
       </div>
 
