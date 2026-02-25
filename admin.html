@@ -704,6 +704,9 @@
   let allOrders = [];
   let activeStatusFilter = '';
   let currentOrderId = null;
+  const ADMIN_PAGE_LIMIT = 10;
+  let adminOrdersPage = 1;
+  let adminOrdersTotal = 0;
 
   function esc(str) {
     return String(str ?? '')
@@ -783,6 +786,35 @@
           <div class="bg-blue-500 h-full rounded-full transition-all" style="width:${(c.revenue/maxRev)*100}%"></div>
         </div>
       </div>`).join('');
+  }
+
+  function updatePager(labelId, prevId, nextId, page, total, limit) {
+    const totalPages = Math.max(1, Math.ceil((total || 0) / limit));
+    const label = document.getElementById(labelId);
+    const prev = document.getElementById(prevId);
+    const next = document.getElementById(nextId);
+    if (label) label.textContent = `Page ${page} / ${totalPages}`;
+    if (prev) prev.disabled = page <= 1;
+    if (next) next.disabled = page >= totalPages;
+  }
+
+  async function loadOrdersPage(page = 1) {
+    adminOrdersPage = page;
+    try {
+      const { rows, count } = await OrdersAPI.listAdminOrders({ page, limit: ADMIN_PAGE_LIMIT });
+      allOrders = rows || [];
+      adminOrdersTotal = count || 0;
+    } catch (err) {
+      await PixelOneErrorHandler.handleError(err, 'admin:orders-load');
+      allOrders = [];
+      adminOrdersTotal = 0;
+    }
+
+    document.getElementById('orders-loading').classList.add('hidden');
+    document.getElementById('orders-table-wrap').classList.remove('hidden');
+    await renderOrders(allOrders);
+    updateStats(allOrders);
+    updatePager('orders-page-label', 'orders-prev-btn', 'orders-next-btn', adminOrdersPage, adminOrdersTotal, ADMIN_PAGE_LIMIT);
   }
 
   // Render orders
@@ -870,16 +902,14 @@
       return;
     }
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('orders').update({ status: newStatus }).eq('id', orderId);
-      if (error) throw error;
+      await OrdersAPI.updateOrderStatus(orderId, newStatus);
       const order = allOrders.find(o => o.id === orderId);
       if (order) order.status = newStatus;
       await renderOrders(allOrders);
       updateStats(allOrders);
     } catch (err) {
-      console.error('[PixelOne] Status update failed:', { orderId, newStatus, error: err });
-      alert('Erreur: ' + err.message);
+      const safe = await PixelOneErrorHandler.handleError(err, 'admin:update-order-status');
+      alert('Erreur: ' + safe);
       await renderOrders(allOrders); // revert dropdown
     }
   }
@@ -887,14 +917,11 @@
   async function deleteOrder(orderId, orderRef) {
     if (!confirm(`Supprimer la commande ${orderRef} ?`)) return;
     try {
-      const sb = getSupabaseClient();
-      const { error } = await sb.from('orders').delete().eq('id', orderId);
-      if (error) throw error;
-      allOrders = allOrders.filter(o => o.id !== orderId);
-      await renderOrders(allOrders);
-      updateStats(allOrders);
+      await OrdersAPI.deleteOrder(orderId);
+      await loadOrdersPage(adminOrdersPage);
     } catch (err) {
-      alert('Erreur: ' + err.message);
+      const safe = await PixelOneErrorHandler.handleError(err, 'admin:delete-order');
+      alert('Erreur: ' + safe);
     }
   }
 
@@ -918,6 +945,15 @@
   });
 
   document.getElementById('order-search').addEventListener('input', async () => renderOrders(allOrders));
+
+  document.getElementById('orders-prev-btn')?.addEventListener('click', async () => {
+    if (adminOrdersPage > 1) await loadOrdersPage(adminOrdersPage - 1);
+  });
+
+  document.getElementById('orders-next-btn')?.addEventListener('click', async () => {
+    const totalPages = Math.max(1, Math.ceil((adminOrdersTotal || 0) / ADMIN_PAGE_LIMIT));
+    if (adminOrdersPage < totalPages) await loadOrdersPage(adminOrdersPage + 1);
+  });
 
   // Edit order modal (populate + proof signed url)
   document.addEventListener('click', async e => {
@@ -1482,38 +1518,7 @@
       console.warn('[PixelOne] Admin auth skipped (demo mode):', err.message);
     }
 
-    try {
-      const sb = getSupabaseClient();
-      let orders = null;
-      try {
-        const { data, error } = await sb
-          .from('orders')
-          .select('*, services(title, price, category), profiles(full_name)')
-          .order('created_at', { ascending: false });
-        if (error) throw error;
-        orders = data;
-      } catch (_joinErr) {
-        // FK join can fail if PostgREST schema cache is stale — fallback
-        const { data, error } = await sb
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
-        if (error) throw error;
-        orders = (data || []).map(o => {
-          const svc = CONFIG.SERVICES.find(s => s.id === o.service_id);
-          return { ...o, services: svc ? { title: svc.title, price: svc.price, category: svc.category } : null };
-        });
-      }
-      allOrders = orders || [];
-    } catch (err) {
-      allOrders = [];
-      console.warn('[PixelOne] Orders load failed (demo mode):', err.message);
-    }
-
-    document.getElementById('orders-loading').classList.add('hidden');
-    document.getElementById('orders-table-wrap').classList.remove('hidden');
-    await renderOrders(allOrders);
-    updateStats(allOrders);
+    await loadOrdersPage(1);
 
     try {
       const sb = getSupabaseClient();
@@ -1547,23 +1552,32 @@
 
   // ── Users Management ─────────────────────────────────────
   let allUsers = [];
+  let adminUsersPage = 1;
+  let adminUsersTotal = 0;
 
-  async function loadUsers() {
+  async function loadUsers(page = 1) {
+    adminUsersPage = page;
     try {
-      const sb = getSupabaseClient();
-      const { data, error } = await sb
-        .from('profiles')
-        .select('id, full_name, phone, role, created_at, has_agreed_to_terms, agreed_at, is_banned, avatar_url')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      allUsers = data || [];
+      const { rows, count } = await UsersAPI.listUsers({ page, limit: ADMIN_PAGE_LIMIT });
+      allUsers = rows || [];
+      adminUsersTotal = count || 0;
       renderUsers(allUsers);
+      updatePager('users-page-label', 'users-prev-btn', 'users-next-btn', adminUsersPage, adminUsersTotal, ADMIN_PAGE_LIMIT);
     } catch (err) {
-      console.warn('[PixelOne] Users load failed:', err.message);
+      await PixelOneErrorHandler.handleError(err, 'admin:users-load');
       document.getElementById('users-loading').innerHTML =
         '<p class="text-gray-500">Impossible de charger les utilisateurs</p>';
     }
   }
+
+  document.getElementById('users-prev-btn')?.addEventListener('click', async () => {
+    if (adminUsersPage > 1) await loadUsers(adminUsersPage - 1);
+  });
+
+  document.getElementById('users-next-btn')?.addEventListener('click', async () => {
+    const totalPages = Math.max(1, Math.ceil((adminUsersTotal || 0) / ADMIN_PAGE_LIMIT));
+    if (adminUsersPage < totalPages) await loadUsers(adminUsersPage + 1);
+  });
 
   function renderUsers(users) {
     document.getElementById('users-loading').classList.add('hidden');
@@ -1625,22 +1639,18 @@
     if (banBtn) {
       if (!confirm('Bannir cet utilisateur ?')) return;
       try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('profiles').update({ is_banned: true }).eq('id', banBtn.dataset.id);
-        if (error) throw error;
-        await loadUsers();
-      } catch (err) { alert('Erreur: ' + err.message); }
+        await UsersAPI.updateUser(banBtn.dataset.id, { is_banned: true });
+        await loadUsers(adminUsersPage);
+      } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:ban-user'))); }
       return;
     }
 
     const unbanBtn = e.target.closest('.unban-user-btn');
     if (unbanBtn) {
       try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('profiles').update({ is_banned: false }).eq('id', unbanBtn.dataset.id);
-        if (error) throw error;
-        await loadUsers();
-      } catch (err) { alert('Erreur: ' + err.message); }
+        await UsersAPI.updateUser(unbanBtn.dataset.id, { is_banned: false });
+        await loadUsers(adminUsersPage);
+      } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:unban-user'))); }
       return;
     }
 
@@ -1648,17 +1658,17 @@
     if (promoteBtn) {
       if (!confirm('Promouvoir cet utilisateur en Admin ?')) return;
       try {
-        const sb = getSupabaseClient();
-        const { error } = await sb.from('profiles').update({ role: 'admin' }).eq('id', promoteBtn.dataset.id);
-        if (error) throw error;
-        await loadUsers();
-      } catch (err) { alert('Erreur: ' + err.message); }
+        await UsersAPI.updateUser(promoteBtn.dataset.id, { role: 'admin' });
+        await loadUsers(adminUsersPage);
+      } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:promote-user'))); }
     }
   });
 
   // ── Comments Management ──────────────────────────────────
   let allAdminComments = [];
   let adminCommentFilter = 'all';
+  let adminCommentsPage = 1;
+  let adminCommentsTotal = 0;
 
   // Comment filter buttons
   document.querySelectorAll('.comment-filter-btn').forEach(btn => {
@@ -1670,7 +1680,7 @@
       btn.classList.add('active', 'border-brand/40', 'bg-brand/10', 'text-white');
       btn.classList.remove('border-surface-border', 'bg-surface-card', 'text-gray-400');
       adminCommentFilter = btn.dataset.filter;
-      renderAdminComments();
+      loadAdminComments(1);
     });
   });
 
@@ -1682,30 +1692,35 @@
     return html;
   }
 
-  async function loadAdminComments() {
+  async function loadAdminComments(page = 1) {
+    adminCommentsPage = page;
     try {
       const sb = getSupabaseClient();
-      const { data, error } = await sb
+      let query = sb
         .from('blog_comments')
-        .select('*, blog_posts(title, slug)')
-        .order('created_at', { ascending: false });
+        .select('*, blog_posts(title, slug)', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range((page - 1) * ADMIN_PAGE_LIMIT, (page - 1) * ADMIN_PAGE_LIMIT + ADMIN_PAGE_LIMIT - 1);
+
+      if (adminCommentFilter === 'pending') query = query.eq('is_approved', false);
+      if (adminCommentFilter === 'approved') query = query.eq('is_approved', true);
+
+      const { data, error, count } = await query;
       if (error) throw error;
       allAdminComments = data || [];
+      adminCommentsTotal = count || 0;
     } catch (err) {
-      console.warn('[PixelOne] Comments load:', err.message);
+      await PixelOneErrorHandler.handleError(err, 'admin:comments-load');
       allAdminComments = [];
+      adminCommentsTotal = 0;
     }
     renderAdminComments();
+    updatePager('comments-page-label', 'comments-prev-btn', 'comments-next-btn', adminCommentsPage, adminCommentsTotal, ADMIN_PAGE_LIMIT);
   }
 
   function renderAdminComments() {
     const container = document.getElementById('comments-admin-list');
     let filtered = allAdminComments;
-    if (adminCommentFilter === 'pending') filtered = filtered.filter(c => !c.is_approved);
-    else if (adminCommentFilter === 'approved') filtered = filtered.filter(c => c.is_approved);
-
-    // Sort: pending first
-    filtered.sort((a, b) => (a.is_approved === b.is_approved ? 0 : a.is_approved ? 1 : -1));
 
     if (!filtered.length) {
       container.innerHTML = '<p class="text-gray-500 text-center py-10">Aucun commentaire</p>';
@@ -1756,6 +1771,42 @@
     `).join('');
   }
 
+  document.getElementById('comments-prev-btn')?.addEventListener('click', async () => {
+    if (adminCommentsPage > 1) await loadAdminComments(adminCommentsPage - 1);
+  });
+
+  document.getElementById('comments-next-btn')?.addEventListener('click', async () => {
+    const totalPages = Math.max(1, Math.ceil((adminCommentsTotal || 0) / ADMIN_PAGE_LIMIT));
+    if (adminCommentsPage < totalPages) await loadAdminComments(adminCommentsPage + 1);
+  });
+
+  document.getElementById('bulk-approve-comments-btn')?.addEventListener('click', async () => {
+    const pendingIds = allAdminComments.filter(c => !c.is_approved).map(c => c.id);
+    if (!pendingIds.length) return;
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('blog_comments').update({ is_approved: true }).in('id', pendingIds);
+      if (error) throw error;
+      await loadAdminComments(adminCommentsPage);
+    } catch (err) {
+      alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:bulk-approve-comments')));
+    }
+  });
+
+  document.getElementById('bulk-delete-spam-btn')?.addEventListener('click', async () => {
+    const pendingIds = allAdminComments.filter(c => !c.is_approved).map(c => c.id);
+    if (!pendingIds.length) return;
+    if (!confirm('Supprimer tous les commentaires en attente sur cette page ?')) return;
+    try {
+      const sb = getSupabaseClient();
+      const { error } = await sb.from('blog_comments').delete().in('id', pendingIds);
+      if (error) throw error;
+      await loadAdminComments(adminCommentsPage);
+    } catch (err) {
+      alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:bulk-delete-comments')));
+    }
+  });
+
   // Comment actions delegation
   document.addEventListener('click', async (e) => {
     const approveBtn = e.target.closest('.approve-comment-btn');
@@ -1764,8 +1815,8 @@
         const sb = getSupabaseClient();
         const { error } = await sb.from('blog_comments').update({ is_approved: true }).eq('id', approveBtn.dataset.id);
         if (error) throw error;
-        await loadAdminComments();
-      } catch (err) { alert('Erreur: ' + err.message); }
+        await loadAdminComments(adminCommentsPage);
+      } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:approve-comment'))); }
       return;
     }
 
@@ -1778,8 +1829,8 @@
         const sb = getSupabaseClient();
         const { error } = await sb.from('blog_comments').update({ admin_reply: reply.trim() || null }).eq('id', replyBtn.dataset.id);
         if (error) throw error;
-        await loadAdminComments();
-      } catch (err) { alert('Erreur: ' + err.message); }
+        await loadAdminComments(adminCommentsPage);
+      } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:reply-comment'))); }
       return;
     }
 
@@ -1790,8 +1841,8 @@
         const sb = getSupabaseClient();
         const { error } = await sb.from('blog_comments').delete().eq('id', delBtn.dataset.id);
         if (error) throw error;
-        await loadAdminComments();
-      } catch (err) { alert('Erreur: ' + err.message); }
+        await loadAdminComments(adminCommentsPage);
+      } catch (err) { alert('Erreur: ' + (await PixelOneErrorHandler.handleError(err, 'admin:delete-comment'))); }
     }
   });
 
@@ -1802,12 +1853,9 @@
     const loading = document.getElementById('content-loading');
     const container = document.getElementById('content-sections');
     try {
-      const sb = getSupabaseClient();
-      const { data, error } = await sb.from('site_content').select('*').order('page').order('section');
-      if (error) throw error;
-      siteContentData = data || [];
+      siteContentData = await ServicesAPI.getSiteContent();
     } catch (err) {
-      console.warn('[PixelOne] Site content load failed:', err.message);
+      await PixelOneErrorHandler.handleError(err, 'admin:site-content-load');
       siteContentData = [];
     }
     loading.classList.add('hidden');
@@ -1897,9 +1945,11 @@
       alertEl.textContent = 'Contenu enregistré ✓';
       alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
+      ServicesAPI.invalidateCaches();
       setTimeout(() => alertEl.classList.add('hidden'), 3000);
     } catch (err) {
-      alertEl.textContent = '✗ ' + err.message;
+      const safe = await PixelOneErrorHandler.handleError(err, 'admin:site-content-save');
+      alertEl.textContent = '✗ ' + safe;
       alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
     }
