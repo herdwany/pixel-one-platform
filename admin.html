@@ -217,6 +217,11 @@
             </table>
           </div>
         </div>
+        <div class="flex items-center justify-end gap-2">
+          <button id="orders-prev-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-300 disabled:opacity-40" disabled>Prev</button>
+          <span id="orders-page-label" class="text-xs text-gray-500">Page 1</span>
+          <button id="orders-next-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-300 disabled:opacity-40" disabled>Next</button>
+        </div>
       </section>
 
       <!-- SERVICES section -->
@@ -375,14 +380,21 @@
       <section id="section-comments" class="hidden space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="font-bold text-lg">Gestion des Commentaires</h2>
-          <div class="flex gap-2">
+          <div class="flex gap-2 flex-wrap justify-end">
             <button class="comment-filter-btn active text-xs font-semibold px-3 py-1.5 rounded-lg border border-brand/40 bg-brand/10 text-white" data-filter="all">Tous</button>
             <button class="comment-filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-400" data-filter="pending">En attente</button>
             <button class="comment-filter-btn text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-400" data-filter="approved">Approuvés</button>
+            <button id="bulk-approve-comments-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-green-500/30 bg-green-500/10 text-green-400">Bulk Approve</button>
+            <button id="bulk-delete-spam-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400">Spam Delete</button>
           </div>
         </div>
         <div id="comments-admin-list" class="space-y-3">
           <div class="text-center py-10 text-gray-500"><i class="fa-solid fa-spinner fa-spin text-2xl"></i></div>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <button id="comments-prev-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-300 disabled:opacity-40" disabled>Prev</button>
+          <span id="comments-page-label" class="text-xs text-gray-500">Page 1</span>
+          <button id="comments-next-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-300 disabled:opacity-40" disabled>Next</button>
         </div>
       </section>
 
@@ -405,6 +417,11 @@
             </thead>
             <tbody id="users-tbody"></tbody>
           </table>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+          <button id="users-prev-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-300 disabled:opacity-40" disabled>Prev</button>
+          <span id="users-page-label" class="text-xs text-gray-500">Page 1</span>
+          <button id="users-next-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-surface-border bg-surface-card text-gray-300 disabled:opacity-40" disabled>Next</button>
         </div>
       </section>
 
