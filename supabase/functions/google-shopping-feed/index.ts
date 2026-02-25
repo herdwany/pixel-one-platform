@@ -8,13 +8,10 @@ interface ServiceRow {
   id: number;
   title: string;
   description: string | null;
-  descriptions: Record<string, string> | null;
-  titles: Record<string, string> | null;
   price: number;
   image_url: string | null;
   category: string;
-  features: string[] | null;
-  features_i18n: Record<string, string[]> | null;
+  features: string[] | string | null;
 }
 
 function escapeXml(str: string): string {
@@ -26,10 +23,23 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
+function parseFeatures(raw: string[] | string | null): string[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 function buildDescription(svc: ServiceRow): string {
-  const desc = svc.descriptions?.fr || svc.description || svc.title;
-  const features: string[] =
-    svc.features_i18n?.fr || (Array.isArray(svc.features) ? svc.features : []);
+  const desc = svc.description || svc.title;
+  const features = parseFeatures(svc.features);
   if (!features.length) return desc;
   return `${desc} — ${features.join(", ")}`;
 }
@@ -44,7 +54,7 @@ function categoryLabel(cat: string): string {
 }
 
 function buildItemXml(svc: ServiceRow): string {
-  const title = svc.titles?.fr || svc.title;
+  const title = svc.title;
   const description = buildDescription(svc);
   const link = `${SITE_URL}/service-details.html?id=${svc.id}`;
   const imageLink = svc.image_url || `${SITE_URL}/icon/black/favicon-96x96.png`;
@@ -70,11 +80,9 @@ Deno.serve(async () => {
 
     const { data: services, error } = await supabase
       .from("services")
-      .select(
-        "id, title, description, descriptions, titles, price, image_url, category, features, features_i18n"
-      )
+      .select("id, title, description, price, image_url, category, features")
       .eq("is_active", true)
-      .order("sort_order", { ascending: true });
+      .order("id", { ascending: true });
 
     if (error) throw error;
 

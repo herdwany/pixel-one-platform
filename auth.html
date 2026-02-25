@@ -175,8 +175,21 @@
           </button>
         </div>
       </div>
-      <button type="submit" data-i18n-key="auth.btn.signup"
-              class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3.5 rounded-xl transition">
+      <!-- ── Legal Consent ──────────────────────────────── -->
+      <div class="flex items-start gap-3">
+        <input type="checkbox" id="agree-terms" name="agree_terms"
+               class="mt-1 accent-brand w-4 h-4 cursor-pointer" />
+        <label for="agree-terms" class="text-sm text-gray-400 leading-relaxed cursor-pointer">
+          I agree to the
+          <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">Terms of Service</a>,
+          <a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Privacy Policy</a>, and
+          <a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Refund Policy</a>.
+        </label>
+      </div>
+
+      <button type="submit" id="signup-btn" disabled
+              data-i18n-key="auth.btn.signup"
+              class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3.5 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed">
         Créer mon compte
       </button>
     </form>
@@ -290,6 +303,13 @@
     }
   });
 
+  // ── Legal consent checkbox → toggle signup button ────────
+  const agreeCheckbox = document.getElementById('agree-terms');
+  const signupBtn     = document.getElementById('signup-btn');
+  agreeCheckbox.addEventListener('change', () => {
+    signupBtn.disabled = !agreeCheckbox.checked;
+  });
+
   // ── Sign-up ───────────────────────────────────────────────
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -309,11 +329,19 @@
 
     try {
       const sb = getSupabaseClient();
-      const { error } = await sb.auth.signUp({
+      const { error, data } = await sb.auth.signUp({
         email, password,
-        options: { data: { full_name, phone } },
+        options: { data: { full_name, phone, has_agreed_to_terms: true, agreed_at: new Date().toISOString() } },
       });
       if (error) throw error;
+
+      // Persist consent in profiles table
+      if (data?.user?.id) {
+        await sb.from('profiles').update({
+          has_agreed_to_terms: true,
+          agreed_at: new Date().toISOString(),
+        }).eq('id', data.user.id);
+      }
 
       showAlert(t('auth.msg.signup_success'), 'success');
       setLoading(signupForm, false);
