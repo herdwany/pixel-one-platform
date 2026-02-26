@@ -1735,11 +1735,19 @@
   document.getElementById('blog-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const alertEl = document.getElementById('blog-alert');
-    captureFormIntoCurrentDraft();
-
     const sourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
-    const sourceTitle = (blogDraftByLang[sourceLang]?.title || '').trim();
-    const sourceContent = normalizeEditorValue(blogDraftByLang[sourceLang]?.content || '');
+
+    const sourceTitleLive = document.getElementById('blog-title').value.trim();
+    const sourceContentLive = normalizeEditorValue(getBlogContent('blog-content'));
+
+    if (!blogDraftByLang[sourceLang]) blogDraftByLang[sourceLang] = { title: '', content: '' };
+    blogDraftByLang[sourceLang].title = sourceTitleLive;
+    blogDraftByLang[sourceLang].content = sourceContentLive;
+
+    const sourceTitle = sourceTitleLive;
+    const sourceContent = sourceContentLive;
+
+    currentBlogSourceLang = sourceLang;
     const slugInput = document.getElementById('blog-slug');
     let slug = slugInput.value.trim();
     if (!slug) {
