@@ -1882,23 +1882,39 @@
     const inputs = document.querySelectorAll('.content-input');
     const updates = {};
 
+    function flashInvalidRow(row, message) {
+      if (row) {
+        row.classList.add('bg-red-100', 'transition-colors', 'duration-500');
+        setTimeout(() => {
+          row.classList.remove('bg-red-100');
+        }, 2000);
+
+        const firstField = row.querySelector('input, textarea');
+        if (firstField) firstField.focus();
+      }
+
+      alertEl.textContent = '✗ ' + message;
+      alertEl.className = 'px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
+      alertEl.classList.remove('hidden');
+    }
+
     for (const input of inputs) {
       const idRaw = input.dataset.contentId;
       const id = Number(idRaw);
+      const row = input.closest('.border-b');
 
       if (!idRaw || idRaw === 'undefined' || Number.isNaN(id)) {
         console.error('HusionX Alert: Row has no valid ID.', input);
-        alert('⛔ HusionX Error: This row has no ID. Refresh the page.');
+        flashInvalidRow(row, 'HusionX Error: This row has no ID. Refresh the page.');
         return;
       }
 
-      const row = input.closest('.border-b');
       const keyText = (row?.querySelector('.font-mono')?.innerText || row?.querySelector('p')?.innerText || '').trim();
       const item = siteContentData.find(entry => Number(entry.id) === id);
       const keyValue = String(item?.key || item?.content_key || item?.slug || '').trim();
 
       if (!keyValue || keyText.includes('MISSING_KEY') || keyText.includes('sans clé')) {
-        alert('⛔ HusionX Security: Cannot save content without a valid Key.\nPlease fix the database record first.');
+        flashInvalidRow(row, 'HusionX Security: Cannot save content without a valid Key. Please fix the database record first.');
         return;
       }
     }
