@@ -1421,6 +1421,11 @@
   function initBlogEditor() {
     if (blogEditorInitStarted || !window.tinymce) return;
     blogEditorInitStarted = true;
+    const contentTextarea = document.getElementById('blog-content');
+    if (contentTextarea) {
+      contentTextarea.required = false;
+      contentTextarea.removeAttribute('required');
+    }
     BLOG_EDITOR_IDS.forEach((id) => {
       window.tinymce.init({
         selector: `#${id}`,
@@ -1718,6 +1723,43 @@
       .replace(/^-|-$/g, '');
   }
 
+  function buildSlugWithSuffix(baseSlug, attempt) {
+    const safeBase = toSlug(baseSlug || '') || `post-${Date.now()}`;
+    if (attempt <= 1) return safeBase;
+    return `${safeBase}-${attempt}`;
+  }
+
+  function isDuplicateBlogDataError(err) {
+    const msg = String(err?.message || err?.details || err?.hint || '').toLowerCase();
+    const code = String(err?.code || '').toLowerCase();
+    if (code === '23505') return true;
+    return msg.includes('duplicate')
+      || msg.includes('already exists')
+      || msg.includes('similaire existe')
+      || msg.includes('unique');
+  }
+
+  async function saveBlogWithSlugRetry(basePayload, editId) {
+    const maxAttempts = 4;
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      const candidateSlug = buildSlugWithSuffix(basePayload.slug, attempt);
+      const payload = { ...basePayload, slug: candidateSlug };
+      try {
+        await AdminBlogModule.save(payload, editId);
+        return { savedSlug: candidateSlug };
+      } catch (err) {
+        lastError = err;
+        if (editId || !isDuplicateBlogDataError(err) || attempt === maxAttempts) {
+          throw err;
+        }
+      }
+    }
+
+    throw lastError || new Error('Unable to save blog post');
+  }
+
   document.getElementById('blog-title').addEventListener('input', (e) => {
     document.getElementById('blog-slug').value = toSlug(e.target.value);
   });
@@ -1797,11 +1839,13 @@
     };
 
     try {
-      await AdminBlogModule.save(payload, editBlogId);
+      const { savedSlug } = await saveBlogWithSlugRetry(payload, editBlogId);
+      document.getElementById('blog-slug').value = savedSlug;
       const warnText = translated.warnings.length
         ? ` (fallback partiel: ${translated.warnings.join(', ')})`
         : '';
-      alertEl.textContent = (editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success')) + warnText;
+      const slugNote = savedSlug !== payload.slug ? ` (slug ajusté: ${savedSlug})` : '';
+      alertEl.textContent = (editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success')) + warnText + slugNote;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
       setTimeout(() => closeBlogModal(), 800);
