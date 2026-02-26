@@ -142,3 +142,74 @@ button:hover, .service-card a:hover, .reveal a:hover, .glow:hover {
 .reveal .flex-1 .text-brand {
   text-shadow: 0 2px 8px rgba(255,0,0,0.10);
 }
+
+/*
+ * =================================================================
+ * == GLOBAL INTERACTIVITY POLISH (Opacity & Hover) ==
+ * =================================================================
+ *
+ * The following rules apply a consistent hover/focus effect to
+ * most interactive elements across the site to address the user
+ * request for better visual feedback.
+ *
+ * Default state: slightly transparent.
+ * Hover/Focus state: fully opaque with a subtle zoom.
+ */
+
+/*
+ * -- Rule 1: Broadly target interactive elements --
+ * We target <a>, <button>, and divs from the "Why Us" section.
+ * We exclude elements that already have specific, conflicting styles.
+ */
+a,
+button,
+#why .reveal {
+  /*
+   * We are intentionally NOT applying a base opacity here to avoid
+   * conflicts with elements that manage their own opacity (e.g., .svc-tab).
+   * Instead, we will apply it only to elements that don't have
+   * their own opacity-based hover/active effects.
+   */
+  transform: scale(1);
+  transition: transform 0.2s cubic-bezier(.4,0,.2,1),
+              opacity 0.2s cubic-bezier(.4,0,.2,1),
+              color 0.2s cubic-bezier(.4,0,.2,1),
+              background-color 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+/*
+ * -- Rule 2: Apply the default 'dimmed' state --
+ * Here we apply the base opacity. We EXCLUDE elements that
+ * have their own custom opacity logic, like the service tabs
+ * and the language button which have their own look.
+ */
+a:not(.lang-opt):not([class*="svc-tab"]),
+button:not(.lang-opt):not([class*="svc-tab"]):not(#lang-btn),
+#why .reveal {
+    opacity: 0.8;
+}
+
+/*
+ * -- Rule 3: Define the 'prominent' hover/focus state --
+ * On hover/focus, elements become fully opaque and scale up slightly.
+ */
+a:not(.lang-opt):not([class*="svc-tab"]):hover,
+button:not(.lang-opt):not([class*="svc-tab"]):hover,
+#why .reveal:hover,
+a:not(.lang-opt):not([class*="svc-tab"]):focus-visible,
+button:not(.lang-opt):not([class*="svc-tab"]):focus-visible,
+#why .reveal:focus-visible {
+    opacity: 1;
+    transform: scale(1.03);
+}
+
+/*
+ * -- Rule 4: Reset for Footer & Nav --
+ * The footer and main navigation have simple text-color transitions
+ * which look better without the global opacity effect. We'll reset
+ * their base opacity to 1 so only the color changes.
+ */
+#main-nav a,
+footer a {
+  opacity: 1;
+}
