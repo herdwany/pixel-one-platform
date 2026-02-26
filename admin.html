@@ -1299,8 +1299,88 @@
   let editBlogId = null;
 
   let blogEditorInitStarted = false;
-  const BLOG_EDITOR_IDS = ['blog-content', 'blog-content-en', 'blog-content-ar'];
+  const BLOG_EDITOR_IDS = ['blog-content'];
+  const BLOG_ALL_LANGS = ['fr', 'en', 'ar'];
   const BLOG_TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';
+  const blogTranslationCache = new Map();
+  let currentBlogSourceLang = 'fr';
+  let blogDraftByLang = createEmptyBlogDraft();
+
+  function createEmptyBlogDraft() {
+    return {
+      fr: { title: '', content: '' },
+      en: { title: '', content: '' },
+      ar: { title: '', content: '' },
+    };
+  }
+
+  function getPreferredSourceLang(post) {
+    if (!post) return 'fr';
+    const has = {
+      fr: Boolean(post.title || post.content),
+      en: Boolean(post.title_en || post.content_en),
+      ar: Boolean(post.title_ar || post.content_ar),
+    };
+    return has.fr ? 'fr' : (has.en ? 'en' : (has.ar ? 'ar' : 'fr'));
+  }
+
+  function hydrateDraftFromPost(post) {
+    blogDraftByLang = {
+      fr: {
+        title: String(post?.title || ''),
+        content: String(post?.content || ''),
+      },
+      en: {
+        title: String(post?.title_en || ''),
+        content: String(post?.content_en || ''),
+      },
+      ar: {
+        title: String(post?.title_ar || ''),
+        content: String(post?.content_ar || ''),
+      },
+    };
+  }
+
+  function applySourceLangInputStyle(lang) {
+    const isArabic = lang === 'ar';
+    const titleInput = document.getElementById('blog-title');
+    const contentTextarea = document.getElementById('blog-content');
+
+    titleInput.setAttribute('dir', isArabic ? 'rtl' : 'ltr');
+    titleInput.style.fontFamily = isArabic ? '"IBM Plex Sans Arabic", sans-serif' : 'Inter, sans-serif';
+
+    contentTextarea.setAttribute('dir', isArabic ? 'rtl' : 'ltr');
+    contentTextarea.style.fontFamily = isArabic ? '"IBM Plex Sans Arabic", sans-serif' : 'Inter, sans-serif';
+
+    const editor = window.tinymce?.get('blog-content');
+    if (editor) {
+      try {
+        editor.execCommand(isArabic ? 'mceDirectionRTL' : 'mceDirectionLTR');
+      } catch (_) {}
+
+      const body = editor.getBody();
+      if (body) {
+        body.style.direction = isArabic ? 'rtl' : 'ltr';
+        body.style.textAlign = isArabic ? 'right' : 'left';
+        body.style.fontFamily = isArabic ? '"IBM Plex Sans Arabic", sans-serif' : 'Inter, sans-serif';
+        body.style.lineHeight = isArabic ? '1.9' : '1.7';
+      }
+    }
+  }
+
+  function loadSourceLangDraftIntoForm(lang) {
+    const draft = blogDraftByLang[lang] || { title: '', content: '' };
+    document.getElementById('blog-title').value = draft.title || '';
+    setBlogContent('blog-content', draft.content || '');
+    applySourceLangInputStyle(lang);
+  }
+
+  function captureFormIntoCurrentDraft() {
+    const lang = currentBlogSourceLang;
+    if (!blogDraftByLang[lang]) blogDraftByLang[lang] = { title: '', content: '' };
+    blogDraftByLang[lang].title = document.getElementById('blog-title').value.trim();
+    blogDraftByLang[lang].content = normalizeEditorValue(getBlogContent('blog-content'));
+  }
 
   function isLikelyHtmlContent(value) {
     return /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
@@ -1325,15 +1405,20 @@
     return hasSubstantiveContent(raw) ? raw : '';
   }
 
+  function decodeHtmlEntities(input) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = String(input || '');
+    return txt.value;
+  }
+
   function initBlogEditor() {
     if (blogEditorInitStarted || !window.tinymce) return;
     blogEditorInitStarted = true;
     BLOG_EDITOR_IDS.forEach((id) => {
-      const isArabic = id === 'blog-content-ar';
       window.tinymce.init({
         selector: `#${id}`,
         menubar: false,
-        height: 380,
+        height: 560,
         plugins: [
           'advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'searchreplace',
           'visualblocks', 'wordcount', 'code', 'fullscreen', 'preview', 'charmap', 'emoticons',
@@ -1354,12 +1439,11 @@
         extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|loading|referrerpolicy]',
         branding: false,
         promotion: false,
-        directionality: isArabic ? 'rtl' : 'ltr',
-        content_style: isArabic
-          ? 'body { direction: rtl; text-align: right; font-family: "IBM Plex Sans Arabic", sans-serif; line-height:1.9; } h2,h3,h4{font-weight:700;} table{width:100%;border-collapse:collapse;} td,th{border:1px solid #3a3a3a;padding:8px;}'
-          : 'body { direction: ltr; font-family: Inter, sans-serif; line-height:1.7; } h2,h3,h4{font-weight:700;} table{width:100%;border-collapse:collapse;} td,th{border:1px solid #3a3a3a;padding:8px;}',
+        directionality: 'ltr',
+        content_style: 'body { direction: ltr; font-family: Inter, sans-serif; line-height:1.7; } h2,h3,h4{font-weight:700;} table{width:100%;border-collapse:collapse;} td,th{border:1px solid #3a3a3a;padding:8px;}',
         setup: (editor) => {
           editor.on('change input undo redo', () => editor.save());
+          editor.on('init', () => applySourceLangInputStyle(currentBlogSourceLang));
         }
       });
     });
@@ -1382,6 +1466,10 @@
   async function translateText(text, sourceLang, targetLang) {
     const sourceText = String(text || '').trim();
     if (!sourceText) return '';
+
+    const cacheKey = `${sourceLang}|${targetLang}|${sourceText}`;
+    if (blogTranslationCache.has(cacheKey)) return blogTranslationCache.get(cacheKey);
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000);
     try {
@@ -1391,77 +1479,91 @@
         signal: controller.signal,
         headers: { 'Accept': 'application/json' },
       });
-      if (!res.ok) return '';
+      if (!res.ok) {
+        blogTranslationCache.set(cacheKey, '');
+        return '';
+      }
       const data = await res.json();
-      return String(data?.responseData?.translatedText || '').trim();
+      const translated = decodeHtmlEntities(String(data?.responseData?.translatedText || '').trim());
+      blogTranslationCache.set(cacheKey, translated);
+      return translated;
     } catch (_) {
+      blogTranslationCache.set(cacheKey, '');
       return '';
     } finally {
       clearTimeout(timeoutId);
     }
   }
 
-  async function autoTranslateFromFrench(targetLang) {
-    const alertEl = document.getElementById('blog-alert');
-    const frTitleInput = document.getElementById('blog-title');
-    const frTitle = frTitleInput.value.trim();
-    const frContentRaw = getBlogContent('blog-content');
-    const frContent = normalizeEditorValue(frContentRaw);
+  async function translateHtmlPreservingStructure(html, sourceLang, targetLang) {
+    const source = String(html || '').trim();
+    if (!source) return '';
 
-    if (!frTitle || !frContent) {
-      switchBlogLangTab('fr');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div id="translate-root">${source}</div>`, 'text/html');
+    const root = doc.getElementById('translate-root');
+    if (!root) return source;
 
-      if (!frTitle) {
-        frTitleInput.focus();
-      } else {
-        const frEditor = window.tinymce?.get('blog-content');
-        if (frEditor) {
-          frEditor.focus();
-        } else {
-          document.getElementById('blog-content')?.focus();
-        }
+    const textNodes = [];
+    const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const txt = String(node.nodeValue || '');
+        if (!txt.trim()) return NodeFilter.FILTER_REJECT;
+        const parentTag = node.parentElement?.tagName?.toLowerCase() || '';
+        if (['script', 'style', 'code', 'pre'].includes(parentTag)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
       }
+    });
 
-      const missingFields = [];
-      if (!frTitle) missingFields.push('titre FR');
-      if (!frContent) missingFields.push('contenu FR');
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
 
-      alertEl.textContent = `✗ Traduction impossible: ${missingFields.join(' + ')} manquant(s). Complétez d’abord le bloc Français.`;
-      alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
-      alertEl.classList.remove('hidden');
-      return;
+    for (const node of textNodes) {
+      const original = String(node.nodeValue || '');
+      const leading = original.match(/^\s*/)?.[0] || '';
+      const trailing = original.match(/\s*$/)?.[0] || '';
+      const core = original.trim();
+      if (!core || /^https?:\/\//i.test(core)) continue;
+      const translated = await translateText(core, sourceLang, targetLang);
+      node.nodeValue = `${leading}${translated || core}${trailing}`;
     }
 
-    const isHtml = isLikelyHtmlContent(frContent);
-    const [translatedTitle, translatedContent] = await Promise.all([
-      translateText(frTitle, 'fr', targetLang),
-      isHtml ? Promise.resolve('') : translateText(frContent, 'fr', targetLang),
-    ]);
-
-    if (targetLang === 'en') {
-      document.getElementById('blog-title-en').value = translatedTitle || frTitle;
-      setBlogContent('blog-content-en', translatedContent || frContent);
-      switchBlogLangTab('en');
-    } else if (targetLang === 'ar') {
-      document.getElementById('blog-title-ar').value = translatedTitle || frTitle;
-      setBlogContent('blog-content-ar', translatedContent || frContent);
-      switchBlogLangTab('ar');
-    }
-
-    alertEl.textContent = isHtml
-      ? '✓ Titre traduit automatiquement. Contenu riche copié depuis FR (vérifiez/ajustez la traduction manuellement pour préserver le format).'
-      : '✓ Traduction automatique appliquée. Vérifiez le style éditorial avant publication.';
-    alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
-    alertEl.classList.remove('hidden');
+    return root.innerHTML;
   }
 
-  function getMissingPublishTranslations(payload) {
-    const missing = [];
-    if (!payload.title_en) missing.push('title_en');
-    if (!payload.content_en) missing.push('content_en');
-    if (!payload.title_ar) missing.push('title_ar');
-    if (!payload.content_ar) missing.push('content_ar');
-    return missing;
+  async function buildMultilingualFromSource({ sourceLang, sourceTitle, sourceContent }) {
+    const output = {
+      fr: { title: '', content: '' },
+      en: { title: '', content: '' },
+      ar: { title: '', content: '' },
+      warnings: [],
+    };
+
+    output[sourceLang] = {
+      title: sourceTitle,
+      content: sourceContent,
+    };
+
+    const isHtml = isLikelyHtmlContent(sourceContent);
+
+    for (const targetLang of BLOG_ALL_LANGS) {
+      if (targetLang === sourceLang) continue;
+
+      const translatedTitle = await translateText(sourceTitle, sourceLang, targetLang);
+      const translatedContent = isHtml
+        ? await translateHtmlPreservingStructure(sourceContent, sourceLang, targetLang)
+        : await translateText(sourceContent, sourceLang, targetLang);
+
+      output[targetLang] = {
+        title: translatedTitle || sourceTitle,
+        content: normalizeEditorValue(translatedContent || sourceContent),
+      };
+
+      if (!translatedTitle || !translatedContent) {
+        output.warnings.push(targetLang);
+      }
+    }
+
+    return output;
   }
 
   function openBlogModal(post = null) {
@@ -1473,15 +1575,21 @@
     document.getElementById('blog-slug').value = post?.slug || '';
     document.getElementById('blog-image').value = post?.image_url || '';
     document.getElementById('blog-video-url').value = post?.video_url || '';
-    setBlogContent('blog-content', post?.content || '');
-    document.getElementById('blog-title-en').value = post?.title_en || '';
-    setBlogContent('blog-content-en', post?.content_en || '');
-    document.getElementById('blog-title-ar').value = post?.title_ar || '';
-    setBlogContent('blog-content-ar', post?.content_ar || '');
+
+    if (post) {
+      hydrateDraftFromPost(post);
+      currentBlogSourceLang = getPreferredSourceLang(post);
+    } else {
+      blogDraftByLang = createEmptyBlogDraft();
+      currentBlogSourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
+    }
+
+    const sourceSelect = document.getElementById('blog-source-lang');
+    if (sourceSelect) sourceSelect.value = currentBlogSourceLang;
+    loadSourceLangDraftIntoForm(currentBlogSourceLang);
+
     document.getElementById('blog-published').checked = post ? post.is_published : true;
     document.getElementById('blog-alert').classList.add('hidden');
-    // Reset to FR tab
-    switchBlogLangTab('fr');
     document.getElementById('blog-modal-overlay').classList.remove('hidden');
   }
 
@@ -1576,69 +1684,65 @@
     e.target.value = toSlug(e.target.value);
   });
 
-  // ── Blog language tab switching ────────────────────────
-  function switchBlogLangTab(lang) {
-    document.querySelectorAll('.blog-lang-tab').forEach(tab => {
-      const isActive = tab.dataset.blogLang === lang;
-      tab.classList.toggle('bg-brand/10', isActive);
-      tab.classList.toggle('text-white', isActive);
-      tab.classList.toggle('border-brand/40', isActive);
-      tab.classList.toggle('text-gray-500', !isActive);
-      tab.classList.toggle('border-transparent', !isActive);
-    });
-    document.querySelectorAll('.blog-lang-fields').forEach(f => f.classList.add('hidden'));
-    const target = document.getElementById('blog-fields-' + lang);
-    if (target) target.classList.remove('hidden');
-  }
-
-  document.querySelectorAll('.blog-lang-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchBlogLangTab(tab.dataset.blogLang));
-  });
-
-  document.getElementById('blog-translate-en-btn')?.addEventListener('click', async () => {
-    await autoTranslateFromFrench('en');
-  });
-
-  document.getElementById('blog-translate-ar-btn')?.addEventListener('click', async () => {
-    await autoTranslateFromFrench('ar');
+  document.getElementById('blog-source-lang')?.addEventListener('change', (e) => {
+    captureFormIntoCurrentDraft();
+    currentBlogSourceLang = e.target.value;
+    loadSourceLangDraftIntoForm(currentBlogSourceLang);
   });
 
   document.getElementById('blog-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const alertEl = document.getElementById('blog-alert');
-    const payload = {
-      title:        document.getElementById('blog-title').value.trim(),
-      slug:         document.getElementById('blog-slug').value.trim(),
-      image_url:    document.getElementById('blog-image').value.trim() || null,
-      video_url:    document.getElementById('blog-video-url').value.trim() || null,
-      content:      normalizeEditorValue(getBlogContent('blog-content')),
-      title_en:     document.getElementById('blog-title-en').value.trim() || null,
-      content_en:   normalizeEditorValue(getBlogContent('blog-content-en')) || null,
-      title_ar:     document.getElementById('blog-title-ar').value.trim() || null,
-      content_ar:   normalizeEditorValue(getBlogContent('blog-content-ar')) || null,
-      is_published: document.getElementById('blog-published').checked,
-    };
+    captureFormIntoCurrentDraft();
 
-    if (!payload.title || !payload.slug || !payload.content) {
-      alertEl.textContent = '✗ Titre, slug et contenu FR sont obligatoires.';
+    const sourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
+    const sourceTitle = (blogDraftByLang[sourceLang]?.title || '').trim();
+    const sourceContent = normalizeEditorValue(blogDraftByLang[sourceLang]?.content || '');
+    const slug = document.getElementById('blog-slug').value.trim();
+
+    if (!sourceTitle || !sourceContent || !slug) {
+      alertEl.textContent = '✗ Titre, slug et contenu sont obligatoires dans la langue choisie.';
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
+
+      if (!sourceTitle) {
+        document.getElementById('blog-title').focus();
+      } else {
+        const editor = window.tinymce?.get('blog-content');
+        if (editor) editor.focus();
+      }
       return;
     }
 
-    if (payload.is_published) {
-      const missing = getMissingPublishTranslations(payload);
-      if (missing.length) {
-        alertEl.textContent = `✗ Publication bloquée: traductions manquantes (${missing.join(', ')}).`;
-        alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
-        alertEl.classList.remove('hidden');
-        return;
-      }
-    }
+    alertEl.textContent = '⏳ Traduction automatique FR/EN/AR en cours…';
+    alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-blue-500/10 border border-blue-500/30 text-blue-300';
+    alertEl.classList.remove('hidden');
+
+    const translated = await buildMultilingualFromSource({ sourceLang, sourceTitle, sourceContent });
+
+    blogDraftByLang.fr = { ...translated.fr };
+    blogDraftByLang.en = { ...translated.en };
+    blogDraftByLang.ar = { ...translated.ar };
+
+    const payload = {
+      title:        translated.fr.title,
+      slug,
+      image_url:    document.getElementById('blog-image').value.trim() || null,
+      video_url:    document.getElementById('blog-video-url').value.trim() || null,
+      content:      translated.fr.content,
+      title_en:     translated.en.title || null,
+      content_en:   translated.en.content || null,
+      title_ar:     translated.ar.title || null,
+      content_ar:   translated.ar.content || null,
+      is_published: document.getElementById('blog-published').checked,
+    };
 
     try {
       await AdminBlogModule.save(payload, editBlogId);
-      alertEl.textContent = editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success');
+      const warnText = translated.warnings.length
+        ? ` (fallback partiel: ${translated.warnings.join(', ')})`
+        : '';
+      alertEl.textContent = (editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success')) + warnText;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
       setTimeout(() => closeBlogModal(), 800);
