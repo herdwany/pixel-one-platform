@@ -1319,7 +1319,41 @@
   let allBlogPosts = [];
   let editBlogId = null;
 
+  let blogEditorInitStarted = false;
+
+  function initBlogEditor() {
+    if (blogEditorInitStarted || !window.tinymce) return;
+    blogEditorInitStarted = true;
+    window.tinymce.init({
+      selector: '#blog-content',
+      menubar: false,
+      height: 320,
+      plugins: ['link', 'lists', 'table', 'code', 'wordcount'],
+      toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | code',
+      branding: false,
+      promotion: false,
+      setup: (editor) => {
+        editor.on('change input undo redo', () => editor.save());
+      }
+    });
+  }
+
+  function setBlogContentFr(value) {
+    const content = value || '';
+    const textarea = document.getElementById('blog-content');
+    textarea.value = content;
+    const editor = window.tinymce?.get('blog-content');
+    if (editor) editor.setContent(content);
+  }
+
+  function getBlogContentFr() {
+    const editor = window.tinymce?.get('blog-content');
+    if (editor) return editor.getContent().trim();
+    return document.getElementById('blog-content').value.trim();
+  }
+
   function openBlogModal(post = null) {
+    initBlogEditor();
     editBlogId = post ? post.id : null;
     document.getElementById('blog-modal-title').textContent = post ? 'Modifier l\'article' : 'Nouvel article';
     document.getElementById('blog-submit-text').textContent = post ? 'Enregistrer' : 'Publier l\'article';
@@ -1327,7 +1361,7 @@
     document.getElementById('blog-slug').value = post?.slug || '';
     document.getElementById('blog-image').value = post?.image_url || '';
     document.getElementById('blog-video-url').value = post?.video_url || '';
-    document.getElementById('blog-content').value = post?.content || '';
+    setBlogContentFr(post?.content || '');
     document.getElementById('blog-title-en').value = post?.title_en || '';
     document.getElementById('blog-content-en').value = post?.content_en || '';
     document.getElementById('blog-title-ar').value = post?.title_ar || '';
@@ -1457,7 +1491,7 @@
       slug:         document.getElementById('blog-slug').value.trim(),
       image_url:    document.getElementById('blog-image').value.trim() || null,
       video_url:    document.getElementById('blog-video-url').value.trim() || null,
-      content:      document.getElementById('blog-content').value.trim(),
+      content:      getBlogContentFr(),
       title_en:     document.getElementById('blog-title-en').value.trim() || null,
       content_en:   document.getElementById('blog-content-en').value.trim() || null,
       title_ar:     document.getElementById('blog-title-ar').value.trim() || null,
