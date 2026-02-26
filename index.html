@@ -105,9 +105,9 @@
 <div class="content">
 
   <!-- ── FIRST-VISIT LANGUAGE SELECTION MODAL ─────────────── -->
-  <div id="lang-select-modal"
-       class="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 backdrop-blur-md">
-    <div class="bg-[#111] border border-[#252525] rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+    <div id="lang-select-modal"
+      class="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-xl transition-all duration-300">
+    <div class="bg-[#161616] border border-[#252525] rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
       <div class="text-center mb-7">
         <div class="inline-block text-3xl font-extrabold tracking-tight mb-2 site-logo">
           <span class="text-red-500">Pixel</span>One
@@ -156,7 +156,7 @@
   </script>
 
   <!-- ── NAVBAR ──────────────────────────────────────────────── -->
-  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/[0.06] transition-shadow duration-300">
+  <nav id="main-nav" class="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/[0.06] shadow-lg transition-shadow duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
@@ -222,7 +222,7 @@
       </div>
     </div>
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden lg:hidden border-t border-white/[0.06] bg-black/95 backdrop-blur-xl">
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-white/[0.06] bg-black/70 backdrop-blur-xl">
       <div class="max-w-7xl mx-auto px-4 py-3 space-y-1">
         <a href="#services" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.services">Services</a>
         <a href="#why" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.why">Pourquoi nous</a>
@@ -300,7 +300,7 @@
         <div class="col-span-full text-center py-10 text-gray-500">Chargement…</div>
       </div>
       <div class="text-center mt-10">
-        <a href="blog.html" class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl transition">
+        <a href="blog.html" class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl shadow-md transition">
           <span data-i18n="blog.back.all">Voir tous les articles</span> <i class="fa-solid fa-arrow-right ms-1"></i>
         </a>
       </div>
@@ -333,8 +333,8 @@
       </div>
 
       <div class="text-center mt-10">
-        <a href="services.html"
-           class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl transition">
+          <a href="services.html"
+            class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl shadow-md transition">
           <span data-i18n="services.all">Voir tous les services</span> <i class="fa-solid fa-arrow-right ms-1"></i>
         </a>
       </div>
