@@ -1434,12 +1434,30 @@
 
   async function autoTranslateFromFrench(targetLang) {
     const alertEl = document.getElementById('blog-alert');
-    const frTitle = document.getElementById('blog-title').value.trim();
+    const frTitleInput = document.getElementById('blog-title');
+    const frTitle = frTitleInput.value.trim();
     const frContentRaw = getBlogContent('blog-content');
     const frContent = normalizeEditorValue(frContentRaw);
 
     if (!frTitle || !frContent) {
-      alertEl.textContent = '✗ Écrivez d’abord le titre + contenu FR avant la traduction automatique.';
+      switchBlogLangTab('fr');
+
+      if (!frTitle) {
+        frTitleInput.focus();
+      } else {
+        const frEditor = window.tinymce?.get('blog-content');
+        if (frEditor) {
+          frEditor.focus();
+        } else {
+          document.getElementById('blog-content')?.focus();
+        }
+      }
+
+      const missingFields = [];
+      if (!frTitle) missingFields.push('titre FR');
+      if (!frContent) missingFields.push('contenu FR');
+
+      alertEl.textContent = `✗ Traduction impossible: ${missingFields.join(' + ')} manquant(s). Complétez d’abord le bloc Français.`;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
       return;
