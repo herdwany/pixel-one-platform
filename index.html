@@ -168,7 +168,7 @@
           <a href="#services" class="hover:text-white transition-colors duration-200" data-i18n="nav.services">Services</a>
           <a href="#why" class="hover:text-white transition-colors duration-200" data-i18n="nav.why">Pourquoi nous</a>
           <a href="#contact" class="hover:text-white transition-colors duration-200" data-i18n="nav.contact">Contact</a>
-          <a href="blog.html" class="hover:text-white transition-colors duration-200" data-i18n="footer.blog">Blog</a>
+          <a href="blog.html" class="bg-brand hover:bg-brand-dark text-white text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-lg transition-colors duration-200 shadow-md border border-brand/40" data-i18n="footer.blog" style="box-shadow:0 2px 12px 0 rgba(255,0,0,0.10);">Blog</a>
         </div>
         <!-- Right actions -->
         <div class="flex items-center gap-1.5 sm:gap-2">
@@ -227,7 +227,7 @@
         <a href="#services" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.services">Services</a>
         <a href="#why" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.why">Pourquoi nous</a>
         <a href="#contact" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.contact">Contact</a>
-        <a href="blog.html" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="footer.blog">Blog</a>
+        <a href="blog.html" class="block px-4 py-3 rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-white transition text-sm font-semibold text-center border border-brand/40" data-i18n="footer.blog">Blog</a>
         <div class="h-px bg-white/[0.06] my-2"></div>
         <a href="auth.html" class="block px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/[0.05] transition text-sm font-medium" data-i18n="nav.login">Connexion</a>
         <a href="services.html" class="block px-4 py-3 rounded-lg bg-brand/10 text-brand hover:bg-brand hover:text-white transition text-sm font-semibold text-center" data-i18n="nav.cta">Nos services</a>
@@ -284,6 +284,25 @@
       <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
         <p class="text-3xl font-extrabold text-brand">5★</p>
         <p class="text-gray-400 text-sm mt-1" data-i18n="stat.rating">Note moyenne</p>
+      </div>
+    </div>
+
+  <!-- ── LATEST BLOG POSTS ─────────────────────────────── -->
+  <section id="latest-blogs" class="py-20 px-6 bg-surface-card border-b border-surface-border">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <h2 class="text-3xl md:text-5xl font-bold mb-3">
+          <span data-i18n="blog.header.title">Notre</span> <span class="text-brand" data-i18n="blog.header.accent">Blog</span>
+        </h2>
+        <p class="text-lg text-gray-400 font-light max-w-xl mx-auto" data-i18n="blog.header.desc">Dernières actualités et astuces design.</p>
+      </div>
+      <div id="latest-blog-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="col-span-full text-center py-10 text-gray-500">Chargement…</div>
+      </div>
+      <div class="text-center mt-10">
+        <a href="blog.html" class="border border-brand/40 hover:bg-brand text-brand hover:text-white font-semibold px-6 py-3 rounded-xl transition">
+          <span data-i18n="blog.back.all">Voir tous les articles</span> <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
       </div>
     </div>
   </section>
