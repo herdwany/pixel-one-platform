@@ -80,6 +80,32 @@ async function translateTextGoogle(text: string, sourceLang: string, targetLang:
   }
 }
 
+async function translateTextRobust(text: string, sourceLang: string, targetLang: string): Promise<string> {
+  const source = String(text || "").trim();
+  if (!source || sourceLang === targetLang) return source;
+
+  let translated = await translateText(source, sourceLang, targetLang);
+  if (!looksUntranslated(source, translated)) return translated;
+
+  if (sourceLang !== "fr" && targetLang !== "fr") {
+    const pivotFr = await translateText(source, sourceLang, "fr");
+    if (pivotFr && !looksUntranslated(source, pivotFr)) {
+      const fromFr = await translateText(pivotFr, "fr", targetLang);
+      if (!looksUntranslated(source, fromFr)) return fromFr;
+    }
+  }
+
+  if (sourceLang !== "en" && targetLang !== "en") {
+    const pivotEn = await translateText(source, sourceLang, "en");
+    if (pivotEn && !looksUntranslated(source, pivotEn)) {
+      const fromEn = await translateText(pivotEn, "en", targetLang);
+      if (!looksUntranslated(source, fromEn)) return fromEn;
+    }
+  }
+
+  return translated || source;
+}
+
 async function translateText(text: string, sourceLang: string, targetLang: string): Promise<string> {
   const source = String(text || "").trim();
   if (!source) return "";
@@ -138,7 +164,7 @@ async function translateHtmlPreservingStructure(html: string, sourceLang: string
 
     const leading = part.match(/^\s*/)?.[0] || "";
     const trailing = part.match(/\s*$/)?.[0] || "";
-    const translated = await translateText(trimmed, sourceLang, targetLang);
+    const translated = await translateTextRobust(trimmed, sourceLang, targetLang);
     translatedParts.push(`${leading}${translated || trimmed}${trailing}`);
   }
 
@@ -225,10 +251,10 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const translatedTitle = await translateText(title, sourceLang, targetLang);
+    const translatedTitle = await translateTextRobust(title, sourceLang, targetLang);
     const translatedContent = format === "html"
       ? await translateHtmlPreservingStructure(content, sourceLang, targetLang)
-      : await translateText(content, sourceLang, targetLang);
+      : await translateTextRobust(content, sourceLang, targetLang);
 
     return new Response(
       JSON.stringify({

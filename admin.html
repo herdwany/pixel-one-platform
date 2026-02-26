@@ -1419,6 +1419,15 @@
     return txt.value;
   }
 
+  function normalizeForCompare(value) {
+    return String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function looksUntranslated(source, translated) {
+    if (!translated) return true;
+    return normalizeForCompare(source) === normalizeForCompare(translated);
+  }
+
   function initBlogEditor() {
     if (blogEditorInitStarted || !window.tinymce) return;
     blogEditorInitStarted = true;
@@ -1508,6 +1517,32 @@
     }
   }
 
+  async function translateTextRobust(text, sourceLang, targetLang) {
+    const source = String(text || '').trim();
+    if (!source || sourceLang === targetLang) return source;
+
+    let translated = await translateText(source, sourceLang, targetLang);
+    if (!looksUntranslated(source, translated)) return translated;
+
+    if (sourceLang !== 'fr' && targetLang !== 'fr') {
+      const pivotFr = await translateText(source, sourceLang, 'fr');
+      if (pivotFr && !looksUntranslated(source, pivotFr)) {
+        const fromFr = await translateText(pivotFr, 'fr', targetLang);
+        if (!looksUntranslated(source, fromFr)) return fromFr;
+      }
+    }
+
+    if (sourceLang !== 'en' && targetLang !== 'en') {
+      const pivotEn = await translateText(source, sourceLang, 'en');
+      if (pivotEn && !looksUntranslated(source, pivotEn)) {
+        const fromEn = await translateText(pivotEn, 'en', targetLang);
+        if (!looksUntranslated(source, fromEn)) return fromEn;
+      }
+    }
+
+    return translated || source;
+  }
+
   async function translatePairViaEdge({ sourceLang, targetLang, title, content }) {
     try {
       const format = isLikelyHtmlContent(content) ? 'html' : 'plain';
@@ -1563,7 +1598,7 @@
       const trailing = original.match(/\s*$/)?.[0] || '';
       const core = original.trim();
       if (!core || /^https?:\/\//i.test(core)) continue;
-      const translated = await translateText(core, sourceLang, targetLang);
+      const translated = await translateTextRobust(core, sourceLang, targetLang);
       node.nodeValue = `${leading}${translated || core}${trailing}`;
     }
 
@@ -1603,20 +1638,23 @@
 
       const translatedTitle = (!edgeResult?.partialFallback && edgeTitle && !titleLooksUntranslated)
         ? edgeTitle
-        : (await translateText(sourceTitle, sourceLang, targetLang));
+        : (await translateTextRobust(sourceTitle, sourceLang, targetLang));
 
       const translatedContent = (!edgeResult?.partialFallback && edgeContent && !contentLooksUntranslated)
         ? edgeContent
         : (isHtml
           ? await translateHtmlPreservingStructure(sourceContent, sourceLang, targetLang)
-          : await translateText(sourceContent, sourceLang, targetLang));
+          : await translateTextRobust(sourceContent, sourceLang, targetLang));
 
       output[targetLang] = {
         title: translatedTitle || sourceTitle,
         content: normalizeEditorValue(translatedContent || sourceContent),
       };
 
-      if (!translatedTitle || !translatedContent || edgeResult?.partialFallback) {
+      const finalTitle = output[targetLang].title;
+      const finalContent = output[targetLang].content;
+
+      if (!translatedTitle || !translatedContent || edgeResult?.partialFallback || looksUntranslated(sourceTitle, finalTitle) || looksUntranslated(sourceContent, finalContent)) {
         output.warnings.push(targetLang);
       }
     }
@@ -1849,6 +1887,18 @@
       content_ar:   translated.ar.content || null,
       is_published: document.getElementById('blog-published').checked,
     };
+
+    if (payload.is_published) {
+      const hardFailures = [];
+      if (looksUntranslated(sourceTitle, payload.title_en || '') && looksUntranslated(sourceContent, payload.content_en || '')) hardFailures.push('en');
+      if (looksUntranslated(sourceTitle, payload.title_ar || '') && looksUntranslated(sourceContent, payload.content_ar || '')) hardFailures.push('ar');
+      if (hardFailures.length) {
+        alertEl.textContent = `✗ Traduction incomplète (${hardFailures.join(', ')}). Réessayez l\'enregistrement.`;
+        alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+    }
 
     try {
       const { savedSlug } = await saveBlogWithSlugRetry(payload, editBlogId);
