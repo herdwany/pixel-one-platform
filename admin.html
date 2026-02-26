@@ -279,34 +279,51 @@
               </button>
             </div>
             <form id="blog-form" class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex gap-1 bg-surface rounded-lg p-1 border border-surface-border">
+                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition bg-brand/10 text-white border border-brand/40" data-blog-lang="fr">🇫🇷 Français</button>
+                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition text-gray-500 border border-transparent hover:text-white" data-blog-lang="en">🇺🇸 English</button>
+                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition text-gray-500 border border-transparent hover:text-white" data-blog-lang="ar">🇲🇦 العربية</button>
+              </div>
+
+              <div id="blog-fields-fr" class="blog-lang-fields space-y-4">
                 <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block">Language of writing <span class="text-brand">*</span></label>
-                  <select id="blog-source-lang" class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/50 transition">
-                    <option value="fr">🇫🇷 Français</option>
-                    <option value="en">🇺🇸 English</option>
-                    <option value="ar">🇲🇦 العربية</option>
-                  </select>
-                  <p class="text-xs text-gray-500 mt-1.5">One editor only. On publish, content is auto-translated to FR/EN/AR.</p>
+                  <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article (FR) <span class="text-brand">*</span></label>
+                  <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
                 </div>
-                <div class="flex items-end">
-                  <div class="w-full text-xs text-gray-500 bg-surface border border-surface-border rounded-lg px-4 py-3">
-                    <i class="fa-solid fa-circle-info mr-1 text-brand"></i>
-                    Translation runs automatically when you publish or update an article.
-                  </div>
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (FR) <span class="text-brand">*</span></label>
+                  <textarea id="blog-content" rows="14" placeholder="Rédigez votre article…"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-y"></textarea>
                 </div>
               </div>
 
-              <div>
-                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article <span class="text-brand">*</span></label>
-                <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
-                       class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+              <div id="blog-fields-en" class="blog-lang-fields space-y-4 hidden">
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Title (EN) <span class="text-brand">*</span></label>
+                  <input id="blog-title-en" type="text" placeholder="Top 5 blog design trends for 2026"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block">Content (EN) <span class="text-brand">*</span></label>
+                  <textarea id="blog-content-en" rows="14" placeholder="Write the English version…"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-y"></textarea>
+                </div>
               </div>
 
-              <div>
-                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (éditeur riche HTML) <span class="text-brand">*</span></label>
-                <textarea id="blog-content" rows="14" placeholder="Rédigez votre article…"
-                          class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-y"></textarea>
+              <div id="blog-fields-ar" class="blog-lang-fields space-y-4 hidden">
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" style="font-family:'IBM Plex Sans Arabic',sans-serif" dir="rtl">العنوان (AR) <span class="text-brand">*</span></label>
+                  <input id="blog-title-ar" type="text" dir="rtl" placeholder="أفضل 5 اتجاهات لتصميم المدونات في 2026"
+                         style="font-family:'IBM Plex Sans Arabic',sans-serif"
+                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                </div>
+                <div>
+                  <label class="text-sm text-gray-400 mb-1.5 block" style="font-family:'IBM Plex Sans Arabic',sans-serif" dir="rtl">المحتوى (AR) <span class="text-brand">*</span></label>
+                  <textarea id="blog-content-ar" rows="14" dir="rtl" placeholder="اكتب النسخة العربية هنا…"
+                            style="font-family:'IBM Plex Sans Arabic',sans-serif"
+                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-y"></textarea>
+                </div>
               </div>
 
               <!-- Shared fields (always visible) -->
@@ -1304,7 +1321,7 @@
   let editBlogId = null;
 
   let blogEditorInitStarted = false;
-  const BLOG_EDITOR_IDS = ['blog-content'];
+  const BLOG_EDITOR_IDS = ['blog-content', 'blog-content-en', 'blog-content-ar'];
   const BLOG_ALL_LANGS = ['fr', 'en', 'ar'];
   const BLOG_TRANSLATE_EDGE_FN = 'blog-translate';
   const BLOG_TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';
@@ -1442,6 +1459,7 @@
       contentTextarea.removeAttribute('required');
     }
     BLOG_EDITOR_IDS.forEach((id) => {
+      const isArabic = id === 'blog-content-ar';
       window.tinymce.init({
         selector: `#${id}`,
         menubar: false,
@@ -1466,11 +1484,12 @@
         extended_valid_elements: 'iframe[src|frameborder|style|scrolling|class|width|height|name|align|allow|allowfullscreen|loading|referrerpolicy]',
         branding: false,
         promotion: false,
-        directionality: 'ltr',
-        content_style: 'body { direction: ltr; font-family: Inter, sans-serif; line-height:1.7; } h2,h3,h4{font-weight:700;} table{width:100%;border-collapse:collapse;} td,th{border:1px solid #3a3a3a;padding:8px;}',
+        directionality: isArabic ? 'rtl' : 'ltr',
+        content_style: isArabic
+          ? 'body { direction: rtl; text-align:right; font-family: "IBM Plex Sans Arabic", sans-serif; line-height:1.9; } h2,h3,h4{font-weight:700;} table{width:100%;border-collapse:collapse;} td,th{border:1px solid #3a3a3a;padding:8px;}'
+          : 'body { direction: ltr; font-family: Inter, sans-serif; line-height:1.7; } h2,h3,h4{font-weight:700;} table{width:100%;border-collapse:collapse;} td,th{border:1px solid #3a3a3a;padding:8px;}',
         setup: (editor) => {
           editor.on('change input undo redo', () => editor.save());
-          editor.on('init', () => applySourceLangInputStyle(currentBlogSourceLang));
         }
       });
     });
@@ -1676,18 +1695,21 @@
     document.getElementById('blog-slug').value = post?.slug || '';
     document.getElementById('blog-image').value = post?.image_url || '';
     document.getElementById('blog-video-url').value = post?.video_url || '';
+    document.getElementById('blog-title-en').value = post?.title_en || '';
+    document.getElementById('blog-title-ar').value = post?.title_ar || '';
+    setBlogContent('blog-content-en', post?.content_en || '');
+    setBlogContent('blog-content-ar', post?.content_ar || '');
 
     if (post) {
       hydrateDraftFromPost(post);
       currentBlogSourceLang = getPreferredSourceLang(post);
     } else {
       blogDraftByLang = createEmptyBlogDraft();
-      currentBlogSourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
+      currentBlogSourceLang = 'fr';
     }
 
-    const sourceSelect = document.getElementById('blog-source-lang');
-    if (sourceSelect) sourceSelect.value = currentBlogSourceLang;
-    loadSourceLangDraftIntoForm(currentBlogSourceLang);
+    setBlogContent('blog-content', post?.content || '');
+    switchBlogLangTab('fr');
 
     document.getElementById('blog-published').checked = post ? post.is_published : true;
     document.getElementById('blog-alert').classList.add('hidden');
@@ -1832,10 +1854,21 @@
     e.target.value = toSlug(e.target.value);
   });
 
-  document.getElementById('blog-source-lang')?.addEventListener('change', (e) => {
-    captureFormIntoCurrentDraft();
-    currentBlogSourceLang = e.target.value;
-    loadSourceLangDraftIntoForm(currentBlogSourceLang);
+  function switchBlogLangTab(lang) {
+    document.querySelectorAll('.blog-lang-tab').forEach(tab => {
+      const active = tab.dataset.blogLang === lang;
+      tab.classList.toggle('bg-brand/10', active);
+      tab.classList.toggle('text-white', active);
+      tab.classList.toggle('border-brand/40', active);
+      tab.classList.toggle('text-gray-500', !active);
+      tab.classList.toggle('border-transparent', !active);
+    });
+    document.querySelectorAll('.blog-lang-fields').forEach(section => section.classList.add('hidden'));
+    document.getElementById(`blog-fields-${lang}`)?.classList.remove('hidden');
+  }
+
+  document.querySelectorAll('.blog-lang-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchBlogLangTab(tab.dataset.blogLang));
   });
 
   document.getElementById('blog-force-retranslate-btn')?.addEventListener('click', async () => {
@@ -1850,90 +1883,59 @@
     e.preventDefault();
     const alertEl = document.getElementById('blog-alert');
     const forceBtn = document.getElementById('blog-force-retranslate-btn');
-    const sourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
+    const frTitle = document.getElementById('blog-title').value.trim();
+    const frContent = normalizeEditorValue(getBlogContent('blog-content'));
+    const enTitle = document.getElementById('blog-title-en').value.trim();
+    const enContent = normalizeEditorValue(getBlogContent('blog-content-en'));
+    const arTitle = document.getElementById('blog-title-ar').value.trim();
+    const arContent = normalizeEditorValue(getBlogContent('blog-content-ar'));
 
-    const sourceTitleLive = document.getElementById('blog-title').value.trim();
-    const sourceContentLive = normalizeEditorValue(getBlogContent('blog-content'));
-
-    if (!blogDraftByLang[sourceLang]) blogDraftByLang[sourceLang] = { title: '', content: '' };
-    blogDraftByLang[sourceLang].title = sourceTitleLive;
-    blogDraftByLang[sourceLang].content = sourceContentLive;
-
-    const sourceTitle = sourceTitleLive;
-    const sourceContent = sourceContentLive;
-
-    currentBlogSourceLang = sourceLang;
     const slugInput = document.getElementById('blog-slug');
     let slug = slugInput.value.trim();
     if (!slug) {
-      slug = toSlug(sourceTitle) || `post-${Date.now()}`;
+      slug = toSlug(frTitle) || `post-${Date.now()}`;
       slugInput.value = slug;
     }
 
-    if (!sourceTitle || !sourceContent || !slug) {
+    if (!frTitle || !frContent || !enTitle || !enContent || !arTitle || !arContent || !slug) {
       const missing = [];
-      if (!sourceTitle) missing.push('titre');
+      if (!frTitle) missing.push('titre FR');
+      if (!frContent) missing.push('contenu FR');
+      if (!enTitle) missing.push('title EN');
+      if (!enContent) missing.push('content EN');
+      if (!arTitle) missing.push('العنوان AR');
+      if (!arContent) missing.push('المحتوى AR');
       if (!slug) missing.push('slug');
-      if (!sourceContent) missing.push('contenu');
-      alertEl.textContent = `✗ Champs manquants (${missing.join(', ')}) dans la langue choisie.`;
+      alertEl.textContent = `✗ Champs manquants (${missing.join(', ')})`;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
 
-      if (!sourceTitle) {
-        document.getElementById('blog-title').focus();
-      } else {
-        const editor = window.tinymce?.get('blog-content');
-        if (editor) editor.focus();
-      }
+      document.getElementById('blog-title').focus();
       return;
     }
 
-    alertEl.textContent = forceReTranslateRequested
-      ? '⏳ Force Re-translate en cours…'
-      : '⏳ Traduction automatique FR/EN/AR en cours…';
+    alertEl.textContent = '⏳ Enregistrement manuel multilingue en cours…';
     alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-blue-500/10 border border-blue-500/30 text-blue-300';
     alertEl.classList.remove('hidden');
 
-    const translated = await buildMultilingualFromSource({ sourceLang, sourceTitle, sourceContent });
-
-    blogDraftByLang.fr = { ...translated.fr };
-    blogDraftByLang.en = { ...translated.en };
-    blogDraftByLang.ar = { ...translated.ar };
-
     const payload = {
-      title:        translated.fr.title,
+      title:        frTitle,
       slug,
       image_url:    document.getElementById('blog-image').value.trim() || null,
       video_url:    document.getElementById('blog-video-url').value.trim() || null,
-      content:      translated.fr.content,
-      title_en:     translated.en.title || null,
-      content_en:   translated.en.content || null,
-      title_ar:     translated.ar.title || null,
-      content_ar:   translated.ar.content || null,
+      content:      frContent,
+      title_en:     enTitle,
+      content_en:   enContent,
+      title_ar:     arTitle,
+      content_ar:   arContent,
       is_published: document.getElementById('blog-published').checked,
     };
-
-    if (payload.is_published) {
-      const hardFailures = [];
-      if (looksUntranslated(sourceTitle, payload.title_en || '') && looksUntranslated(sourceContent, payload.content_en || '')) hardFailures.push('en');
-      if (looksUntranslated(sourceTitle, payload.title_ar || '') && looksUntranslated(sourceContent, payload.content_ar || '')) hardFailures.push('ar');
-      if (hardFailures.length) {
-        alertEl.textContent = `✗ Traduction incomplète (${hardFailures.join(', ')}). Réessayez l\'enregistrement.`;
-        alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
-        alertEl.classList.remove('hidden');
-        return;
-      }
-    }
 
     try {
       const { savedSlug } = await saveBlogWithSlugRetry(payload, editBlogId);
       document.getElementById('blog-slug').value = savedSlug;
-      const warnText = translated.warnings.length
-        ? ` (fallback partiel: ${translated.warnings.join(', ')})`
-        : '';
       const slugNote = savedSlug !== payload.slug ? ` (slug ajusté: ${savedSlug})` : '';
-      const forceNote = forceReTranslateRequested ? ' (re-translate forcée)' : '';
-      alertEl.textContent = (editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success')) + warnText + slugNote + forceNote;
+      alertEl.textContent = (editBlogId ? 'Article multilingue mis à jour ✓' : 'Article multilingue publié ✓') + slugNote;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
       forceReTranslateRequested = false;
