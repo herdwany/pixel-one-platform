@@ -1320,36 +1320,42 @@
   let editBlogId = null;
 
   let blogEditorInitStarted = false;
+  const BLOG_EDITOR_IDS = ['blog-content', 'blog-content-en', 'blog-content-ar'];
 
   function initBlogEditor() {
     if (blogEditorInitStarted || !window.tinymce) return;
     blogEditorInitStarted = true;
-    window.tinymce.init({
-      selector: '#blog-content',
-      menubar: false,
-      height: 320,
-      plugins: ['link', 'lists', 'table', 'code', 'wordcount'],
-      toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | code',
-      branding: false,
-      promotion: false,
-      setup: (editor) => {
-        editor.on('change input undo redo', () => editor.save());
-      }
+    BLOG_EDITOR_IDS.forEach((id) => {
+      const isArabic = id === 'blog-content-ar';
+      window.tinymce.init({
+        selector: `#${id}`,
+        menubar: false,
+        height: 320,
+        plugins: ['link', 'lists', 'table', 'code', 'wordcount'],
+        toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | link table | code',
+        branding: false,
+        promotion: false,
+        directionality: isArabic ? 'rtl' : 'ltr',
+        content_style: isArabic ? 'body { direction: rtl; text-align: right; }' : 'body { direction: ltr; }',
+        setup: (editor) => {
+          editor.on('change input undo redo', () => editor.save());
+        }
+      });
     });
   }
 
-  function setBlogContentFr(value) {
+  function setBlogContent(editorId, value) {
     const content = value || '';
-    const textarea = document.getElementById('blog-content');
+    const textarea = document.getElementById(editorId);
     textarea.value = content;
-    const editor = window.tinymce?.get('blog-content');
+    const editor = window.tinymce?.get(editorId);
     if (editor) editor.setContent(content);
   }
 
-  function getBlogContentFr() {
-    const editor = window.tinymce?.get('blog-content');
+  function getBlogContent(editorId) {
+    const editor = window.tinymce?.get(editorId);
     if (editor) return editor.getContent().trim();
-    return document.getElementById('blog-content').value.trim();
+    return document.getElementById(editorId).value.trim();
   }
 
   function openBlogModal(post = null) {
@@ -1361,11 +1367,11 @@
     document.getElementById('blog-slug').value = post?.slug || '';
     document.getElementById('blog-image').value = post?.image_url || '';
     document.getElementById('blog-video-url').value = post?.video_url || '';
-    setBlogContentFr(post?.content || '');
+    setBlogContent('blog-content', post?.content || '');
     document.getElementById('blog-title-en').value = post?.title_en || '';
-    document.getElementById('blog-content-en').value = post?.content_en || '';
+    setBlogContent('blog-content-en', post?.content_en || '');
     document.getElementById('blog-title-ar').value = post?.title_ar || '';
-    document.getElementById('blog-content-ar').value = post?.content_ar || '';
+    setBlogContent('blog-content-ar', post?.content_ar || '');
     document.getElementById('blog-published').checked = post ? post.is_published : true;
     document.getElementById('blog-alert').classList.add('hidden');
     // Reset to FR tab
@@ -1491,11 +1497,11 @@
       slug:         document.getElementById('blog-slug').value.trim(),
       image_url:    document.getElementById('blog-image').value.trim() || null,
       video_url:    document.getElementById('blog-video-url').value.trim() || null,
-      content:      getBlogContentFr(),
+      content:      getBlogContent('blog-content'),
       title_en:     document.getElementById('blog-title-en').value.trim() || null,
-      content_en:   document.getElementById('blog-content-en').value.trim() || null,
+      content_en:   getBlogContent('blog-content-en') || null,
       title_ar:     document.getElementById('blog-title-ar').value.trim() || null,
-      content_ar:   document.getElementById('blog-content-ar').value.trim() || null,
+      content_ar:   getBlogContent('blog-content-ar') || null,
       is_published: document.getElementById('blog-published').checked,
     };
     try {
