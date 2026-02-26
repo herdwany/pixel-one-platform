@@ -192,6 +192,37 @@
   let _blogPosts = [];
   let _totalBlogRows = 0;
 
+  function esc(str) {
+    const el = document.createElement('span');
+    el.textContent = String(str ?? '');
+    return el.innerHTML;
+  }
+
+  function isLikelyHtmlContent(value) {
+    return /<\/?[a-z][\s\S]*>/i.test(String(value || ''));
+  }
+
+  function toPlainText(content) {
+    const raw = String(content || '');
+    if (!raw) return '';
+
+    if (isLikelyHtmlContent(raw)) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = raw;
+      return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+    }
+
+    return raw
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`[^`]*`/g, ' ')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[[^\]]*\]\([^)]*\)/g, '$1')
+      .replace(/^#{1,6}\s+/gm, '')
+      .replace(/[>*_~\-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   const BLOG_LIMIT = 10;
   PixelOneState.set('blog.limit', BLOG_LIMIT);
 
@@ -206,14 +237,14 @@
     container.innerHTML = _blogPosts.map(post => {
       const postTitle   = getPostField(post, 'title');
       const postContent = getPostField(post, 'content');
-      const excerpt = (postContent).replace(/[#*_\n>`\-]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 140);
+      const excerpt = toPlainText(postContent).substring(0, 180);
       return `
       <a href="blog-details.html?slug=${encodeURIComponent(post.slug)}" class="block group">
         <article class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition h-full">
           <div class="h-48 overflow-hidden relative">
             <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                 alt="${postTitle}" loading="lazy">
+                 alt="${esc(postTitle)}" loading="lazy">
           </div>
           <div class="p-6">
             <p class="text-xs text-gray-500 mb-2">
@@ -221,8 +252,8 @@
               ${new Date(post.created_at).toLocaleDateString(locale, { day:'2-digit', month:'short', year:'numeric' })}
               ${post.view_count ? `<span class="ms-3"><i class="fa-solid fa-eye mr-1"></i>${post.view_count}</span>` : ''}
             </p>
-            <h2 class="text-xl font-bold mb-2 leading-tight line-clamp-2">${postTitle}</h2>
-            <p class="text-gray-400 text-sm line-clamp-2 mb-4">${excerpt}</p>
+            <h2 class="text-xl font-bold mb-2 leading-tight line-clamp-2">${esc(postTitle)}</h2>
+            <p class="text-gray-400 text-sm line-clamp-2 mb-4">${esc(excerpt)}</p>
             <span class="text-xs text-brand font-bold uppercase tracking-widest group-hover:underline">
               ${t('blog.readmore')} <i class="fa-solid fa-arrow-right ms-1 text-[10px]"></i>
             </span>
