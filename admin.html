@@ -270,7 +270,7 @@
 
         <!-- Blog form modal -->
         <div id="blog-modal-overlay" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
-          <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+          <div class="bg-surface-card border border-surface-border rounded-2xl w-full max-w-6xl p-8 max-h-[92vh] overflow-y-auto">
             <div class="flex items-center justify-between mb-5">
               <h3 id="blog-modal-title" class="font-bold text-lg">Nouvel article</h3>
               <button id="blog-modal-close" class="text-gray-500 hover:text-white transition">
@@ -278,65 +278,34 @@
               </button>
             </div>
             <form id="blog-form" class="space-y-4">
-              <!-- Language tabs for blog content -->
-              <div class="flex gap-1 bg-surface rounded-lg p-1 border border-surface-border">
-                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition bg-brand/10 text-white border border-brand/40" data-blog-lang="fr">🇫🇷 Français</button>
-                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition text-gray-500 border border-transparent hover:text-white" data-blog-lang="en">🇺🇸 English</button>
-                <button type="button" class="blog-lang-tab flex-1 text-xs font-semibold py-2 rounded-md transition text-gray-500 border border-transparent hover:text-white" data-blog-lang="ar">🇲🇦 العربية</button>
-              </div>
-
-              <!-- FR fields (default, always visible initially) -->
-              <div id="blog-fields-fr" class="blog-lang-fields space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article <span class="text-brand">*</span></label>
-                  <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
-                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
+                  <label class="text-sm text-gray-400 mb-1.5 block">Language of writing <span class="text-brand">*</span></label>
+                  <select id="blog-source-lang" class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brand/50 transition">
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="ar">🇲🇦 العربية</option>
+                  </select>
+                  <p class="text-xs text-gray-500 mt-1.5">One editor only. On publish, content is auto-translated to FR/EN/AR.</p>
                 </div>
-                <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (éditeur riche HTML) <span class="text-brand">*</span></label>
-                  <textarea id="blog-content" rows="8" required placeholder="Rédigez votre article…"
-                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
+                <div class="flex items-end">
+                  <div class="w-full text-xs text-gray-500 bg-surface border border-surface-border rounded-lg px-4 py-3">
+                    <i class="fa-solid fa-circle-info mr-1 text-brand"></i>
+                    Translation runs automatically when you publish or update an article.
+                  </div>
                 </div>
               </div>
 
-              <!-- EN fields -->
-              <div id="blog-fields-en" class="blog-lang-fields space-y-4 hidden">
-                <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block">Title (English)</label>
-                  <input id="blog-title-en" type="text" placeholder="Top 5 design trends 2025"
-                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
-                </div>
-                <div class="flex justify-end">
-                  <button type="button" id="blog-translate-en-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-brand/40 bg-brand/10 text-brand hover:bg-brand hover:text-white transition">
-                    <i class="fa-solid fa-language mr-1"></i>Auto-translate from French
-                  </button>
-                </div>
-                <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block">Content (Rich HTML) — English</label>
-                  <textarea id="blog-content-en" rows="8" placeholder="Write your article in English…"
-                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
-                </div>
+              <div>
+                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.art.label">Titre de l'article <span class="text-brand">*</span></label>
+                <input id="blog-title" type="text" required placeholder="Top 5 tendances design 2025"
+                       class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
               </div>
 
-              <!-- AR fields -->
-              <div id="blog-fields-ar" class="blog-lang-fields space-y-4 hidden">
-                <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block" style="font-family:'IBM Plex Sans Arabic',sans-serif" dir="rtl">عنوان المقال (العربية)</label>
-                  <input id="blog-title-ar" type="text" placeholder="أفضل 5 اتجاهات في التصميم 2025" dir="rtl"
-                         style="font-family:'IBM Plex Sans Arabic',sans-serif"
-                         class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition" />
-                </div>
-                <div class="flex justify-end">
-                  <button type="button" id="blog-translate-ar-btn" class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-brand/40 bg-brand/10 text-brand hover:bg-brand hover:text-white transition" style="font-family:'IBM Plex Sans Arabic',sans-serif">
-                    <i class="fa-solid fa-language mr-1"></i>ترجمة تلقائية من الفرنسية
-                  </button>
-                </div>
-                <div>
-                  <label class="text-sm text-gray-400 mb-1.5 block" style="font-family:'IBM Plex Sans Arabic',sans-serif" dir="rtl">المحتوى (محرر HTML احترافي) — العربية</label>
-                  <textarea id="blog-content-ar" rows="8" placeholder="اكتب مقالك بالعربية…" dir="rtl"
-                            style="font-family:'IBM Plex Sans Arabic',sans-serif"
-                            class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-none"></textarea>
-                </div>
+              <div>
+                <label class="text-sm text-gray-400 mb-1.5 block" data-i18n="admin.blog.content.label">Contenu (éditeur riche HTML) <span class="text-brand">*</span></label>
+                <textarea id="blog-content" rows="14" required placeholder="Rédigez votre article…"
+                          class="w-full bg-surface border border-surface-border rounded-lg px-4 py-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-brand/50 transition resize-y"></textarea>
               </div>
 
               <!-- Shared fields (always visible) -->
