@@ -141,6 +141,7 @@ const TRANSLATIONS = {
     'coming.title.suffix': ' arrivent',
     'coming.desc':         'Nous préparons de nouveaux services web pour vous. Soyez les premiers informés !',
     'coming.from':         'À partir de',
+    'coming.soon':         'Bientôt',
     'coming.notify.title': 'Restez informé',
     'coming.notify.desc':  'Recevez une notification dès le lancement de nos nouveaux services.',
 
@@ -346,6 +347,7 @@ const TRANSLATIONS = {
     // ── Footer extra ──────────────────────────────────────────
     'footer.privacy':     'Politique de Confidentialité',
     'footer.terms':       'Conditions d\'Utilisation',
+    'footer.refund':      'Remboursement',
     'footer.blog':        'Blog',
   },
 
@@ -473,6 +475,7 @@ const TRANSLATIONS = {
     'coming.title.suffix': ' are coming',
     'coming.desc':         'We\'re preparing new web services for you. Be the first to know!',
     'coming.from':         'Starting at',
+    'coming.soon':         'Soon',
     'coming.notify.title': 'Stay informed',
     'coming.notify.desc':  'Get notified when our new services launch.',
 
@@ -671,6 +674,7 @@ const TRANSLATIONS = {
     // ── Footer extra ──────────────────────────────────────────
     'footer.privacy':     'Privacy Policy',
     'footer.terms':       'Terms of Service',
+    'footer.refund':      'Refund',
     'footer.blog':        'Blog',
   },
 
@@ -798,6 +802,7 @@ const TRANSLATIONS = {
     'coming.title.suffix': ' قادمة',
     'coming.desc':         'نحن نُعدّ خدمات ويب جديدة لكم. كونوا أول من يعلم!',
     'coming.from':         'ابتداءً من',
+    'coming.soon':         'قريباً',
     'coming.notify.title': 'ابقَ على اطلاع',
     'coming.notify.desc':  'احصل على إشعار فور إطلاق خدماتنا الجديدة.',
 
@@ -996,6 +1001,7 @@ const TRANSLATIONS = {
     // ── Footer extra ──────────────────────────────────────────
     'footer.privacy':     'سياسة الخصوصية',
     'footer.terms':       'شروط الاستخدام',
+    'footer.refund':      'سياسة الاسترداد',
     'footer.blog':        'المدونة',
   },
 };

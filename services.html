@@ -585,8 +585,8 @@
             ${features.slice(0, 3).map(f => `<li class="flex items-center gap-2"><i class="fa-solid fa-circle text-[4px] text-yellow-500/60"></i>${f}</li>`).join('')}
           </ul>
           <div class="flex items-center justify-between pt-3 border-t border-surface-border">
-            <p class="text-gray-500 text-sm"><span data-i18n="coming.from">À partir de</span> <span class="text-white font-bold">${Number(s.price).toLocaleString('fr-FR')} MAD</span></p>
-            <span class="text-yellow-500/60 text-xs font-semibold"><i class="fa-solid fa-hourglass-half mr-1"></i>Soon</span>
+            <p class="text-gray-500 text-sm"><span data-i18n="coming.from">${t('coming.from')}</span> <span class="text-white font-bold">${Number(s.price).toLocaleString('fr-FR')} MAD</span></p>
+            <span class="text-yellow-500/60 text-xs font-semibold"><i class="fa-solid fa-hourglass-half mr-1"></i>${t('coming.soon')}</span>
           </div>
         </div>
       </div>
