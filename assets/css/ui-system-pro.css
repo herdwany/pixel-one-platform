@@ -1,0 +1,145 @@
+/* ==========================================================
+   UI SYSTEM PRO – ENTERPRISE SAFE LAYER
+   Non-destructive – Scoped – DB Safe
+   ========================================================== */
+
+body[data-ui="pro"] {
+
+  /* ==============================
+     DESIGN TOKENS (Global System)
+     ============================== */
+
+  --color-bg: #060607;
+  --color-surface: rgba(20,20,22,0.72);
+  --color-card: rgba(24,24,28,0.78);
+  --color-border: rgba(255,255,255,0.06);
+
+  --color-brand: #ef4444;
+  --color-brand-strong: #b91c1c;
+
+  --radius-xl: 22px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+
+  --shadow-soft: 0 10px 30px rgba(0,0,0,0.45);
+  --shadow-brand: 0 20px 60px rgba(239,68,68,0.18);
+
+  background:
+    radial-gradient(circle at 15% 25%, rgba(239,68,68,0.05), transparent 25%),
+    radial-gradient(circle at 85% 75%, rgba(255,255,255,0.02), transparent 25%),
+    var(--color-bg);
+
+  color: #e8eef7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==============================
+   GLASS NAVBAR (Safe)
+   ============================== */
+
+body[data-ui="pro"] .navbar,
+body[data-ui="pro"] .ui-navbar {
+
+  backdrop-filter: blur(12px) saturate(120%);
+  background: linear-gradient(180deg,
+    rgba(12,12,14,0.65),
+    rgba(12,12,14,0.45)
+  );
+
+  border-bottom: 1px solid var(--color-border);
+  transition: all .3s ease;
+}
+
+/* ==============================
+   CARD SYSTEM (No HTML change)
+   ============================== */
+
+body[data-ui="pro"] .service-card,
+body[data-ui="pro"] .bg-surface-card {
+
+  background: var(--color-card) !important;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+
+  transition:
+    transform .4s cubic-bezier(.2,.9,.2,1),
+    box-shadow .4s ease,
+    border-color .4s ease;
+
+  will-change: transform;
+}
+
+body[data-ui="pro"] .service-card:hover {
+
+  transform: translateY(-14px);
+  box-shadow: var(--shadow-soft), var(--shadow-brand);
+  border-color: rgba(239,68,68,0.25);
+}
+
+/* ==============================
+   BUTTON SYSTEM (Safe Layer)
+   ============================== */
+
+body[data-ui="pro"] button,
+body[data-ui="pro"] .btn-primary {
+
+  background: linear-gradient(
+    135deg,
+    var(--color-brand),
+    var(--color-brand-strong)
+  );
+
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all .25s ease;
+  box-shadow: 0 10px 25px rgba(239,68,68,0.18);
+}
+
+body[data-ui="pro"] button:hover {
+
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(239,68,68,0.28);
+}
+
+/* ==============================
+   HERO TITLE EFFECT
+   ============================== */
+
+body[data-ui="pro"] h1 {
+
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -1px;
+  line-height: 1.05;
+}
+
+/* ==============================
+   MICRO INTERACTION PREP
+   ============================== */
+
+body[data-ui="pro"] .reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: all .7s cubic-bezier(.2,.9,.2,1);
+}
+
+body[data-ui="pro"] .reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==============================
+   ACCESSIBILITY SAFE
+   ============================== */
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-ui="pro"] * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
