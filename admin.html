@@ -1595,10 +1595,21 @@
         content: sourceContent,
       });
 
-      const translatedTitle = edgeResult?.title || await translateText(sourceTitle, sourceLang, targetLang);
-      const translatedContent = edgeResult?.content || (isHtml
-        ? await translateHtmlPreservingStructure(sourceContent, sourceLang, targetLang)
-        : await translateText(sourceContent, sourceLang, targetLang));
+      const edgeTitle = String(edgeResult?.title || '').trim();
+      const edgeContent = normalizeEditorValue(String(edgeResult?.content || ''));
+
+      const titleLooksUntranslated = edgeTitle && edgeTitle.toLowerCase() === sourceTitle.toLowerCase();
+      const contentLooksUntranslated = edgeContent && edgeContent.toLowerCase() === sourceContent.toLowerCase();
+
+      const translatedTitle = (!edgeResult?.partialFallback && edgeTitle && !titleLooksUntranslated)
+        ? edgeTitle
+        : (await translateText(sourceTitle, sourceLang, targetLang));
+
+      const translatedContent = (!edgeResult?.partialFallback && edgeContent && !contentLooksUntranslated)
+        ? edgeContent
+        : (isHtml
+          ? await translateHtmlPreservingStructure(sourceContent, sourceLang, targetLang)
+          : await translateText(sourceContent, sourceLang, targetLang));
 
       output[targetLang] = {
         title: translatedTitle || sourceTitle,

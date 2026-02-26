@@ -5,6 +5,7 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const TRANSLATE_ENDPOINT = Deno.env.get("BLOG_TRANSLATE_ENDPOINT") || "https://api.mymemory.translated.net/get";
 const ALLOWED_ORIGIN = Deno.env.get("ALLOWED_ORIGIN") || "https://www.pixelonevisuals.tech";
+const GOOGLE_TRANSLATE_ENDPOINT = "https://translate.googleapis.com/translate_a/single";
 
 const ALLOWED_LANGS = new Set(["fr", "en", "ar"]);
 
@@ -40,6 +41,45 @@ function decodeHtmlEntities(input: string): string {
     .replace(/&amp;/g, "&");
 }
 
+function normalizeForCompare(value: string): string {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function looksUntranslated(source: string, translated: string): boolean {
+  if (!translated) return true;
+  return normalizeForCompare(source) === normalizeForCompare(translated);
+}
+
+async function translateTextGoogle(text: string, sourceLang: string, targetLang: string): Promise<string> {
+  const source = String(text || "").trim();
+  if (!source) return "";
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+
+  try {
+    const url = `${GOOGLE_TRANSLATE_ENDPOINT}?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(source)}`;
+    const res = await fetch(url, {
+      method: "GET",
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return "";
+    const data = await res.json();
+    const merged = Array.isArray(data?.[0])
+      ? data[0].map((row: unknown[]) => String(row?.[0] || "")).join("")
+      : "";
+    return decodeHtmlEntities(merged.trim());
+  } catch {
+    return "";
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function translateText(text: string, sourceLang: string, targetLang: string): Promise<string> {
   const source = String(text || "").trim();
   if (!source) return "";
@@ -55,11 +95,18 @@ async function translateText(text: string, sourceLang: string, targetLang: strin
       headers: { Accept: "application/json" },
     });
 
-    if (!res.ok) return "";
+    if (!res.ok) {
+      return await translateTextGoogle(source, sourceLang, targetLang);
+    }
     const data = await res.json();
-    return decodeHtmlEntities(String(data?.responseData?.translatedText || "").trim());
+    const primary = decodeHtmlEntities(String(data?.responseData?.translatedText || "").trim());
+    if (sourceLang !== targetLang && looksUntranslated(source, primary)) {
+      const secondary = await translateTextGoogle(source, sourceLang, targetLang);
+      return secondary || primary;
+    }
+    return primary;
   } catch {
-    return "";
+    return await translateTextGoogle(source, sourceLang, targetLang);
   } finally {
     clearTimeout(timeout);
   }
