@@ -331,6 +331,10 @@
                 <label class="text-sm text-gray-400">Publié</label>
                 <input id="blog-published" type="checkbox" checked class="accent-brand w-4 h-4" />
               </div>
+              <button type="button" id="blog-force-retranslate-btn"
+                      class="hidden w-full bg-surface border border-brand/40 text-brand hover:bg-brand hover:text-white font-semibold py-2.5 rounded-xl transition">
+                <i class="fa-solid fa-language mr-2"></i>Force Re-translate (FR/EN/AR)
+              </button>
               <button type="submit"
                       class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-xl transition">
                 <i class="fa-solid fa-save mr-2"></i><span id="blog-submit-text" data-i18n="admin.blog.submit">Publier l'article</span>
@@ -1307,6 +1311,7 @@
   const blogTranslationCache = new Map();
   let currentBlogSourceLang = 'fr';
   let blogDraftByLang = createEmptyBlogDraft();
+  let forceReTranslateRequested = false;
 
   function createEmptyBlogDraft() {
     return {
@@ -1686,12 +1691,21 @@
 
     document.getElementById('blog-published').checked = post ? post.is_published : true;
     document.getElementById('blog-alert').classList.add('hidden');
+    forceReTranslateRequested = false;
+
+    const forceBtn = document.getElementById('blog-force-retranslate-btn');
+    if (forceBtn) {
+      forceBtn.classList.toggle('hidden', !post);
+      forceBtn.disabled = false;
+    }
+
     document.getElementById('blog-modal-overlay').classList.remove('hidden');
   }
 
   function closeBlogModal() {
     document.getElementById('blog-modal-overlay').classList.add('hidden');
     editBlogId = null;
+    forceReTranslateRequested = false;
   }
 
   function renderBlogPosts(posts) {
@@ -1824,9 +1838,18 @@
     loadSourceLangDraftIntoForm(currentBlogSourceLang);
   });
 
+  document.getElementById('blog-force-retranslate-btn')?.addEventListener('click', async () => {
+    if (!editBlogId) return;
+    forceReTranslateRequested = true;
+    const btn = document.getElementById('blog-force-retranslate-btn');
+    if (btn) btn.disabled = true;
+    document.getElementById('blog-form').requestSubmit();
+  });
+
   document.getElementById('blog-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const alertEl = document.getElementById('blog-alert');
+    const forceBtn = document.getElementById('blog-force-retranslate-btn');
     const sourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
 
     const sourceTitleLive = document.getElementById('blog-title').value.trim();
@@ -1865,7 +1888,9 @@
       return;
     }
 
-    alertEl.textContent = '⏳ Traduction automatique FR/EN/AR en cours…';
+    alertEl.textContent = forceReTranslateRequested
+      ? '⏳ Force Re-translate en cours…'
+      : '⏳ Traduction automatique FR/EN/AR en cours…';
     alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-blue-500/10 border border-blue-500/30 text-blue-300';
     alertEl.classList.remove('hidden');
 
@@ -1907,9 +1932,12 @@
         ? ` (fallback partiel: ${translated.warnings.join(', ')})`
         : '';
       const slugNote = savedSlug !== payload.slug ? ` (slug ajusté: ${savedSlug})` : '';
-      alertEl.textContent = (editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success')) + warnText + slugNote;
+      const forceNote = forceReTranslateRequested ? ' (re-translate forcée)' : '';
+      alertEl.textContent = (editBlogId ? 'Article mis à jour ✓' : t('admin.blog.success')) + warnText + slugNote + forceNote;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400';
       alertEl.classList.remove('hidden');
+      forceReTranslateRequested = false;
+      if (forceBtn) forceBtn.disabled = false;
       setTimeout(() => closeBlogModal(), 800);
       await loadBlogPosts();
     } catch (err) {
@@ -1917,6 +1945,8 @@
       alertEl.textContent = '✗ ' + safe;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
+      forceReTranslateRequested = false;
+      if (forceBtn) forceBtn.disabled = false;
     }
   });
 
