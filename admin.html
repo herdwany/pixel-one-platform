@@ -1840,11 +1840,16 @@
         </h3>
         <div class="space-y-5">
           ${items.map(item => {
-            const isLong = LONG_KEYS.some(k => (item.content_key || '').toLowerCase().includes(k));
+            const rawKey = item.key || item.content_key || item.slug || '';
+            const contentKey = String(rawKey).trim();
+            const keyDisplay = contentKey
+              ? esc(contentKey)
+              : '<span class="text-xs text-red-400 font-mono">MISSING_KEY</span>';
+            const isLong = LONG_KEYS.some(k => contentKey.toLowerCase().includes(k));
             return `
             <div class="border-b border-surface-border pb-4 last:border-0 last:pb-0">
               <p class="text-sm font-semibold text-white mb-3">
-                <i class="fa-solid fa-key mr-1.5 text-brand text-xs"></i>${esc(item.content_key || 'sans clé')}
+                <i class="fa-solid fa-key mr-1.5 text-brand text-xs"></i>${keyDisplay}
               </p>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 ${['fr', 'en', 'ar'].map(lang => `
@@ -1876,6 +1881,27 @@
     const alertEl = document.getElementById('content-alert');
     const inputs = document.querySelectorAll('.content-input');
     const updates = {};
+
+    for (const input of inputs) {
+      const idRaw = input.dataset.contentId;
+      const id = Number(idRaw);
+
+      if (!idRaw || idRaw === 'undefined' || Number.isNaN(id)) {
+        console.error('HusionX Alert: Row has no valid ID.', input);
+        alert('⛔ HusionX Error: This row has no ID. Refresh the page.');
+        return;
+      }
+
+      const row = input.closest('.border-b');
+      const keyText = (row?.querySelector('.font-mono')?.innerText || row?.querySelector('p')?.innerText || '').trim();
+      const item = siteContentData.find(entry => Number(entry.id) === id);
+      const keyValue = String(item?.key || item?.content_key || item?.slug || '').trim();
+
+      if (!keyValue || keyText.includes('MISSING_KEY') || keyText.includes('sans clé')) {
+        alert('⛔ HusionX Security: Cannot save content without a valid Key.\nPlease fix the database record first.');
+        return;
+      }
+    }
 
     inputs.forEach(input => {
       const id = input.dataset.contentId;
