@@ -1,29 +1,65 @@
-/* FORCE VISIBILITY & CONTRAST FIX */
-/* هذا الكود يجبر النصوص على الظهور بوضوح تام ويلغي أي شفافية */
+/* ==========================================================================
+   UI POLISH - FINAL FIXED VERSION
+   تحسين التباين والجمالية دون كسر الهوية البصرية أو الشعار
+   ========================================================================== */
 
-.text-white, 
-.text-gray-100, .text-gray-200, .text-gray-300, 
-.text-gray-400, .text-gray-500, p, h1, h2, h3, h4, span {
-  /* إجبار اللون */
-  opacity: 1 !important; 
-  --tw-text-opacity: 1 !important;
-  
-  /* إضافة ظل خفيف للنص ليفصله عن الخلفية الداكنة */
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8); 
+/* 1. إعدادات النصوص الأساسية (لضمان عدم ظهور اللون الأسود) */
+body {
+  color: #ffffff !important;
+  background-color: #050505 !important;
 }
 
-/* تصحيح خاص للنصوص الرمادية لتصبح أفتح (شبه بيضاء) */
-.text-gray-400, .text-gray-500, .text-gray-600 {
-  color: #e5e7eb !important; /* لون رمادي فاتح جداً */
-}
-
-/* تصحيح العناصر الصفراء/الذهبية */
-.text-yellow-500, .text-yellow-400, .text-brand {
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff !important;
   opacity: 1 !important;
-  text-shadow: 0 0 10px rgba(0,0,0,0.5); /* توهج بسيط */
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5); /* ظل خفيف للقراءة */
 }
 
-/* التأكد من أن البطاقات نفسها ليست شفافة */
-.bg-surface-card, .service-card, .reveal {
-   opacity: 1 !important;
+/* 2. تحسين درجات الرمادي (لتكون مقروءة جداً وليست باهتة) */
+p, .text-gray-400, .text-gray-500, .text-gray-300 {
+  color: #d4d4d8 !important; /* رمادي فاتح جداً (Zinc-300) */
+  opacity: 1 !important;
+  font-weight: 400; /* تجنب الخط النحيف جداً */
+}
+
+/* 3. حماية الشعار وعناصر البراند (مهم جداً!) */
+.text-brand, .site-logo .text-brand {
+  color: #ef4444 !important; /* اللون الأحمر الأصلي */
+  opacity: 1 !important;
+}
+
+.site-logo span {
+  opacity: 1 !important;
+}
+
+/* 4. تحسين بطاقات الخدمات (إزالة الشفافية السيئة) */
+.service-card, .reveal, .bg-surface-card {
+  background-color: #161616 !important; /* خلفية داكنة ثابتة */
+  opacity: 1 !important;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* 5. تحسين خاص لبطاقات "قريباً" (Coming Soon) */
+/* نجعل النص الذهبي ساطعاً */
+.text-yellow-400, .text-yellow-500 {
+  color: #facc15 !important; /* أصفر ذهبي ساطع */
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.3);
+}
+
+/* 6. تحسين الأزرار والروابط */
+a, button {
+  transition: all 0.2s ease-in-out;
+}
+a:hover, button:hover {
+  opacity: 1 !important;
+  filter: brightness(1.1);
+}
+
+/* 7. القوائم المنسدلة */
+#lang-dropdown {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
+}
+.lang-opt:hover {
+  background-color: rgba(255, 0, 0, 0.1) !important;
 }
