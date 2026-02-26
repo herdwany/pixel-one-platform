@@ -33,11 +33,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS (compiled for production) -->
-  <link rel="stylesheet" href="assets/css/tailwind.output.css" />
+  <link rel="stylesheet" href="assets/css/core-pro.css">
+  <link rel="stylesheet" href="assets/css/surfaces-pro.css">
+  <link rel="stylesheet" href="assets/css/depth-engine.css">
+  <link rel="stylesheet" href="assets/css/motion-ultra.css">
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="assets/css/ui-polish.css" />
-  <link rel="stylesheet" href="assets/css/ui-system-pro.css">
 
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -101,8 +102,9 @@
   </style>
 </head>
 
-<body class="bg-[#050505] lang-fr">
-<div class="content">
+<body class="bg-[#050505] lang-fr"
+      data-ui="pro"
+      data-app="pixelone">
 
   <!-- ── FIRST-VISIT LANGUAGE SELECTION MODAL ─────────────── -->
     <div id="lang-select-modal"
@@ -459,7 +461,8 @@
 <script src="assets/js/api/services.api.js"></script>
 <script src="assets/js/api/blog.api.js"></script>
 <script src="/js/ui-system-pro.js" defer></script>
-<script>
+<script src="/js/ui-interactions-pro.js"></script>
+<script>  
   // ── First-visit language modal handling ────────────────────
   function selectFirstLang(lang) {
     const modal = document.getElementById('lang-select-modal');

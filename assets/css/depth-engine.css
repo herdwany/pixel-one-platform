@@ -1,0 +1,25 @@
+/* Z-Layer System */
+
+.section-depth {
+  position: relative;
+  z-index: 2;
+}
+
+.section-depth::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(
+    circle at center,
+    rgba(255,0,0,0.05),
+    transparent 70%
+  );
+  opacity:0;
+  transition: opacity .6s ease;
+}
+
+.section-depth:hover::after {
+  opacity:1;
+}
+
+/* Add class section-depth to any important section. */
