@@ -1301,6 +1301,7 @@
   let blogEditorInitStarted = false;
   const BLOG_EDITOR_IDS = ['blog-content'];
   const BLOG_ALL_LANGS = ['fr', 'en', 'ar'];
+  const BLOG_TRANSLATE_EDGE_FN = 'blog-translate';
   const BLOG_TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';
   const blogTranslationCache = new Map();
   let currentBlogSourceLang = 'fr';
@@ -1495,6 +1496,33 @@
     }
   }
 
+  async function translatePairViaEdge({ sourceLang, targetLang, title, content }) {
+    try {
+      const format = isLikelyHtmlContent(content) ? 'html' : 'plain';
+      const sb = getSupabaseClient();
+      const { data, error } = await sb.functions.invoke(BLOG_TRANSLATE_EDGE_FN, {
+        body: {
+          sourceLang,
+          targetLang,
+          title,
+          content,
+          format,
+        }
+      });
+
+      if (error) return null;
+      if (!data || data.ok !== true) return null;
+
+      return {
+        title: String(data.title || title).trim(),
+        content: normalizeEditorValue(String(data.content || content)),
+        partialFallback: Boolean(data.partialFallback),
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
   async function translateHtmlPreservingStructure(html, sourceLang, targetLang) {
     const source = String(html || '').trim();
     if (!source) return '';
@@ -1548,17 +1576,24 @@
     for (const targetLang of BLOG_ALL_LANGS) {
       if (targetLang === sourceLang) continue;
 
-      const translatedTitle = await translateText(sourceTitle, sourceLang, targetLang);
-      const translatedContent = isHtml
+      const edgeResult = await translatePairViaEdge({
+        sourceLang,
+        targetLang,
+        title: sourceTitle,
+        content: sourceContent,
+      });
+
+      const translatedTitle = edgeResult?.title || await translateText(sourceTitle, sourceLang, targetLang);
+      const translatedContent = edgeResult?.content || (isHtml
         ? await translateHtmlPreservingStructure(sourceContent, sourceLang, targetLang)
-        : await translateText(sourceContent, sourceLang, targetLang);
+        : await translateText(sourceContent, sourceLang, targetLang));
 
       output[targetLang] = {
         title: translatedTitle || sourceTitle,
         content: normalizeEditorValue(translatedContent || sourceContent),
       };
 
-      if (!translatedTitle || !translatedContent) {
+      if (!translatedTitle || !translatedContent || edgeResult?.partialFallback) {
         output.warnings.push(targetLang);
       }
     }

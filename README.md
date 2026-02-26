@@ -1,4 +1,38 @@
+## Blog Translation Edge Function (Production)
+
+The admin blog editor now supports automatic multilingual publishing (FR/EN/AR) using a dedicated Supabase Edge Function:
+
+- Function path: `supabase/functions/blog-translate/index.ts`
+- Function name: `blog-translate`
+- Called from admin panel during blog save/publish
+
+### Deploy
+
+```bash
+supabase functions deploy blog-translate
+```
+
+### Required secrets
+
+Set these in your Supabase project (Dashboard → Edge Functions → Secrets):
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Optional:
+
+- `ALLOWED_ORIGIN` (default: `https://www.pixelonevisuals.tech`)
+- `BLOG_TRANSLATE_ENDPOINT` (default: MyMemory API endpoint)
+
+### Security model
+
+- Function requires authenticated user token (`Authorization: Bearer ...`).
+- Function checks `profiles.role === 'admin'` before performing translation.
+- Non-admin requests are rejected with `403 Forbidden`.
+
 # pixel-one-platform
+
 Digital Service Marketplace for Pixel One Agency.
 
 ## Database Setup
@@ -59,18 +93,18 @@ ORDER BY ordinal_position;
 
 Expected results:
 
-| column_name        | data_type                   | is_nullable | column_default                    |
-|--------------------|-----------------------------|-------------|-----------------------------------|
-| id                 | bigint                      | NO          | generated always as identity      |
-| order_ref          | text                        | NO          |                                   |
-| user_id            | uuid                        | YES         |                                   |
-| service_id         | bigint                      | YES         |                                   |
-| status             | text                        | NO          | 'pending'::text                   |
-| details            | jsonb                       | YES         |                                   |
-| payment_proof_url  | text                        | YES         |                                   |
-| payment_proof_path | text                        | YES         |                                   |
-| created_at         | timestamp with time zone    | NO          | now()                             |
-| updated_at         | timestamp with time zone    | NO          | now()                             |
+| column_name        | data_type                | is_nullable | column_default               |
+| ------------------ | ------------------------ | ----------- | ---------------------------- |
+| id                 | bigint                   | NO          | generated always as identity |
+| order_ref          | text                     | NO          |                              |
+| user_id            | uuid                     | YES         |                              |
+| service_id         | bigint                   | YES         |                              |
+| status             | text                     | NO          | 'pending'::text              |
+| details            | jsonb                    | YES         |                              |
+| payment_proof_url  | text                     | YES         |                              |
+| payment_proof_path | text                     | YES         |                              |
+| created_at         | timestamp with time zone | NO          | now()                        |
+| updated_at         | timestamp with time zone | NO          | now()                        |
 
 - **`id`** – auto-incrementing primary key.
 - **`order_ref`** – unique human-readable order reference (e.g. `ORD-XXXXXXXX`).
