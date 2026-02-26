@@ -1,207 +1,29 @@
-/* Global UI polish layer (non-breaking) */
+/* FORCE VISIBILITY & CONTRAST FIX */
+/* هذا الكود يجبر النصوص على الظهور بوضوح تام ويلغي أي شفافية */
 
-
-
-/* رفع تباين النصوص الأساسية على الخلفيات الداكنة */
-.text-white, .text-gray-100, .text-gray-200, .text-gray-300, .text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700 {
-  color: #fff !important;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.22), 0 1px 8px rgba(0,0,0,0.18);
-}
-
-#lang-btn {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  color: #f3f4f6 !important;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.13);
-  text-shadow: 0 1px 8px rgba(0,0,0,0.18);
-  transition: all 0.18s cubic-bezier(.4,0,.2,1);
+.text-white, 
+.text-gray-100, .text-gray-200, .text-gray-300, 
+.text-gray-400, .text-gray-500, p, h1, h2, h3, h4, span {
+  /* إجبار اللون */
+  opacity: 1 !important; 
+  --tw-text-opacity: 1 !important;
+  
+  /* إضافة ظل خفيف للنص ليفصله عن الخلفية الداكنة */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8); 
 }
 
-#lang-btn:hover,
-#lang-btn:focus-visible {
-  background: rgba(255, 0, 0, 0.18) !important;
-  border-color: rgba(255, 0, 0, 0.75) !important;
-  color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.25), 0 12px 32px rgba(255, 0, 0, 0.22);
-  text-shadow: 0 2px 16px rgba(255,0,0,0.18), 0 1px 8px rgba(0,0,0,0.22);
+/* تصحيح خاص للنصوص الرمادية لتصبح أفتح (شبه بيضاء) */
+.text-gray-400, .text-gray-500, .text-gray-600 {
+  color: #e5e7eb !important; /* لون رمادي فاتح جداً */
 }
 
-#lang-dropdown {
-  border-color: rgba(255, 255, 255, 0.18) !important;
-  background: rgba(22,22,22,0.98) !important;
-  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(10px);
+/* تصحيح العناصر الصفراء/الذهبية */
+.text-yellow-500, .text-yellow-400, .text-brand {
+  opacity: 1 !important;
+  text-shadow: 0 0 10px rgba(0,0,0,0.5); /* توهج بسيط */
 }
 
-
-footer a {
-  color: #bdbdbd !important;
-  font-weight: 500;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.13);
-  transition: color 0.18s cubic-bezier(.4,0,.2,1), transform 0.18s cubic-bezier(.4,0,.2,1);
-}
-footer a:hover,
-footer a:focus-visible {
-  color: #ff4444 !important;
-  transform: translateY(-2px) scale(1.04);
-  text-shadow: 0 2px 16px rgba(255,0,0,0.18), 0 1px 8px rgba(0,0,0,0.22);
-}
-nav a {
-  color: #e5e7eb !important;
-  font-weight: 600;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.13);
-  transition: color 0.18s cubic-bezier(.4,0,.2,1), text-shadow 0.18s cubic-bezier(.4,0,.2,1);
-}
-nav a:hover,
-nav a:focus-visible {
-  color: #fff !important;
-  text-shadow: 0 2px 16px rgba(255,0,0,0.18), 0 1px 8px rgba(0,0,0,0.22);
-}
-
-/* Blog/service card polish */
-.reveal img, .service-card img {
-  border-radius: 1rem 1rem 0 0;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
-  border-bottom: 2px solid rgba(255,255,255,0.04);
-}
-.reveal .flex-1 h3, .service-card h3 {
-  margin-bottom: 0.5rem;
-  color: #fff;
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.13);
-}
-.reveal .flex-1 p, .service-card p {
-  margin-bottom: 0.75rem;
-  color: #e5e7eb;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.10);
-}
-.reveal .flex-1 {
-  gap: 0.5rem;
-}
-.reveal .flex-1 .text-gray-400 {
-  color: #bdbdbd !important;
-}
-.reveal .flex-1 .text-brand {
-  text-shadow: 0 2px 8px rgba(255,0,0,0.13);
-}
-
-/* Service tabs: only .active is prominent */
-.svc-tab {
-  color: #bdbdbd !important;
-  background: rgba(22,22,22,0.85) !important;
-  border: 1px solid rgba(40,40,40,0.85) !important;
-  font-weight: 600;
-  box-shadow: none !important;
-  filter: none !important;
-  opacity: 0.75;
-  transition: all 0.18s cubic-bezier(.4,0,.2,1) !important;
-}
-.svc-tab.active {
-  color: #fff !important;
-  background: rgba(255,0,0,0.13) !important;
-  border: 1.5px solid rgba(255,0,0,0.45) !important;
-  box-shadow: 0 2px 12px 0 rgba(255,0,0,0.10), 0 1px 8px rgba(0,0,0,0.13) !important;
-  filter: brightness(1.08) drop-shadow(0 2px 16px rgba(255,0,0,0.10));
-  opacity: 1;
-}
-.svc-tab:not(.active):hover {
-  color: #e5e7eb !important;
-  background: rgba(40,40,40,0.95) !important;
-  border: 1.5px solid rgba(255,0,0,0.18) !important;
-  opacity: 0.92;
-}
-
-/* Blog card image polish */
-.reveal img, .service-card img {
-  border-radius: 1rem 1rem 0 0;
-  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.13);
-  border-bottom: 2px solid rgba(255,255,255,0.04);
-}
-.reveal .flex-1 h3, .service-card h3 {
-  margin-bottom: 0.5rem;
-}
-.reveal .flex-1 p, .service-card p {
-  margin-bottom: 0.75rem;
-}
-.reveal .flex-1 {
-  gap: 0.5rem;
-}
-.reveal .flex-1 .text-gray-400 {
-  color: #bdbdbd !important;
-}
-.reveal .flex-1 .text-brand {
-  text-shadow: 0 2px 8px rgba(255,0,0,0.10);
-}
-
-/*
- * =================================================================
- * == GLOBAL INTERACTIVITY POLISH (Opacity & Hover) ==
- * =================================================================
- *
- * The following rules apply a consistent hover/focus effect to
- * most interactive elements across the site to address the user
- * request for better visual feedback.
- *
- * Default state: slightly transparent.
- * Hover/Focus state: fully opaque with a subtle zoom.
- */
-
-/*
- * -- Rule 1: Broadly target interactive elements --
- * We target <a>, <button>, and divs from the "Why Us" section.
- * We exclude elements that already have specific, conflicting styles.
- */
-a,
-button,
-#why .reveal {
-  /*
-   * We are intentionally NOT applying a base opacity here to avoid
-   * conflicts with elements that manage their own opacity (e.g., .svc-tab).
-   * Instead, we will apply it only to elements that don't have
-   * their own opacity-based hover/active effects.
-   */
-  transform: scale(1);
-  transition: transform 0.2s cubic-bezier(.4,0,.2,1),
-              opacity 0.2s cubic-bezier(.4,0,.2,1),
-              color 0.2s cubic-bezier(.4,0,.2,1),
-              background-color 0.2s cubic-bezier(.4,0,.2,1);
-}
-
-/*
- * -- Rule 2: Apply the default 'dimmed' state --
- * Here we apply the base opacity. We EXCLUDE elements that
- * have their own custom opacity logic, like the service tabs
- * and the language button which have their own look.
- */
-a:not(.lang-opt):not([class*="svc-tab"]),
-button:not(.lang-opt):not([class*="svc-tab"]):not(#lang-btn),
-#why .reveal {
-    opacity: 0.8;
-}
-
-/*
- * -- Rule 3: Define the 'prominent' hover/focus state --
- * On hover/focus, elements become fully opaque and scale up slightly.
- */
-a:not(.lang-opt):not([class*="svc-tab"]):hover,
-button:not(.lang-opt):not([class*="svc-tab"]):hover,
-#why .reveal:hover,
-a:not(.lang-opt):not([class*="svc-tab"]):focus-visible,
-button:not(.lang-opt):not([class*="svc-tab"]):focus-visible,
-#why .reveal:focus-visible {
-    opacity: 1;
-    transform: scale(1.03);
-}
-
-/*
- * -- Rule 4: Reset for Footer & Nav --
- * The footer and main navigation have simple text-color transitions
- * which look better without the global opacity effect. We'll reset
- * their base opacity to 1 so only the color changes.
- */
-#main-nav a,
-footer a {
-  opacity: 1;
+/* التأكد من أن البطاقات نفسها ليست شفافة */
+.bg-surface-card, .service-card, .reveal {
+   opacity: 1 !important;
 }
