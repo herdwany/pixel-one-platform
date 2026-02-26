@@ -1391,12 +1391,18 @@
     const raw = String(value || '');
     if (!raw.trim()) return false;
     if (!isLikelyHtmlContent(raw)) return raw.trim().length > 0;
-    const textOnly = raw
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&nbsp;/gi, ' ')
+
+    const container = document.createElement('div');
+    container.innerHTML = raw;
+
+    const textOnly = (container.textContent || '')
+      .replace(/\u00a0/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-    return textOnly.length > 0;
+    if (textOnly.length > 0) return true;
+
+    const nonTextContent = container.querySelector('img,video,iframe,table,ul,ol,blockquote,pre,hr,figure');
+    return Boolean(nonTextContent);
   }
 
   function normalizeEditorValue(value) {
@@ -1734,10 +1740,19 @@
     const sourceLang = document.getElementById('blog-source-lang')?.value || 'fr';
     const sourceTitle = (blogDraftByLang[sourceLang]?.title || '').trim();
     const sourceContent = normalizeEditorValue(blogDraftByLang[sourceLang]?.content || '');
-    const slug = document.getElementById('blog-slug').value.trim();
+    const slugInput = document.getElementById('blog-slug');
+    let slug = slugInput.value.trim();
+    if (!slug) {
+      slug = toSlug(sourceTitle) || `post-${Date.now()}`;
+      slugInput.value = slug;
+    }
 
     if (!sourceTitle || !sourceContent || !slug) {
-      alertEl.textContent = '✗ Titre, slug et contenu sont obligatoires dans la langue choisie.';
+      const missing = [];
+      if (!sourceTitle) missing.push('titre');
+      if (!slug) missing.push('slug');
+      if (!sourceContent) missing.push('contenu');
+      alertEl.textContent = `✗ Champs manquants (${missing.join(', ')}) dans la langue choisie.`;
       alertEl.className = 'mt-4 px-4 py-3 rounded-lg text-sm bg-red-500/10 border border-red-500/30 text-red-400';
       alertEl.classList.remove('hidden');
 
