@@ -1,0 +1,38 @@
+/* Global UI polish layer (non-breaking) */
+
+#lang-btn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #d1d5db !important;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+#lang-btn:hover,
+#lang-btn:focus-visible {
+  background: rgba(255, 0, 0, 0.1) !important;
+  border-color: rgba(255, 0, 0, 0.45) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 0, 0, 0.25), 0 10px 30px rgba(255, 0, 0, 0.16);
+}
+
+#lang-dropdown {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+}
+
+footer a {
+  color: #9ca3af !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+footer a:hover,
+footer a:focus-visible {
+  color: #ff4d4d !important;
+  transform: translateY(-1px);
+}
+
+nav a:hover,
+nav a:focus-visible {
+  color: #ffffff;
+}

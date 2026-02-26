@@ -53,6 +53,7 @@
   <!-- DOMPurify for safe HTML -->
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/ui-polish.css" />
 
   <style>
     body {
@@ -225,7 +226,7 @@
 
         <!-- Featured Image -->
         <div id="article-image-wrap" class="mb-8 rounded-2xl overflow-hidden border border-surface-border">
-          <img id="article-image" src="" alt="" class="w-full max-h-[500px] object-cover" />
+          <img id="article-image" src="" alt="" class="w-full max-h-[500px] object-cover" onerror="this.onerror=null;this.src='https://via.placeholder.com/1400x700?text=Pixel+One';" />
         </div>
 
         <!-- YouTube Video -->
@@ -926,6 +927,7 @@
            class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition group block">
           <div class="h-40 overflow-hidden">
             <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200?text=Pixel+One';"
                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                  alt="${esc(getPostField(post, 'title'))}" loading="lazy">
           </div>
@@ -948,17 +950,6 @@
   function toggleMobileMenu() {
     document.getElementById('mobile-menu').classList.toggle('hidden');
   }
-
-  // ── Language dropdown toggle ─────────────────────────────
-  document.getElementById('lang-btn')?.addEventListener('click', () => {
-    document.getElementById('lang-dropdown').classList.toggle('hidden');
-  });
-  document.addEventListener('click', (e) => {
-    const wrapper = document.getElementById('lang-dropdown-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {
-      document.getElementById('lang-dropdown').classList.add('hidden');
-    }
-  });
 
   // ── Init ─────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', loadArticle);

@@ -38,6 +38,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="assets/css/ui-polish.css" />
 
   <style>
     body {
@@ -243,6 +244,7 @@
         <article class="bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition h-full">
           <div class="h-48 overflow-hidden relative">
             <img src="${post.image_url || 'https://via.placeholder.com/400x200?text=Pixel+One'}"
+                onerror="this.onerror=null;this.src='https://via.placeholder.com/400x200?text=Pixel+One';"
                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                  alt="${esc(postTitle)}" loading="lazy">
           </div>
