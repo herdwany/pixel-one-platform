@@ -7,7 +7,7 @@
    ═══════════════════════════════════════════════════════════════ */
 @layer base {
   body {
-    /* جعل الخلفية شفافة للسماح لمحرك الجافاسكريبت بإظهار الخلفية المتحركة */
+    /* السماح للخلفية السينمائية (JS) بالظهور */
     background-color: transparent !important;
     @apply text-gray-900 relative;
   }
@@ -31,7 +31,7 @@
     text-shadow: 0 4px 20px rgba(0,0,0,0.8);
   }
 
-  /* النصوص والفقرات (تباين عالي للقراءة) */
+  /* النصوص والفقرات (تباين عالي) */
   p, span, li, .text-muted-text {
     color: #374151; 
     line-height: 1.6;
@@ -45,8 +45,7 @@
   a { transition: color 0.2s ease; color: inherit; }
   a:hover { color: #ff0000 !important; }
   
-  /* ─── أصناف الخلفية المتحركة (Cinematic Glows Support) ─── */
-  /* هذه الأصناف ضرورية لعمل ملف cinematic-bg.js */
+  /* ─── أصناف الخلفية المتحركة (Cinematic Glows) ─── */
   .cinematic-glow {
     position: absolute;
     border-radius: 50%;
@@ -74,18 +73,18 @@
    2. المكونات (COMPONENTS)
    ═══════════════════════════════════════════════════════════════ */
 @layer components {
-  /* ─── الزر الرئيسي (بدون لمعة إضافية) ─── */
+  /* ─── الزر الرئيسي ─── */
   .btn-primary, button[type="submit"], .cta-button {
     @apply relative inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide uppercase transition-all duration-300 ease-out;
     background-color: #ff0000 !important; color: #ffffff !important; border: 1px solid transparent; 
     box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); 
-    z-index: 10; /* لضمان الظهور فوق الخلفية */
+    z-index: 10;
   }
   .btn-primary:hover, button[type="submit"]:hover {
     background-color: #dc2626 !important; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.6);
   }
 
-  /* ─── الزر الثانوي (حدود فقط) ─── */
+  /* ─── الزر الثانوي ─── */
   .btn-secondary, .btn-outline {
     @apply inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-semibold text-sm border-2 transition-all duration-300 bg-transparent;
     border-color: #1f2937; color: #1f2937; z-index: 10;
@@ -93,7 +92,7 @@
   .dark .btn-secondary, .dark .btn-outline { border-color: rgba(255, 255, 255, 0.2); color: #ffffff; }
   .btn-secondary:hover { border-color: #ff0000 !important; color: #ff0000 !important; background-color: rgba(255, 0, 0, 0.05); }
 
-  /* ─── البطاقات الزجاجية (Glass Cards) ─── */
+  /* ─── البطاقات الزجاجية ─── */
   .card-glass {
     @apply rounded-2xl border transition-all duration-300 relative overflow-hidden;
     /* نهاراً */
@@ -108,7 +107,7 @@
   }
   .card-glass:hover { border-color: rgba(255, 0, 0, 0.5); transform: translateY(-5px); }
   
-  /* ─── الحقول (Inputs) ─── */
+  /* ─── الحقول ─── */
   input, textarea, select {
     @apply w-full px-4 py-3 rounded-lg outline-none transition-all duration-200 relative;
     background-color: #f9fafb; border: 1px solid #d1d5db; color: #111827;
@@ -119,8 +118,27 @@
   input:focus { border-color: #ff0000 !important; box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15); }
 }
 
-/* ─── الأدوات المساعدة (UTILITIES) ─── */
+/* ═══════════════════════════════════════════════════════════════
+   3. الأدوات المساعدة (UTILITIES)
+   ═══════════════════════════════════════════════════════════════ */
 @layer utilities { 
   .text-brand { color: #ff0000 !important; } 
   .bg-brand { background-color: #ff0000 !important; } 
+
+  /* أنميشن شاشة التحميل (Preloader) */
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.95); }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 3s infinite ease-in-out;
+  }
+
+  @keyframes progress {
+    0% { width: 0%; }
+    100% { width: 100%; }
+  }
+  .animate-progress {
+    animation: progress 1.5s ease-out forwards;
+  }
 }
