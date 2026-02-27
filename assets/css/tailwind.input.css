@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-deep-bg text-white;
+    background-image:
+      radial-gradient(circle at 50% 0%, theme('colors.brand.DEFAULT / 10%'), transparent 40%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  p, span, li, .text-gray-300, .text-gray-400, .text-gray-500 {
+    @apply text-muted-text;
+  }
+
+  h1,h2,h3,h4,h5,h6 {
+     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  }
+}
+
+@layer components {
+  /* The new "glass" card style */
+  .card-glass {
+    @apply bg-glass-surface backdrop-blur-lg border border-glass-border rounded-2xl shadow-xl;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .card-glass:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 15px 30px -10px rgba(0,0,0,0.6);
+  }
+
+  /* The new primary CTA button */
+  .btn-cta {
+    @apply bg-brand hover:bg-brand-dark text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition duration-300;
+    box-shadow: 0 0 20px theme('colors.brand.light / 30%');
+  }
+  .btn-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px theme('colors.brand.light / 50%');
+  }
+
+  /* A secondary, less prominent button */
+  .btn-secondary {
+    @apply border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition;
+  }
+}

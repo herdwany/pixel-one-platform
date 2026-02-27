@@ -39,6 +39,21 @@
     html:not(.dark) .text-gray-500 { color: #6b7280 !important; }
     html:not(.dark) .text-gray-600 { color: #9ca3af !important; }
 
+    /* ── FIX: Aggressive overrides from pixel-design.css ── */
+    html:not(.dark) h1,
+    html:not(.dark) h2,
+    html:not(.dark) h3,
+    html:not(.dark) h4 {
+      color: #111827 !important;
+      text-shadow: none !important;
+    }
+    html:not(.dark) p,
+    html:not(.dark) li {
+      color: #374151 !important;
+    }
+    /* ───────────────────────────────────────────────────────── */
+
+
     /* ── Preserve white text on brand/red solid backgrounds ── */
     html:not(.dark) .bg-brand,
     html:not(.dark) .bg-brand-dark,

@@ -28,13 +28,14 @@
   <script src="assets/js/theme-manager.js"></script>
 
   <!-- Google Fonts: Inter (EN/FR) · IBM Plex Sans Arabic (AR) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  <!-- Tailwind CSS (compiled for production) -->
   <link rel="stylesheet" href="assets/css/tailwind.output.css" />
-  <link rel="stylesheet" href="assets/css/pixel-design.css" />
+
+  <link rel="stylesheet" href="assets/css/pixel-system.css?v=2" />
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -100,7 +101,7 @@
   </style>
 </head>
 
-<body class="bg-[#050505] lang-fr"
+<body class="lang-fr"
       data-ui="pro"
       data-app="pixelone">
 
@@ -237,56 +238,38 @@
 
   <!-- ── HERO ─────────────────────────────────────────────────── -->
   <section class="hero-gradient relative pt-32 pb-24 px-6 text-center overflow-hidden">
-    <video id="hero-video" autoplay muted loop playsinline
-           class="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none">
-      <source src="assets/video/hero-bg.mp4" type="video/mp4" />
-    </video>
+    <div class="absolute inset-0 bg-gradient-to-b from-red-900/20 via-[#030303] to-[#030303] pointer-events-none -z-10"></div>
     <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/50 to-[#050505] pointer-events-none"></div>
 
     <div class="relative z-10 max-w-4xl mx-auto">
       <span id="hero-badge" class="inline-block bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase" data-i18n="hero.badge">
         Agence Créative — Maroc 🇲🇦
       </span>
-      <h1 id="hero-title" class="text-5xl md:text-8xl font-extrabold tracking-tighter leading-tight mb-6 glow-text" style="text-wrap:balance">
+      <h1 id="hero-title" class="text-white text-5xl md:text-8xl font-extrabold tracking-tighter leading-tight mb-6" style="text-wrap:balance">
         <span data-i18n="hero.title">Votre vision</span><br/>
-        <span class="text-brand" data-i18n="hero.title.accent">amplifiée</span>
+        <span class="text-brand glow-text" data-i18n="hero.title.accent">amplifiée</span>
       </h1>
       <p id="hero-desc" class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light" data-i18n="hero.desc">
         Design graphique et montage vidéo professionnel pour les marques ambitieuses.
       </p>
       <div id="hero-cta" class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
-           class="bg-brand hover:bg-brand-dark text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition glow">
+           class="btn-cta">
           <span data-i18n="hero.cta.primary">Voir les services</span>
           <i class="fa-solid fa-arrow-right ms-2"></i>
         </a>
         <a href="auth.html"
-           class="border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition" data-i18n="hero.cta.secondary">
+           class="btn-secondary" data-i18n="hero.cta.secondary">
           Créer un compte
         </a>
       </div>
     </div>
 
-    <!-- Floating stats -->
+    <!-- Floating stats (removed per user request, GSAP animation targeting this element has also been removed) -->
     <div id="hero-stats" class="relative z-10 mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
-        <p class="text-3xl font-extrabold text-brand">150+</p>
-        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.projects">Projets livrés</p>
-      </div>
-      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
-        <p class="text-3xl font-extrabold text-brand">98%</p>
-        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.clients">Clients satisfaits</p>
-      </div>
-      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
-        <p class="text-3xl font-extrabold text-brand">72h</p>
-        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.delay">Délai moyen</p>
-      </div>
-      <div class="hero-stat bg-surface-card border border-surface-border rounded-xl p-5">
-        <p class="text-3xl font-extrabold text-brand">5★</p>
-        <p class="text-gray-400 text-sm mt-1" data-i18n="stat.rating">Note moyenne</p>
-      </div>
     </div>
-
+      </div>
+    </section>
   <!-- ── FEATURED SERVICES (Design & Video only) ────────────── -->
   <section id="services" class="py-24 px-6">
     <div class="max-w-7xl mx-auto">
@@ -360,21 +343,21 @@
         <p class="text-lg text-gray-400 font-light max-w-xl mx-auto" data-i18n="why.desc">Un processus simple, transparent et efficace.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
+        <div class="reveal card-glass p-8">
           <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
             <i class="fa-solid fa-bolt text-brand text-xl"></i>
           </div>
           <h3 class="font-bold text-lg mb-2" data-i18n="why.fast.title">Livraison Rapide</h3>
           <p class="text-gray-400 text-sm leading-relaxed" data-i18n="why.fast.desc">Délais respectés, toujours. Suivi en temps réel depuis votre tableau de bord.</p>
         </div>
-        <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
+        <div class="reveal card-glass p-8">
           <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
             <i class="fa-solid fa-shield-halved text-brand text-xl"></i>
           </div>
           <h3 class="font-bold text-lg mb-2" data-i18n="why.secure.title">Paiement Sécurisé</h3>
           <p class="text-gray-400 text-sm leading-relaxed" data-i18n="why.secure.desc">Virement bancaire, CashPlus — votre preuve de paiement uploadée en un clic.</p>
         </div>
-        <div class="reveal bg-surface border border-surface-border rounded-2xl p-8 hover:border-brand/40 transition">
+        <div class="reveal card-glass p-8">
           <div class="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center mb-5">
             <i class="fa-solid fa-headset text-brand text-xl"></i>
           </div>
@@ -393,19 +376,19 @@
         <p class="text-lg text-gray-400 font-light" data-i18n="process.subtitle">Quatre étapes, zéro friction.</p>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="reveal flex flex-col items-center gap-3">
+        <div class="reveal service-card flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">1</div>
           <p class="text-sm text-gray-300 font-medium" data-i18n="process.step1">Choisissez un service</p>
         </div>
-        <div class="reveal flex flex-col items-center gap-3">
+        <div class="reveal service-card flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">2</div>
           <p class="text-sm text-gray-300 font-medium" data-i18n="process.step2">Remplissez le formulaire</p>
         </div>
-        <div class="reveal flex flex-col items-center gap-3">
+        <div class="reveal service-card flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">3</div>
           <p class="text-sm text-gray-300 font-medium" data-i18n="process.step3">Payez &amp; uploadez le reçu</p>
         </div>
-        <div class="reveal flex flex-col items-center gap-3">
+        <div class="reveal service-card flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-brand/10 border border-brand/30 flex items-center justify-center text-brand text-xl font-bold">4</div>
           <p class="text-sm text-gray-300 font-medium" data-i18n="process.step4">Suivez votre commande</p>
         </div>
@@ -420,7 +403,7 @@
       <p class="text-lg text-gray-400 font-light mb-8" data-i18n="contact.desc">Notre équipe est disponible du lundi au vendredi, 9h–18h.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="services.html"
-           class="bg-brand hover:bg-brand-dark text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition glow" data-i18n="contact.cta">
+           class="btn-cta" data-i18n="contact.cta">
           Commencer maintenant
         </a>
         <a id="whatsapp-cta" href="#" target="_blank"
@@ -458,8 +441,7 @@
 <script src="assets/js/utils/cache.js"></script>
 <script src="assets/js/api/services.api.js"></script>
 <script src="assets/js/api/blog.api.js"></script>
-<script src="/js/ui-system-pro.js" defer></script>
-<script src="/js/ui-interactions-pro.js"></script>
+
 <script>  
   // ── First-visit language modal handling ────────────────────
   function selectFirstLang(lang) {
@@ -523,7 +505,7 @@
       const desc = svc.descriptions?.[lang] || '';
       const features = svc.features_i18n?.[lang] || svc.features || [];
       return `
-      <div class="service-card bg-surface-card border border-surface-border rounded-2xl overflow-hidden hover:border-brand/50 transition group reveal" style="animation-delay: ${i * 100}ms">
+      <div class="card-glass overflow-hidden group reveal" style="animation-delay: ${i * 100}ms">
         <div class="relative h-52 overflow-hidden">
           <img src="${svc.image_url}" alt="${title}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" loading="lazy">
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
@@ -579,7 +561,7 @@
     
     // تصميم البطاقة الجديد: إزالة الشفافية (opacity) من الحاوية وإصلاح الألوان
     return `
-    <div class="reveal relative bg-[#111] border border-white/10 rounded-2xl overflow-hidden hover:border-yellow-500/50 transition-all duration-300 group" style="animation-delay: ${i * 100}ms">
+    <div class="card-glass reveal relative overflow-hidden transition-all duration-300 group" style="animation-delay: ${i * 100}ms">
       
       <div class="absolute inset-0 bg-gradient-to-b from-yellow-500/5 to-transparent pointer-events-none"></div>
       
@@ -646,15 +628,15 @@
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     gsap.set(['#hero-badge', '#hero-title', '#hero-desc', '#hero-cta'], { opacity: 0, y: 40 });
-    gsap.set('.hero-stat', { opacity: 0, y: 30 });
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
     tl.to('#hero-badge', { opacity: 1, y: 0, duration: 0.7 })
       .to('#hero-title',  { opacity: 1, y: 0, duration: 0.9 }, '-=0.4')
       .to('#hero-desc',   { opacity: 1, y: 0, duration: 0.7 }, '-=0.5')
-      .to('#hero-cta',    { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
-      .to('.hero-stat',   { opacity: 1, y: 0, duration: 0.5, stagger: 0.12 }, '-=0.2');
+      .to('#hero-cta',    { opacity: 1, y: 0, duration: 0.6 }, '-=0.4');
   });
 </script>
+<script src="pixel-progressive.js"></script>
+<script src="pixel-depth.js"></script>
 </body>
 </html>
