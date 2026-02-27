@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion | PixelOne</title>
   
-  <link href="assets/css/tailwind.output.css?v=106" rel="stylesheet">
+  <link href="assets/css/tailwind.output.css?v=107" rel="stylesheet">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,8 +26,9 @@
     <div class="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
   </div>
 
-  <div class="w-full max-w-md bg-[#111] border border-[#222] rounded-2xl shadow-2xl overflow-hidden relative">
+  <div class="w-full max-w-md bg-[#111] border border-[#222] rounded-2xl shadow-2xl overflow-hidden relative card-glass">
     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-50"></div>
+
     <div class="p-8">
       <div class="text-center mb-8">
         <a href="index.html" class="inline-block text-3xl font-extrabold tracking-tight text-white mb-2">
@@ -36,7 +37,7 @@
         <p class="text-gray-500 text-sm" id="auth-subtitle">Welcome back</p>
       </div>
 
-      <div class="flex bg-[#050505] p-1 rounded-xl mb-6 border border-[#222]">
+      <div id="tabs-container" class="flex bg-[#050505] p-1 rounded-xl mb-6 border border-[#222]">
         <button onclick="switchTab('login')" id="tab-login" class="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all text-white bg-[#222] shadow border border-[#333]">Connexion</button>
         <button onclick="switchTab('signup')" id="tab-signup" class="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all text-gray-500 hover:text-white">Inscription</button>
       </div>
@@ -47,7 +48,10 @@
           <input type="email" id="login-email" class="w-full bg-[#0a0a0a] border border-[#333] rounded-xl px-4 py-3 text-white text-sm focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none" required>
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-400 mb-2 ml-1 uppercase">Mot de passe</label>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-xs font-bold text-gray-400 ml-1 uppercase">Mot de passe</label>
+            <button type="button" onclick="switchTab('reset')" class="text-xs text-red-500 hover:text-red-400 transition">Mot de passe oublié ?</button>
+          </div>
           <input type="password" id="login-password" class="w-full bg-[#0a0a0a] border border-[#333] rounded-xl px-4 py-3 text-white text-sm focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none" required>
         </div>
         <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-red-900/20 text-sm tracking-wide mt-2">SE CONNECTER</button>
@@ -69,7 +73,27 @@
         <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-red-900/20 text-sm tracking-wide mt-2">CRÉER UN COMPTE</button>
       </form>
 
+      <form id="reset-form" class="space-y-4 hidden">
+        <div class="text-center mb-6">
+          <div class="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-3">
+            <i class="fa-solid fa-key text-red-500"></i>
+          </div>
+          <h3 class="text-white font-bold">Réinitialiser le mot de passe</h3>
+          <p class="text-xs text-gray-500 mt-1">Entrez votre email pour recevoir un lien.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-400 mb-2 ml-1 uppercase">Email</label>
+          <input type="email" id="reset-email" class="w-full bg-[#0a0a0a] border border-[#333] rounded-xl px-4 py-3 text-white text-sm focus:border-red-600 focus:ring-1 focus:ring-red-600 outline-none" placeholder="name@example.com" required>
+        </div>
+        <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-red-900/20 text-sm tracking-wide mt-2">ENVOYER LE LIEN</button>
+        
+        <button type="button" onclick="switchTab('login')" class="w-full text-gray-500 hover:text-white text-xs font-medium py-2 flex items-center justify-center gap-2 transition">
+          <i class="fa-solid fa-arrow-left"></i> Retour à la connexion
+        </button>
+      </form>
+
       <div id="auth-message" class="mt-4 text-center text-xs hidden p-3 rounded-lg"></div>
+
     </div>
   </div>
 
@@ -77,31 +101,51 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/supabase-client.js"></script>
   <script src="assets/js/api/auth.api.js"></script>
+
   <script>
     function switchTab(tab) {
       const loginForm = document.getElementById('login-form');
       const signupForm = document.getElementById('signup-form');
+      const resetForm = document.getElementById('reset-form');
+      const tabsContainer = document.getElementById('tabs-container');
+      
       const tabLogin = document.getElementById('tab-login');
       const tabSignup = document.getElementById('tab-signup');
       const subTitle = document.getElementById('auth-subtitle');
       const msg = document.getElementById('auth-message');
       
+      // إخفاء الرسائل السابقة
       msg.classList.add('hidden');
 
       if (tab === 'login') {
         loginForm.classList.remove('hidden');
         signupForm.classList.add('hidden');
+        resetForm.classList.add('hidden');
+        tabsContainer.classList.remove('hidden'); // إظهار التبويبات
+
         tabLogin.className = "flex-1 py-2.5 text-sm font-medium rounded-lg transition-all text-white bg-[#222] shadow border border-[#333]";
         tabSignup.className = "flex-1 py-2.5 text-sm font-medium rounded-lg transition-all text-gray-500 hover:text-white";
         subTitle.textContent = "Welcome back";
-      } else {
+      
+      } else if (tab === 'signup') {
         loginForm.classList.add('hidden');
         signupForm.classList.remove('hidden');
+        resetForm.classList.add('hidden');
+        tabsContainer.classList.remove('hidden'); // إظهار التبويبات
+
         tabSignup.className = "flex-1 py-2.5 text-sm font-medium rounded-lg transition-all text-white bg-[#222] shadow border border-[#333]";
         tabLogin.className = "flex-1 py-2.5 text-sm font-medium rounded-lg transition-all text-gray-500 hover:text-white";
         subTitle.textContent = "Join the community";
+      
+      } else if (tab === 'reset') {
+        loginForm.classList.add('hidden');
+        signupForm.classList.add('hidden');
+        resetForm.classList.remove('hidden');
+        tabsContainer.classList.add('hidden'); // إخفاء التبويبات للتركيز على الاستعادة
+        subTitle.textContent = "Account Recovery";
       }
     }
+
     window.onload = () => { setTimeout(() => { document.getElementById('auth-preloader').style.display = 'none'; }, 500); };
   </script>
 </body>
