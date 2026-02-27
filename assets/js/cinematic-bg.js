@@ -1,7 +1,7 @@
 /**
  * PIXEL ONE — CINEMATIC BACKGROUND ENGINE
  * Creates a luxury moving gradient that follows user interaction.
- * Safe Mode: Runs in background layer, does not interfere with UI clicks.
+ * Optimized for RTL (Arabic) & LTR support.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,21 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initCinematicBackground() {
-    // 1. Create the background container dynamically
+    // Prevent duplicate initialization
+    if (document.getElementById('pixel-cinematic-bg')) return;
+
+    // 1. Create the background container
     const bgContainer = document.createElement('div');
     bgContainer.id = 'pixel-cinematic-bg';
     
-    // Apply styles strictly via JS to ensure they load instantly
+    // Apply styles strictly via JS (Fixed for RTL)
     Object.assign(bgContainer.style, {
         position: 'fixed',
-        top: '0',
-        left: '0',
+        inset: '0',        // Covers top, right, bottom, left
         width: '100vw',
         height: '100vh',
-        zIndex: '-50', // Behind everything
-        pointerEvents: 'none', // Allow clicks to pass through
+        zIndex: '-50',     // Behind everything
+        pointerEvents: 'none',
         overflow: 'hidden',
-        background: '#030303' // Deepest Black Base
+        background: '#030303', // Deep Black Base
+        direction: 'ltr'   // 🛑 FORCE LTR: Prevents background flip in Arabic mode
     });
 
     // 2. Create the "Glow" elements
@@ -33,7 +36,7 @@ function initCinematicBackground() {
     const ambientGlow = document.createElement('div');
     ambientGlow.className = 'cinematic-glow ambient-glow';
 
-    // 3. Add Noise Texture (Film Grain) for luxury feel
+    // 3. Add Noise Texture (Film Grain)
     const noise = document.createElement('div');
     noise.style.cssText = `
         position: absolute; inset: 0; opacity: 0.04;
@@ -47,7 +50,7 @@ function initCinematicBackground() {
     bgContainer.appendChild(noise);
     document.body.prepend(bgContainer);
 
-    // 4. Interaction Logic (Performance Optimized)
+    // 4. Interaction Logic
     let mouseX = 0, mouseY = 0;
     let currentX = 0, currentY = 0;
 
@@ -56,15 +59,14 @@ function initCinematicBackground() {
         mouseY = e.clientY;
     });
 
-    // Smooth animation loop (Lerp)
+    // Smooth animation loop
     function animate() {
-        // Slow follow effect (Lag)
         currentX += (mouseX - currentX) * 0.05;
         currentY += (mouseY - currentY) * 0.05;
 
         mouseGlow.style.transform = `translate(${currentX}px, ${currentY}px)`;
         
-        // Ambient movement (Breathing effect)
+        // Ambient breathing effect
         const time = Date.now() * 0.0005;
         const ambientX = Math.sin(time) * 50;
         const ambientY = Math.cos(time) * 50;

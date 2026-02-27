@@ -7,14 +7,16 @@
    ═══════════════════════════════════════════════════════════════ */
 @layer base {
   body {
-    /* إزالة الخلفيات القديمة لأننا سنستخدم Cinematic JS */
-    background-color: transparent; 
+    background-color: transparent !important; /* للسماح بظهور الخلفية المتحركة */
     @apply text-gray-900 relative;
   }
   
-  .dark body {
-    @apply text-white;
-    background-color: transparent; /* الخلفية يديرها الجافاسكريبت الآن */
+  /* 🛑 إصلاح المشكلة العربية (RTL Fix) 🛑 */
+  html[dir="rtl"] body,
+  html[lang="ar"] body,
+  [dir="rtl"] body {
+    background-color: transparent !important;
+    background-image: none !important;
   }
 
   /* العناوين */
@@ -27,62 +29,53 @@
     text-shadow: 0 4px 20px rgba(0,0,0,0.8);
   }
 
-  /* تحسين قراءة النصوص فوق الخلفية المتحركة */
+  /* النصوص */
   p, span, li, .text-muted-text {
     color: #374151; 
     line-height: 1.6;
   }
   .dark p, .dark span, .dark li, .dark .text-muted-text {
     color: #e5e7eb;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* ظل خفيف للقراءة */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   }
 
   /* الروابط */
   a { transition: color 0.2s ease; color: inherit; }
   a:hover { color: #ff0000 !important; }
   
-  /* ─── تنسيقات الخلفية المتحركة (Cinematic Glows) ─── */
+  /* ─── الخلفية المتحركة (Cinematic Glows) ─── */
   .cinematic-glow {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px); /* تنعيم شديد للفخامة */
+    filter: blur(80px);
     opacity: 0.6;
     pointer-events: none;
     will-change: transform;
-    mix-blend-mode: screen; /* دمج ضوئي */
+    mix-blend-mode: screen;
   }
 
-  /* 1. توهج الماوس (يتحرك معك) */
   .mouse-glow {
-    width: 600px;
-    height: 600px;
+    width: 600px; height: 600px;
     background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
-    margin-left: -300px; /* Center anchor */
-    margin-top: -300px;
-    z-index: 1;
+    margin-left: -300px; margin-top: -300px; z-index: 1;
   }
 
-  /* 2. التوهج المحيطي (أحمر عميق ثابت/يتنفس) */
   .ambient-glow {
-    width: 1000px;
-    height: 1000px;
+    width: 1000px; height: 1000px;
     background: radial-gradient(circle, rgba(153, 27, 27, 0.1) 0%, transparent 60%);
-    margin-left: -500px;
-    margin-top: -500px;
-    z-index: 0;
+    margin-left: -500px; margin-top: -500px; z-index: 0;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   2. المكونات (COMPONENTS) - نفس المكونات السابقة تماماً
+   2. المكونات (COMPONENTS)
    ═══════════════════════════════════════════════════════════════ */
 @layer components {
   /* الزر الرئيسي */
   .btn-primary, button[type="submit"], .cta-button {
     @apply relative inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide uppercase transition-all duration-300 ease-out;
     background-color: #ff0000 !important; color: #ffffff !important; border: 1px solid transparent; 
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-    z-index: 10; /* ضمان الظهور فوق الخلفية */
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 10;
   }
   .btn-primary:hover, button[type="submit"]:hover {
     background-color: #dc2626 !important; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.6);
@@ -96,18 +89,14 @@
   .dark .btn-secondary, .dark .btn-outline { border-color: rgba(255, 255, 255, 0.2); color: #ffffff; }
   .btn-secondary:hover { border-color: #ff0000 !important; color: #ff0000 !important; background-color: rgba(255, 0, 0, 0.05); }
 
-  /* البطاقات الزجاجية - مهمة جداً للخلفية المتحركة */
+  /* البطاقات الزجاجية */
   .card-glass {
     @apply rounded-2xl border transition-all duration-300 relative overflow-hidden;
-    /* نهاراً */
     background-color: rgba(255, 255, 255, 0.9); border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
   .dark .card-glass {
-    /* ليلاً: زيادة الشفافية لرؤية الخلفية المتحركة */
-    background-color: rgba(20, 20, 20, 0.6); /* شبه شفاف */
-    border-color: rgba(255, 255, 255, 0.1); 
-    backdrop-filter: blur(20px); /* تأثير الزجاج المصنفر */
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    background-color: rgba(20, 20, 20, 0.6); border-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(20px); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
   }
   .card-glass:hover { border-color: rgba(255, 0, 0, 0.5); transform: translateY(-5px); }
   
