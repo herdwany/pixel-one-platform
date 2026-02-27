@@ -30,7 +30,7 @@
 
   /* الفقرات: استبدال الرمادي الباهت برمادي مشبع */
   p, span, li, .text-muted-text {
-    color: #374151; /* Gray-700 (أوضح من السابق) */
+    color: hsl(217, 53%, 93%); /* Gray-700 (أوضح من السابق) */
     line-height: 1.6;
   }
   .dark p, .dark span, .dark li, .dark .text-muted-text {
