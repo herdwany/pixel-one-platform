@@ -7,11 +7,13 @@
    ═══════════════════════════════════════════════════════════════ */
 @layer base {
   body {
-    background-color: transparent !important; /* للسماح بظهور الخلفية المتحركة */
+    /* جعل الخلفية شفافة للسماح لمحرك الجافاسكريبت بإظهار الخلفية المتحركة */
+    background-color: transparent !important;
     @apply text-gray-900 relative;
   }
   
   /* 🛑 إصلاح المشكلة العربية (RTL Fix) 🛑 */
+  /* نضمن أن الخلفية شفافة ولا تعود للون الأبيض عند تحويل اللغة */
   html[dir="rtl"] body,
   html[lang="ar"] body,
   [dir="rtl"] body {
@@ -29,7 +31,7 @@
     text-shadow: 0 4px 20px rgba(0,0,0,0.8);
   }
 
-  /* النصوص */
+  /* النصوص والفقرات (تباين عالي للقراءة) */
   p, span, li, .text-muted-text {
     color: #374151; 
     line-height: 1.6;
@@ -43,7 +45,8 @@
   a { transition: color 0.2s ease; color: inherit; }
   a:hover { color: #ff0000 !important; }
   
-  /* ─── الخلفية المتحركة (Cinematic Glows) ─── */
+  /* ─── أصناف الخلفية المتحركة (Cinematic Glows Support) ─── */
+  /* هذه الأصناف ضرورية لعمل ملف cinematic-bg.js */
   .cinematic-glow {
     position: absolute;
     border-radius: 50%;
@@ -71,17 +74,18 @@
    2. المكونات (COMPONENTS)
    ═══════════════════════════════════════════════════════════════ */
 @layer components {
-  /* الزر الرئيسي */
+  /* ─── الزر الرئيسي (بدون لمعة إضافية) ─── */
   .btn-primary, button[type="submit"], .cta-button {
     @apply relative inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide uppercase transition-all duration-300 ease-out;
     background-color: #ff0000 !important; color: #ffffff !important; border: 1px solid transparent; 
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 10;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); 
+    z-index: 10; /* لضمان الظهور فوق الخلفية */
   }
   .btn-primary:hover, button[type="submit"]:hover {
     background-color: #dc2626 !important; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.6);
   }
 
-  /* الزر الثانوي */
+  /* ─── الزر الثانوي (حدود فقط) ─── */
   .btn-secondary, .btn-outline {
     @apply inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-semibold text-sm border-2 transition-all duration-300 bg-transparent;
     border-color: #1f2937; color: #1f2937; z-index: 10;
@@ -89,18 +93,22 @@
   .dark .btn-secondary, .dark .btn-outline { border-color: rgba(255, 255, 255, 0.2); color: #ffffff; }
   .btn-secondary:hover { border-color: #ff0000 !important; color: #ff0000 !important; background-color: rgba(255, 0, 0, 0.05); }
 
-  /* البطاقات الزجاجية */
+  /* ─── البطاقات الزجاجية (Glass Cards) ─── */
   .card-glass {
     @apply rounded-2xl border transition-all duration-300 relative overflow-hidden;
+    /* نهاراً */
     background-color: rgba(255, 255, 255, 0.9); border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
   .dark .card-glass {
-    background-color: rgba(20, 20, 20, 0.6); border-color: rgba(255, 255, 255, 0.1); 
-    backdrop-filter: blur(20px); box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    /* ليلاً: شفافية متوازنة لإظهار الخلفية المتحركة */
+    background-color: rgba(20, 20, 20, 0.6); 
+    border-color: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(20px); 
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
   }
   .card-glass:hover { border-color: rgba(255, 0, 0, 0.5); transform: translateY(-5px); }
   
-  /* الحقول */
+  /* ─── الحقول (Inputs) ─── */
   input, textarea, select {
     @apply w-full px-4 py-3 rounded-lg outline-none transition-all duration-200 relative;
     background-color: #f9fafb; border: 1px solid #d1d5db; color: #111827;
@@ -111,4 +119,8 @@
   input:focus { border-color: #ff0000 !important; box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.15); }
 }
 
-@layer utilities { .text-brand { color: #ff0000 !important; } .bg-brand { background-color: #ff0000 !important; } }
+/* ─── الأدوات المساعدة (UTILITIES) ─── */
+@layer utilities { 
+  .text-brand { color: #ff0000 !important; } 
+  .bg-brand { background-color: #ff0000 !important; } 
+}
