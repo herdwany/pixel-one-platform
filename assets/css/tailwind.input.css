@@ -1,49 +1,171 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
 
+/* ═══════════════════════════════════════════════════════════════
+   1. الطبقة الأساسية (Base Layer) - تباين النصوص والخطوط
+   ═══════════════════════════════════════════════════════════════ */
 @layer base {
-  body {
-    @apply bg-deep-bg text-white;
-    background-image:
-      radial-gradient(circle at 50% 0%, theme('colors.brand.DEFAULT / 10%'), transparent 40%),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  /* النهار: خلفية فاتحة جداً مع نص غامق جداً للتباين */
+  /* @apply bg-gray-50 text-gray-900; */
+  
+  /* الليل: خلفية سوداء عميقة مع نص أبيض ناصع */
+  .dark body {
+    /* @apply bg-deep-bg text-white; */
+    /* خلفية نسيجية خفيفة */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   }
 
-  p, span, li, .text-gray-300, .text-gray-400, .text-gray-500 {
-    @apply text-muted-text;
+  /* العناوين (H1-H6) - جعلناها أكثر بروزاً */
+  h1, h2, h3, h4, h5, h6 {
+    /* @apply font-bold tracking-tight; */
+    color: #000000; /* نهاراً: أسود فاحم */
+  }
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #ffffff; /* ليلاً: أبيض ناصع */
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5); /* ظل للنص لزيادة القراءة */
   }
 
-  h1,h2,h3,h4,h5,h6 {
-     text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  /* الفقرات - زيادة التباين عن الرمادي الباهت */
+  p, span, li, .text-muted-text {
+    color: #4b5563; /* Gray-600 (أغمق للقراءة) */
+    line-height: 1.6;
+  }
+  .dark p, .dark span, .dark li, .dark .text-muted-text {
+    color: #d1d5db; /* Gray-300 (أفتح للقراءة) */
+  }
+
+  /* الروابط */
+  a {
+    /* @apply transition-colors duration-200; */
+    color: inherit;
+  }
+  a:hover {
+    color: #ff0000 !important;
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   2. المكونات (Components) - الأزرار الاحترافية
+   ═══════════════════════════════════════════════════════════════ */
 @layer components {
-  /* The new "glass" card style */
+  
+  /* ── 1. الزر الرئيسي (Primary Action) ── 
+     يستخدم لـ: "ابدأ الآن"، "إنشاء حساب"، "طلب خدمة"، "واتساب"
+     المظهر: خلفية حمراء، نص أبيض، ظل قوي
+  */
+  .btn-primary, 
+  button[type="submit"],
+  .cta-button {
+    /* @apply relative inline-flex items-center justify-center; */
+    /* @apply px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide uppercase; */
+    /* @apply transition-all duration-300 ease-out; */
+    
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+    border: 1px solid transparent;
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3), 0 2px 4px -1px rgba(220, 38, 38, 0.1);
+  }
+
+  /* تأثير التحويم للزر الرئيسي: يرتفع قليلاً ويزداد التوهج */
+  .btn-primary:hover, 
+  button[type="submit"]:hover,
+  .cta-button:hover {
+    background-color: #dc2626 !important; /* أحمر أغمق قليلاً */
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.4), 0 4px 6px -2px rgba(220, 38, 38, 0.2);
+  }
+
+  /* تأثير النبض للأزرار المهمة جداً (مثل واتساب) */
+  .btn-pulse {
+    animation: pulse-red 2s infinite;
+  }
+
+  /* ── 2. الزر الثانوي (Secondary Action) ── 
+     يستخدم لـ: "استعراض الخدمات"، "العودة"، "إلغاء"
+     المظهر: حدود فقط، شفاف، يتلون عند التحويم
+  */
+  .btn-secondary,
+  .btn-outline {
+    /* @apply inline-flex items-center justify-center; */
+    /* @apply px-8 py-3.5 rounded-xl font-semibold text-sm; */
+    /* @apply border-2 transition-all duration-300 bg-transparent; */
+    
+    /* نهاراً: حدود رمادية غامقة */
+    border-color: #1f2937;
+    color: #1f2937;
+  }
+
+  .dark .btn-secondary,
+  .dark .btn-outline {
+    /* ليلاً: حدود بيضاء شفافة */
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+
+  .btn-secondary:hover,
+  .btn-outline:hover {
+    border-color: #ff0000 !important;
+    color: #ff0000 !important;
+    background-color: rgba(255, 0, 0, 0.05);
+  }
+
+  /* ── 3. البطاقات (Cards) - تحسين التباين ── */
   .card-glass {
-    @apply bg-glass-surface backdrop-blur-lg border border-glass-border rounded-2xl shadow-xl;
-    transition: all 0.3s ease-in-out;
+    /* @apply rounded-2xl border transition-all duration-300; */
+    
+    /* نهاراً: بطاقة بيضاء بظل ناعم */
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark .card-glass {
+    /* ليلاً: زجاج غامق */
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
   }
 
   .card-glass:hover {
-    transform: translateY(-5px) scale(1.02);
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 15px 30px -10px rgba(0,0,0,0.6);
+    border-color: rgba(255, 0, 0, 0.5); /* حدود حمراء عند التحويم */
+    transform: translateY(-4px);
+  }
+  
+  /* ── 4. حقول الإدخال (Inputs) - واضحة جداً ── */
+  input, textarea, select {
+    /* @apply w-full px-4 py-3 rounded-lg outline-none transition-all duration-200; */
+    
+    /* نهاراً */
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    color: #111827;
+  }
+  
+  .dark input, .dark textarea, .dark select {
+    /* ليلاً */
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
   }
 
-  /* The new primary CTA button */
-  .btn-cta {
-    @apply bg-brand hover:bg-brand-dark text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition duration-300;
-    box-shadow: 0 0 20px theme('colors.brand.light / 30%');
+  input:focus, textarea:focus, select:focus {
+    border-color: #ff0000 !important;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1); /* هالة حمراء خفيفة */
   }
-  .btn-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 35px theme('colors.brand.light / 50%');
-  }
+}
 
-  /* A secondary, less prominent button */
-  .btn-secondary {
-    @apply border border-surface-border hover:border-brand/40 text-gray-300 hover:text-white font-semibold text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition;
+/* ═══════════════════════════════════════════════════════════════
+   3. الأدوات (Utilities)
+   ═══════════════════════════════════════════════════════════════ */
+@layer utilities {
+  .text-brand { color: #ff0000 !important; }
+  .bg-brand { background-color: #ff0000 !important; }
+  
+  @keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
   }
 }
