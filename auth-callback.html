@@ -1,75 +1,44 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Connexion en cours...</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/theme-manager.js"></script>
-  <style>
-    body { background-color: #050505; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
-    .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: #ff0000; border-radius: 50%; animation: rotation 1s linear infinite; }
-    @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  </style>
+    <meta charset="UTF-8">
+    <title>Connexion...</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/config.js"></script>
+    <style>body{background:#030303;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif}</style>
 </head>
 <body>
-  <div class="loader"></div>
-  <p style="margin-top: 20px; color: #888;">Finalisation de l'authentification...</p>
+    <p>Authentification...</p>
+    <script>
+        // يجب أن تطابق إعدادات العميل هنا ملف supabase-client.js تماماً
+        const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                storageKey: 'pixelone-auth', // نفس المفتاح
+                storage: window.localStorage,
+                detectSessionInUrl: true
+            }
+        });
 
-  <script src="assets/js/config.js"></script>
-  
-  <script>
-    // تهيئة العميل مباشرة هنا لضمان السرعة
-    const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
-        auth: {
-            persistSession: true,
-            storageKey: 'pixelone-auth-token',
-            storage: window.localStorage,
-            detectSessionInUrl: true
-        }
-    });
-
-    // الاستماع لتغييرات حالة الدخول (هذا يلتقط الرابط السحري وتأكيد الإيميل)
-    supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY' || session) {
-            
-            // 1. تحديد نوع الحدث
-            const isRecovery = window.location.hash && window.location.hash.includes('type=recovery');
-            
-            if (isRecovery) {
-                // حالة استعادة كلمة المرور
-                window.location.href = 'update-password.html';
-            } else {
-                // حالة تسجيل دخول ناجح (تأكيد إيميل أو رابط سحري)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session) {
+                // حفظ الجلسة يدوياً للتأكيد
+                localStorage.setItem('pixelone-auth', JSON.stringify(session));
                 
-                // جلب البروفايل للتحقق من الصلاحيات
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .single();
-
-                // التوجيه بناءً على الرتبة
-                if (profile && profile.role === 'admin') {
-                    window.location.href = 'admin.html'; // أو لوحة تحكم الأدمن
+                // التوجيه
+                if (window.location.hash && window.location.hash.includes('type=recovery')) {
+                    window.location.href = 'update-password.html';
                 } else {
                     window.location.href = 'dashboard.html';
                 }
+            } else {
+                // محاولة أخيرة لاستخراج الجلسة
+                const { data } = await supabase.auth.getSession();
+                if (data.session) {
+                    window.location.href = 'dashboard.html';
+                }
             }
-        } else {
-            // في حال وجود خطأ في الرابط، العودة لصفحة الدخول بعد 5 ثواني
-            /* setTimeout(() => { window.location.href = 'auth.html'; }, 5000); */
-        }
-    });
-
-    // فحص يدوي في حال لم يعمل الحدث التلقائي
-    (async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-             // المستخدم مسجل بالفعل، وجهه فوراً
-             window.location.href = 'dashboard.html';
-        }
-    })();
-  </script>
+        });
+    </script>
 </body>
 </html>
