@@ -1,5 +1,6 @@
 /**
  * Auth API - Handles Login, Signup & Password Reset
+ * Updated: Shows clear on-screen SPAM warnings
  */
 
 const AuthAPI = {
@@ -30,7 +31,7 @@ const AuthAPI = {
     return data;
   },
 
-  // 🛑 دالة استعادة كلمة المرور الجديدة 🛑
+  // استعادة كلمة المرور
   async resetPassword(email) {
     const { data, error } = await getSupabaseClient().auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/update-password.html',
@@ -51,17 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const msgDiv = document.getElementById('auth-message');
 
-  // Helper to show messages
-  const showMsg = (text, type = 'error') => {
-    // 🛑 تغيير مهم: استخدام innerHTML بدلاً من textContent للسماح بالتنسيق
-    msgDiv.innerHTML = text;
-    msgDiv.className = type === 'success' 
-      ? "mt-4 text-center text-xs text-green-500 block p-3 rounded-lg bg-green-500/10 border border-green-500/20"
-      : "mt-4 text-center text-xs text-red-500 block p-3 rounded-lg bg-red-500/10 border border-red-500/20";
+  // دالة عرض الرسائل (محدثة لتقبل HTML)
+  const showMsg = (htmlContent, type = 'error') => {
+    msgDiv.innerHTML = htmlContent;
+    
+    // تنسيق الصندوق حسب النوع
+    if (type === 'success') {
+      msgDiv.className = "mt-4 text-center text-xs block p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400";
+    } else {
+      msgDiv.className = "mt-4 text-center text-xs block p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400";
+    }
+    
     msgDiv.classList.remove('hidden');
   };
 
-  // 1. Login Handler
+  // 1. معالجة تسجيل الدخول
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -85,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Signup Handler
+  // 2. معالجة إنشاء الحساب (مع التنبيه الجديد)
   const signupForm = document.getElementById('signup-form');
   if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
@@ -102,12 +107,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const { user, session } = await AuthAPI.signUp(email, password, name);
 
         if (user && !session) {
-          // 🛑 هنا وضعنا التنبيه الخاص بالسبام 🛑
+          // 🛑 الرسالة الجديدة: تظهر للمستخدم فوراً على الشاشة 🛑
           showMsg(`
-            Compte créé avec succès !<br>
-            Veuillez vérifier votre email pour l'activer.<br><br>
-            <span class="font-bold text-yellow-500">⚠️ Important :</span> 
-            Si vous ne trouvez pas l'email, vérifiez votre dossier <strong>SPAM</strong> (Courriers indésirables).
+            <div class="space-y-3">
+              <p class="font-bold text-sm text-white">Compte créé avec succès ! ✅</p>
+              <p>Un email de confirmation a été envoyé.</p>
+              
+              <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-lg text-left flex gap-3 items-start">
+                <i class="fa-solid fa-triangle-exclamation text-yellow-500 mt-0.5"></i>
+                <div class="text-yellow-200/80 leading-relaxed">
+                  <strong class="text-yellow-500 block mb-1">Attention :</strong>
+                  Si vous ne trouvez pas l'email dans votre boîte de réception, vérifiez impérativement votre dossier <strong>SPAM</strong> ou <strong>Courriers indésirables</strong>.
+                </div>
+              </div>
+            </div>
           `, 'success');
           
           signupForm.reset();
@@ -119,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       } catch (err) {
         if (err.message.includes("rate limit")) {
-          showMsg("Trop de tentatives. Veuillez attendre.");
+          showMsg("Trop de tentatives. Veuillez attendre quelques minutes.");
         } else {
           showMsg(err.message || "Erreur lors de l'inscription.");
         }
@@ -129,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Reset Password Handler
+  // 3. معالجة استعادة كلمة المرور (مع التنبيه الجديد)
   const resetForm = document.getElementById('reset-form');
   if (resetForm) {
     resetForm.addEventListener('submit', async (e) => {
@@ -143,11 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await AuthAPI.resetPassword(email);
         
-        // 🛑 هنا وضعنا التنبيه الخاص بالسبام أيضاً 🛑
+        // 🛑 الرسالة الجديدة للاستعادة 🛑
         showMsg(`
-          Lien envoyé !<br>
-          <span class="font-bold text-yellow-500">⚠️ Note :</span> 
-          Vérifiez aussi vos <strong>SPAM</strong> si l'email n'apparait pas dans la boîte de réception.
+          <div class="space-y-3">
+            <p class="font-bold text-sm text-white">Lien envoyé ! 📩</p>
+            
+            <div class="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-lg text-left flex gap-3 items-start">
+              <i class="fa-solid fa-circle-info text-yellow-500 mt-0.5"></i>
+              <div class="text-yellow-200/80 leading-relaxed">
+                Veuillez vérifier votre boîte mail. Si rien n'apparaît, regardez dans vos <strong>SPAM</strong>.
+              </div>
+            </div>
+          </div>
         `, 'success');
 
         btn.innerHTML = "ENVOYER LE LIEN";
