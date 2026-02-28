@@ -13,7 +13,7 @@
   <!-- Theme Manager -->
   <script src="assets/js/theme-manager.js"></script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+<html lang="fr" class="scroll-smooth dark">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
@@ -24,8 +24,7 @@
       theme: {
         extend: {
           colors: {
-            brand: { DEFAULT: '#ff0000', dark: '#cc0000', light: '#ff3333' },
-            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
+  
           },
           fontFamily: {
             sans:   ['Inter', 'sans-serif'],
@@ -87,9 +86,6 @@
               <button onclick="setLanguage('fr')" data-lang="fr" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
                 <span class="text-base leading-none">🇫🇷</span>
                 <div class="text-start flex-1"><p class="font-semibold text-xs">Français</p><p class="text-[10px] text-gray-500" data-i18n="lang.fr.desc">Français</p></div>
-              </button>
-              <div class="h-px bg-[#282828]"></div>
-              <button onclick="setLanguage('en')" data-lang="en" role="option" class="lang-opt w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-brand/10 hover:text-white transition text-start">
                 <span class="text-base leading-none">🇺🇸</span>
                 <div class="text-start flex-1"><p class="font-semibold text-xs">English</p><p class="text-[10px] text-gray-500" data-i18n="lang.en.desc">Anglais</p></div>
               </button>

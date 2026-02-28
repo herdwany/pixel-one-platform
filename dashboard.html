@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<html lang="fr" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,7 +11,6 @@
   <link rel="manifest" href="/icon/black/site.webmanifest" />
 
   <!-- Theme Manager -->
-  <script src="assets/js/theme-manager.js"></script>
 
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -97,9 +96,6 @@
           <a href="services.html" class="hover:text-white transition-colors duration-200" data-i18n="nav.cta">Nos services</a>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2">
-          <button type="button" id="theme-toggle" onclick="toggleTheme(event)" class="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/[0.08] transition-all duration-200" aria-label="Toggle theme">
-            <i id="theme-toggle-icon" class="theme-toggle-icon fa-solid fa-sun text-sm"></i>
-          </button>
           <div class="relative" id="lang-dropdown-wrapper">
             <button id="lang-btn" class="flex items-center gap-1.5 h-9 px-2.5 rounded-lg border border-white/[0.08] hover:border-brand/30 text-gray-400 hover:text-white text-sm transition-all duration-200 cursor-pointer" aria-haspopup="listbox">
               <span id="lang-flag" class="text-base leading-none">🇫🇷</span>
@@ -167,7 +163,7 @@
         </button>
         <button class="dash-tab text-xs font-semibold px-4 py-2 rounded-lg border border-surface-border bg-surface-card text-gray-400 hover:border-brand/40 transition relative" data-tab="notifications">
           <i class="fa-solid fa-bell mr-1"></i>Notifications
-          <span id="notif-badge" class="hidden absolute -top-1.5 -right-1.5 bg-brand text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+          <span id="notif-badge" class="absolute -top-1.5 -right-1.5 bg-brand text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center" style="display:none;">0</span>
         </button>
       </div>
 
