@@ -3,181 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vérification — Pixel One</title>
-  <link rel="icon" type="image/png" sizes="96x96" href="/icon/black/favicon-96x96.png" />
-  <link rel="icon" type="image/svg+xml" href="/icon/black/favicon.svg" />
-  <link rel="shortcut icon" href="/icon/black/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/icon/black/apple-touch-icon.png" />
-  <link rel="manifest" href="/icon/black/site.webmanifest" />
-
-  <!-- Theme Manager -->
-  <script src="assets/js/theme-manager.js"></script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { DEFAULT: '#ff0000', dark: '#cc0000' },
-            surface: { DEFAULT: '#0d0d0d', card: '#141414', border: '#1f1f1f' },
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            arabic: ['"IBM Plex Sans Arabic"', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
+  <title>Connexion en cours...</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="assets/js/theme-manager.js"></script>
   <style>
-    body { background-color: #050505; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: 'Inter', sans-serif; }
-    .loader { animation: spin 1s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    body { background-color: #050505; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; }
+    .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: #ff0000; border-radius: 50%; animation: rotation 1s linear infinite; }
+    @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <!-- Loading screen -->
-  <div id="loading-screen" class="text-center">
-    <i class="fa-solid fa-circle-notch text-4xl text-red-600 loader mb-4"></i>
-    <h2 class="text-xl font-bold">Vérification en cours...</h2>
-    <p class="text-gray-500 text-sm mt-2">Nous sécurisons votre connexion.</p>
-  </div>
-
-  <!-- Consent modal (hidden by default) -->
-  <div id="consent-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-surface-card border border-surface-border rounded-2xl p-8 max-w-md w-full space-y-6">
-      <div class="text-center">
-        <div dir="ltr" class="text-2xl font-extrabold tracking-tight mb-2" style="direction:ltr;unicode-bidi:isolate">
-          <span class="text-brand">Pixel</span>One
-        </div>
-        <h2 id="consent-title" class="text-lg font-bold text-white">Accepter les conditions</h2>
-        <p id="consent-desc" class="text-sm text-gray-500 mt-1">Pour continuer, veuillez accepter nos conditions d'utilisation.</p>
-      </div>
-
-      <div class="flex items-start gap-3">
-        <input type="checkbox" id="oauth-agree-terms"
-               class="mt-1 accent-brand w-4 h-4 cursor-pointer" />
-        <label for="oauth-agree-terms" id="oauth-consent-label" class="text-sm text-gray-400 leading-relaxed cursor-pointer">
-          J'accepte les <a href="terms.html" target="_blank" rel="noopener" class="text-brand hover:underline">Conditions d'utilisation</a>, la <a href="privacy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Politique de confidentialité</a> et la <a href="refund-policy.html" target="_blank" rel="noopener" class="text-brand hover:underline">Politique de remboursement</a>.
-        </label>
-      </div>
-
-      <button id="oauth-consent-btn" disabled
-              class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3.5 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed">
-        Continuer
-      </button>
-    </div>
-  </div>
+  <div class="loader"></div>
+  <p style="margin-top: 20px; color: #888;">Finalisation de l'authentification...</p>
 
   <script src="assets/js/config.js"></script>
-  <script src="assets/js/i18n.js"></script>
-  <script src="assets/js/supabase-client.js"></script>
-  <script src="assets/js/api/users.api.js"></script>
+  
   <script>
+    // تهيئة العميل مباشرة هنا لضمان السرعة
+    const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+        auth: {
+            persistSession: true,
+            storageKey: 'pixelone-auth-token',
+            storage: window.localStorage,
+            detectSessionInUrl: true
+        }
+    });
+
+    // الاستماع لتغييرات حالة الدخول (هذا يلتقط الرابط السحري وتأكيد الإيميل)
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY' || session) {
+            
+            // 1. تحديد نوع الحدث
+            const isRecovery = window.location.hash && window.location.hash.includes('type=recovery');
+            
+            if (isRecovery) {
+                // حالة استعادة كلمة المرور
+                window.location.href = 'update-password.html';
+            } else {
+                // حالة تسجيل دخول ناجح (تأكيد إيميل أو رابط سحري)
+                
+                // جلب البروفايل للتحقق من الصلاحيات
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                // التوجيه بناءً على الرتبة
+                if (profile && profile.role === 'admin') {
+                    window.location.href = 'admin.html'; // أو لوحة تحكم الأدمن
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            }
+        } else {
+            // في حال وجود خطأ في الرابط، العودة لصفحة الدخول بعد 5 ثواني
+            /* setTimeout(() => { window.location.href = 'auth.html'; }, 5000); */
+        }
+    });
+
+    // فحص يدوي في حال لم يعمل الحدث التلقائي
     (async () => {
-      const sb = getSupabaseClient();
-
-      // فحص فوري للجلسة قبل انتظار التغيير
-      const { data: { session: initialSession } } = await sb.auth.getSession();
-      if (initialSession) {
-        handleRedirect(initialSession.user);
-        return;
-      }
-
-      const { data: { subscription } } = sb.auth.onAuthStateChange(async (event, session) => {
-        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-          subscription.unsubscribe();
-          handleRedirect(session.user);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+             // المستخدم مسجل بالفعل، وجهه فوراً
+             window.location.href = 'dashboard.html';
         }
-      });
-
-      async function handleRedirect(user) {
-        try {
-          const profile = await getProfile(user.id);
-
-          // If user already agreed, redirect directly
-          if (profile?.has_agreed_to_terms) {
-            window.location.href = profile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
-            return;
-          }
-
-          // Show consent modal for first-time OAuth users
-          showConsentModal(user, profile);
-        } catch (err) {
-          // No profile yet (first-time Google user) → show consent
-          showConsentModal(user, null);
-        }
-      }
-
-      function showConsentModal(user, profile) {
-        document.getElementById('loading-screen').classList.add('hidden');
-        const overlay = document.getElementById('consent-overlay');
-        overlay.classList.remove('hidden');
-
-        // Apply i18n translations to the consent modal
-        const lang = getLang();
-        const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
-        const titleEl = document.getElementById('consent-title');
-        const descEl = document.getElementById('consent-desc');
-        const labelEl = document.getElementById('oauth-consent-label');
-        const btnEl = document.getElementById('oauth-consent-btn');
-
-        const consentTexts = {
-          fr: { title: 'Accepter les conditions', desc: 'Pour continuer, veuillez accepter nos conditions d\'utilisation.', btn: 'Continuer' },
-          en: { title: 'Accept the terms', desc: 'To continue, please accept our terms of use.', btn: 'Continue' },
-          ar: { title: 'قبول الشروط', desc: 'للمتابعة، يرجى الموافقة على شروط الاستخدام.', btn: 'متابعة' },
-        };
-        const ct = consentTexts[lang] || consentTexts.fr;
-        titleEl.textContent = ct.title;
-        descEl.textContent = ct.desc;
-        btnEl.textContent = ct.btn;
-        if (dict['auth.consent_label']) labelEl.innerHTML = dict['auth.consent_label'];
-
-        // Set dir for Arabic
-        if (lang === 'ar') overlay.querySelector('.max-w-md').setAttribute('dir', 'rtl');
-
-        const checkbox = document.getElementById('oauth-agree-terms');
-        const consentBtn = document.getElementById('oauth-consent-btn');
-
-        checkbox.addEventListener('change', () => {
-          consentBtn.disabled = !checkbox.checked;
-        });
-
-        consentBtn.addEventListener('click', async () => {
-          consentBtn.disabled = true;
-          consentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-          try {
-            await UsersAPI.upsertProfile({
-              id: user.id,
-              full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-              phone: user.user_metadata?.phone || '',
-              has_agreed_to_terms: true,
-              agreed_at: new Date().toISOString(),
-            });
-
-            const updatedProfile = await getProfile(user.id);
-            window.location.href = updatedProfile?.role === 'admin' ? 'admin.html' : 'dashboard.html';
-          } catch (err) {
-            console.error('[PixelOne] Consent save failed:', err);
-            window.location.href = 'dashboard.html';
-          }
-        });
-      }
-
-      // Timeout fallback
-      setTimeout(() => {
-        if (!document.getElementById('consent-overlay').classList.contains('hidden')) return;
-        window.location.href = 'auth.html?timeout=true';
-      }, 10000);
     })();
   </script>
 </body>
